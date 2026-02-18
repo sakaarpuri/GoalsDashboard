@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mission Control v6</title>
+<style>
+:root{--g1:#0a1f0a;--g2:#1a3d1a;--g3:#2d5a2d;--sd:rgba(10,25,10,.95);--sc:rgba(20,40,20,.85);--bs:rgba(74,222,128,.2);--ba:rgba(74,222,128,.4);--gn:#4ade80;--or:#fb923c;--bl:#60a5fa;--pu:#c084fc;--tp:#f0fdf4;--tm:rgba(240,253,244,.55)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 50%,var(--g3) 100%);color:var(--tp);min-height:100vh;overflow-x:hidden}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--sd);border-bottom:1px solid var(--bs);position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700}
+.pulse{width:10px;height:10px;background:var(--gn);border-radius:50%;box-shadow:0 0 15px var(--gn);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.tabs{display:flex;background:var(--sd);border-bottom:1px solid var(--bs);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{flex:1;min-width:60px;padding:14px 4px;background:transparent;border:none;border-bottom:3px solid transparent;color:var(--tm);font-size:10px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .2s}
+.tab.active{color:var(--gn);border-bottom-color:var(--gn)}
+.content{flex:1;padding:16px;overflow-y:auto}
+.panel{display:none;animation:fadeIn .3s}
+.panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--sc);border:1px solid var(--bs);border-radius:16px;padding:20px;margin-bottom:16px;backdrop-filter:blur(10px)}
+.title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--tm);margin-bottom:16px}
+.btn{background:linear-gradient(135deg,var(--gn) 0%,#22c55e 100%);border:none;border-radius:12px;padding:16px;font-size:15px;font-weight:800;color:#052e16;cursor:pointer;width:100%;margin-top:12px;box-shadow:0 4px 20px rgba(74,222,128,.3);transition:transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-small{background:rgba(74,222,128,.15);border:1px solid var(--gn);color:var(--gn);padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer}
+
+.goal{background:linear-gradient(135deg,rgba(74,222,128,.08) 0%,transparent 100%);border:1px solid var(--ba);border-radius:16px;padding:20px;margin-bottom:16px;cursor:pointer;transition:all .2s}
+.goal:active{transform:scale(.99)}
+.goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.goal-name{font-size:17px;font-weight:700}
+.goal-pct{font-size:20px;font-weight:800;color:var(--gn)}
+.goal-desc{font-size:13px;color:var(--tm);margin-bottom:14px;line-height:1.5}
+.goal-bar{height:8px;background:rgba(0,0,0,.3);border-radius:4px;overflow:hidden}
+.goal-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.goal-stats{display:flex;gap:20px;margin-top:14px;font-size:12px;color:var(--tm);flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.4);border-radius:100px;padding:8px 14px;font-size:11px;margin:4px;font-weight:500}
+
+.task{display:flex;align-items:center;gap:14px;background:rgba(0,0,0,.2);border:1px solid var(--bs);border-radius:14px;padding:18px;margin-bottom:12px;cursor:pointer;transition:all .15s}
+.task:active{transform:scale(.99);background:rgba(0,0,0,.3)}
+.task.todo{border-left:4px solid var(--bl)}
+.task.inprog{border-left:4px solid var(--or)}
+.task.done{border-left:4px solid var(--gn);opacity:.75}
+.dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.task.inprog .dot{border:3px solid var(--or);border-top-color:transparent;animation:spin 1s linear infinite;background:transparent;width:20px;height:20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.task-content{flex:1;min-width:0}
+.task-title{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-title.done{text-decoration:line-through;color:var(--tm)}
+.task-meta{font-size:12px;color:var(--tm);margin-top:4px}
+.task-weight{font-size:11px;color:var(--gn);background:rgba(74,222,128,.15);padding:6px 12px;border-radius:100px;font-weight:700;flex-shrink:0}
+
+.milestone{display:flex;align-items:center;gap:16px;padding:18px;background:linear-gradient(90deg,rgba(74,222,128,.08) 0%,transparent 100%);border-radius:14px;margin-bottom:14px;border:1px solid var(--bs);cursor:pointer;transition:all .15s}
+.milestone:active{transform:scale(.99)}
+.milestone.done{background:rgba(74,222,128,.12);border-color:var(--gn)}
+.m-icon{width:48px;height:48px;background:var(--bs);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.milestone.done .m-icon{background:var(--gn);color:#000}
+.m-content{flex:1;min-width:0}
+.m-title{font-size:15px;font-weight:700;margin-bottom:3px}
+.m-desc{font-size:12px;color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m-date{font-size:11px;color:var(--gn);margin-top:6px;font-weight:700}
+
+.slot{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--bs)}
+.slot:last-child{border-bottom:none}
+.time{font-size:13px;color:var(--tm);min-width:55px;text-align:right;font-weight:700;padding-top:10px;flex-shrink:0}
+.slot-content{flex:1;background:var(--sc);border-radius:12px;padding:14px 16px;border-left:4px solid var(--gn)}
+.slot-content.break{border-left-color:var(--bl)}
+.slot-content.high{border-left-color:var(--or)}
+.slot-title{font-weight:700;font-size:14px;margin-bottom:3px}
+.slot-meta{font-size:12px;color:var(--tm)}
+
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.cal-nav{background:rgba(0,0,0,.2);border:1px solid var(--bs);color:var(--tp);font-size:20px;cursor:pointer;padding:10px 18px;border-radius:12px}
+.cal-month{font-size:20px;font-weight:800}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.cal-day-h{text-align:center;font-size:11px;color:var(--tm);padding:12px 4px;font-weight:700}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.2);border-radius:12px;font-size:13px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.cal-day:active{transform:scale(.95)}
+.cal-day.today{background:var(--gn);color:#000;font-weight:800}
+.cal-day.has{position:relative}
+.cal-day.has::after{content:'';position:absolute;bottom:6px;width:6px;height:6px;background:var(--or);border-radius:50%}
+.cal-day.done{background:rgba(74,222,128,.2);border-color:var(--gn)}
+.cal-day.past{opacity:.4}
+
+input,select{background:rgba(0,0,0,.25);border:1px solid var(--bs);border-radius:12px;padding:16px;font-size:15px;color:var(--tp);width:100%;margin-bottom:12px;-webkit-appearance:none}
+input:focus,select:focus{outline:none;border-color:var(--gn)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.weight{margin:14px 0}
+.weight-label{display:flex;justify-content:space-between;font-size:13px;color:var(--tm);margin-bottom:8px}
+.weight input{width:100%;height:8px;background:var(--bs);border-radius:4px;-webkit-appearance:none}
+.weight input::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;background:var(--gn);border-radius:50%;cursor:pointer;box-shadow:0 0 15px var(--gn)}
+
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal.active{display:flex}
+.modal-content{background:var(--sc);border:1px solid var(--bs);border-radius:20px;padding:24px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-title{font-size:20px;font-weight:700}
+.modal-close{background:transparent;border:none;color:var(--tm);font-size:24px;cursor:pointer}
+
+@media(min-width:1024px){.header,.tabs{display:none}.app{display:grid;grid-template-columns:300px 1fr 340px}.content{padding:24px;display:grid;grid-template-columns:1fr 340px;gap:24px}.panel{display:block!important}.sidebar{background:var(--sd);padding:24px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;border-right:1px solid var(--bs)}.sidebar-r{background:var(--sd);padding:24px;overflow-y:auto;border-left:1px solid var(--bs)}}
+@media(max-width:1023px){.sidebar,.sidebar-r{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header">
+<div class="brand"><span class="pulse"></span>Mission Control</div>
+<button class="btn-small" onclick="showModal('settings')">⚙️</button>
+</header>
+
+<nav class="tabs">
+<button class="tab active" data-tab="dash">Dashboard</button>
+<button class="tab" data-tab="goals">Goals</button>
+<button class="tab" data-tab="calendar">Calendar</button>
+<button class="tab" data-tab="history">History</button>
+<button class="tab" data-tab="add">+ Add</button>
+</nav>
+
+<aside class="sidebar">
+<div class="brand"><span class="pulse"></span>Mission Control</div>
+
+<div class="card">
+<div class="title">Quick Add Task</div>
+<input type="text" placeholder="What needs doing?" id="quickTitle">
+<select id="quickGoal">
+<option value="filmmaker">🎬 Filmmaker</option>
+<option value="whitelabl">🏭 Whitelabl</option>
+<option value="wildonmedia">🚚 WildOnMedia</option>
+<option value="appideas">💡 App Ideas</option>
+</select>
+<div class="row">
+<select id="quickOwner"><option>You</option><option>AI</option></select>
+<select id="quickPriority"><option>High</option><option selected>Medium</option><option>Low</option></select>
+</div>
+<input type="date" id="quickDate">
+<div class="weight">
+<div class="weight-label">Priority Weight <span id="weightVal">50%</span></div>
+<input type="range" min="0" max="100" value="50" oninput="document.getElementById('weightVal').textContent=this.value+'%'">
+</div>
+<button class="btn" onclick="addTask()">+ Add to Dashboard</button>
+</div>
+
+<div style="margin-top:auto">
+<div class="title">Your Goals</div>
+<div class="goal" onclick="showGoalDetail('filmmaker')">
+<div class="goal-header"><span class="goal-name">🎬 Filmmaker</span><span class="goal-pct">35%</span></div>
+<div class="goal-desc">Secure funding & produce animated series</div>
+<div class="goal-bar"><div class="goal-fill" style="width:35%;background:var(--pu)"></div></div>
+<div class="goal-stats"><span>3/8 Grants</span><span>1 Episode</span><span>₹0 Raised</span></div>
+</div>
+<div class="goal" onclick="showGoalDetail('whitelabl')">
+<div class="goal-header"><span class="goal-name">🏭 Whitelabl</span><span class="goal-pct">15%</span></div>
+<div class="goal-desc">Scale white-label cosmetics in India</div>
+<div class="goal-bar"><div class="goal-fill" style="width:15%;background:var(--bl)"></div></div>
+<div class="goal-stats"><span>5/20 Content</span><span>2 Leads</span><span>0 Sales</span></div>
+</div>
+<div class="goal" onclick="showGoalDetail('wildonmedia')">
+<div class="goal-header"><span class="goal-name">🚚 WildOnMedia</span><span class="goal-pct">25%</span></div>
+<div class="goal-desc">Digital ad trucks & experiential marketing</div>
+<div class="goal-bar"><div class="goal-fill" style="width:25%;background:var(--or)"></div></div>
+<div class="goal-stats"><span>0 Clients</span><span>3 Assets</span><span>10 Outreaches</span></div>
+</div>
+</div>
+</aside>
+
+<main class="content">
+<div class="main-col">
+
+<!-- DASHBOARD -->
+<div id="dash" class="panel active">
+<div class="card">
+<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+<div style="width:60px;height:60px;background:linear-gradient(135deg,var(--gn) 0%,#22c55e 100%);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:0 4px 20px rgba(74,222,128,.3)">🤖</div>
+<div>
+<div style="font-size:24px;font-weight:800">AI Mission Control</div>
+<div style="font-size:13px;color:var(--tm);margin-top:2px">3 agents active • 87% success rate</div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
+<div style="background:rgba(0,0,0,.2);border-radius:14px;padding:18px 8px;text-align:center">
+<div style="font-size:28px;font-weight:800;color:var(--gn)">3</div>
+<div style="font-size:10px;color:var(--tm);text-transform:uppercase;margin-top:6px;font-weight:600">Active</div>
+</div>
+<div style="background:rgba(0,0,0,.2);border-radius:14px;padding:18px 8px;text-align:center">
+<div style="font-size:28px;font-weight:800;color:var(--gn)">12</div>
+<div style="font-size:10px;color:var(--tm);text-transform:uppercase;margin-top:6px;font-weight:600">Done Today</div>
+</div>
+<div style="background:rgba(0,0,0,.2);border-radius:14px;padding:18px 8px;text-align:center">
+<div style="font-size:28px;font-weight:800;color:var(--gn)">87%</div>
+<div style="font-size:10px;color:var(--tm);text-transform:uppercase;margin-top:6px;font-weight:600">Success</div>
+</div>
+<div style="background:rgba(0,0,0,.2);border-radius:14px;padding:18px 8px;text-align:center">
+<div style="font-size:28px;font-weight:800;color:var(--gn)">2m</div>
+<div style="font-size:10px;color:var(--tm);text-transform:uppercase;margin-top:6px;font-weight:600">Avg Time</div>
+</div>
+</div>
+
+<div class="title">Currently Running</div>
+<div id="aiTasks">
+<div class="task inprog" onclick="toggleTask(this)">
+<div class="dot"></div>
+<div class="task-content">
+<div class="task-title">Generate cowboy animation frames</div>
+<div class="task-meta">Man of Few Words — Episode 1 • 65% complete</div>
+</div>
+<span class="task-weight">65%</span>
+</div>
+<div class="task inprog" onclick="toggleTask(this)">
+<div class="dot"></div>
+<div class="task-content">
+<div class="task-title">Research UK film grants & festivals</div>
+<div class="task-meta">Filmmaker pathway • 90% complete</div>
+</div>
+<span class="task-weight">90%</span>
+</div>
+<div class="task inprog" onclick="toggleTask(this)">
+<div class="dot"></div>
+<div class="task-content">
+<div class="task-title">Write SEO content batch</div>
+<div class="task-meta">Whitelabl blog • 45% complete</div>
+</div>
+<span class="task-weight">45%</span>
+</div>
+</div>
+
+<div class="title" style="margin-top:20px">Just Completed</div>
+<div class="task done" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--gn)"></div>
+<div class="task-content">
+<div class="task-title done">Dashboard redesign v6</div>
+<div class="task-meta">Mission Control • Finished 9:02 AM</div>
+</div>
+<span style="font-size:20px">✓</span>
+</div>
+</div>
+
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+<div class="title" style="margin:0">Today's Schedule — Wednesday, Feb 18</div>
+<button class="btn-small" onclick="editSchedule()">✏️ Edit</button>
+</div>
+<div style="max-height:500px;overflow-y:auto" id="timetable">
+<!-- Filled by JS -->
+</div>
+</div>
+</div>
+
+<!-- GOALS -->
+<div id="goals" class="panel">
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+<div class="title" style="margin:0">Main Goals</div>
+<button class="btn-small" onclick="addGoal()">+ New Goal</button>
+</div>
+
+<div class="goal" onclick="showGoalDetail('filmmaker')">
+<div class="goal-header"><span class="goal-name">🎬 Filmmaker Career</span><span class="goal-pct">35%</span></div>
+<div class="goal-desc">Secure funding for documentary/animation/film. Canadian filmmaker building career in UK/Europe market.</div>
+<div class="goal-bar"><div class="goal-fill" style="width:35%;background:var(--pu)"></div></div>
+<div style="margin-top:16px">
+<span class="badge">📝 3 Grant Apps</span>
+<span class="badge">🎬 Pitch Deck Ready</span>
+<span class="badge" style="background:rgba(74,222,128,.25);border-color:var(--gn)">✓ Networking Started</span>
+<span class="badge">🎯 0/2 Funded</span>
+</div>
+</div>
+
+<div class="goal" onclick="showGoalDetail('whitelabl')">
+<div class="goal-header"><span class="goal-name">🏭 Whitelabl.in Growth</span><span class="goal-pct">15%</span></div>
+<div class="goal-desc">Scale white-label cosmetics manufacturing in India through organic SEO and B2B partnerships.</div>
+<div class="goal-bar"><div class="goal-fill" style="width:15%;background:var(--bl)"></div></div>
+<div style="margin-top:16px">
+<span class="badge">📝 5/20 Content</span>
+<span class="badge">🤝 2 Partnership Talks</span>
+<span class="badge">💰 0/10 Sales</span>
+<span class="badge">📊 150 Visitors/mo</span>
+</div>
+</div>
+
+<div class="goal" onclick="showGoalDetail('wildonmedia')">
+<div class="goal-header"><span class="goal-name">🚚 WildOnMedia Expansion</span><span class="goal-pct">25%</span></div>
+<div class="goal-desc">Digital ad trucks & experiential marketing agency. Acquiring first paying client.</div>
+<div class="goal-bar"><div class="goal-fill" style="width:25%;background:var(--or)"></div></div>
+<div style="margin-top:16px">
+<span class="badge">🎨 3 Media Assets</span>
+<span class="badge">📧 15 Cold Outreaches</span>
+<span class="badge">💰 0/1 Clients</span>
+<span class="badge">📱 Website Live</span>
+</div>
+</div>
+
+<div class="goal" onclick="showGoalDetail('appideas')">
+<div class="goal-header"><span class="goal-name">💡 App Ideas</span><span class="goal-pct">5%</span></div>
+<div class="goal-desc">Exploring tech products and SaaS opportunities. Currently in research and validation phase.</div>
+<div class="goal-bar"><div class="goal-fill" style="width:5%;background:var(--gn)"></div></div>
+<div style="margin-top:16px">
+<span class="badge">💭 2 Ideas</span>
+<span class="badge">🔍 Market Research</span>
+<span class="badge">📋 Validation Pending</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- CALENDAR -->
+<div id="calendar" class="panel">
+<div class="card">
+<div class="cal-header">
+<button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+<span class="cal-month" id="calMonth">February 2026</span>
+<button class="cal-nav" onclick="changeMonth(1)">›</button>
+</div>
+<div class="cal-grid" id="calGrid">
+<!-- Filled by JS -->
+</div>
+<div style="margin-top:20px;display:flex;gap:20px;font-size:12px;justify-content:center;flex-wrap:wrap">
+<span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:14px;background:var(--gn);border-radius:4px"></span>Completed</span>
+<span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;background:var(--or);border-radius:50%"></span>Has Tasks</span>
+<span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:14px;background:var(--gn);border-radius:4px"></span>Today</span>
+</div>
+</div>
+
+<div class="card">
+<div class="title">Upcoming Events</div>
+<div style="padding:16px;background:rgba(0,0,0,.2);border-radius:14px;margin-bottom:12px;border-left:4px solid var(--or)" onclick="showEvent('grant')">
+<div style="font-weight:700;font-size:15px">🎬 Grant Deadline</div>
+<div style="font-size:13px;color:var(--tm);margin-top:4px">Telefilm Canada funding application</div>
+<div style="font-size:11px;color:var(--or);margin-top:8px;font-weight:700">Due: Feb 20, 2026</div>
+</div>
+<div style="padding:16px;background:rgba(0,0,0,.2);border-radius:14px;margin-bottom:12px;border-left:4px solid var(--bl)" onclick="showEvent('content')">
+<div style="font-weight:700;font-size:15px">🏭 Content Publish</div>
+<div style="font-size:13px;color:var(--tm);margin-top:4px">Whitelabl SEO blog post</div>
+<div style="font-size:11px;color:var(--bl);margin-top:8px;font-weight:700">Due: Feb 23, 2026</div>
+</div>
+<div style="padding:16px;background:rgba(0,0,0,.2);border-radius:14px;border-left:4px solid var(--pu)" onclick="showEvent('meeting')">
+<div style="font-weight:700;font-size:15px">🚚 Client Meeting</div>
+<div style="font-size:13px;color:var(--tm);margin-top:4px">WildOnMedia pitch presentation</div>
+<div style="font-size:11px;color:var(--pu);margin-top:8px;font-weight:700">Due: Feb 25, 2026</div>
+</div>
+</div>
+</div>
+
+<!-- HISTORY -->
+<div id="history" class="panel">
+<div class="card">
+<div class="title">Major Accomplishments 🏆</div>
+<div class="milestone done" onclick="showMilestone('script')">
+<div class="m-icon">🎬</div>
+<div class="m-content">
+<div class="m-title">Episode 1 Script Complete</div>
+<div class="m-desc">Man of Few Words — "Anyway" written & storyboarded</div>
+<div class="m-date">✓ Completed Feb 10, 2026</div>
+</div>
+</div>
+<div class="milestone done" onclick="showMilestone('website')">
+<div class="m-icon">🏭</div>
+<div class="m-content">
+<div class="m-title">Whitelabl.in Launch</div>
+<div class="m-desc">Website live with 10 product pages & contact form</div>
+<div class="m-date">✓ Completed Jan 28, 2026</div>
+</div>
+</div>
+<div class="milestone done" onclick="showMilestone('brand')">
+<div class="m-icon">🚚</div>
+<div class="m-content">
+<div class="m-title">WildOnMedia Brand Identity</div>
+<div class="m-desc">Logo, colors, typography & media kit finalized</div>
+<div class="m-date">✓ Completed Jan 15, 2026</div>
+</div>
+</div>
+<div class="milestone done" onclick="showMilestone('network')">
+<div class="m-icon">🎬</div>
+<div class="m-content">
+<div class="m-title">First Industry Contacts</div>
+<div class="m-desc">Connected with 3 producers in London & Toronto</div>
+<div class="m-date">✓ Completed Feb 5, 2026</div>
+</div>
+</div>
+<div class="milestone done" onclick="showMilestone('dashboard')">
+<div class="m-icon">⚡</div>
+<div class="m-content">
+<div class="m-title">Mission Control v6</div>
+<div class="m-desc">Personal dashboard built for goal & AI task tracking</div>
+<div class="m-date">✓ Completed Feb 18, 2026</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="title">Recent Task History</div>
+<div id="historyTasks">
+<div class="task done" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--gn)"></div>
+<div class="task-content">
+<div class="task-title done">Network with producers</div>
+<div class="task-meta">Filmmaker • Feb 15, 2026</div>
+</div>
+</div>
+<div class="task done" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--gn)"></div>
+<div class="task-content">
+<div class="task-title done">Email funnel setup</div>
+<div class="task-meta">Whitelabl • Feb 16, 2026</div>
+</div>
+</div>
+<div class="task done" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--gn)"></div>
+<div class="task-content">
+<div class="task-title done">Create media assets</div>
+<div class="task-meta">WildOnMedia • Feb 14, 2026</div>
+</div>
+</div>
+<div class="task done" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--gn)"></div>
+<div class="task-content">
+<div class="task-title done">Submit Telefilm application</div>
+<div class="task-meta">Filmmaker • Feb 12, 2026</div>
+</div>
+</div>
+<div class="task done" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--gn)"></div>
+<div class="task-content">
+<div class="task-title done">Research competitors</div>
+<div class="task-meta">Whitelabl • Feb 11, 2026</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ADD TASK -->
+<div id="add" class="panel">
+<div class="card">
+<div class="title">Add New Task</div>
+<input type="text" placeholder="What needs to be done?" id="addTitle">
+<select id="addGoal">
+<option value="filmmaker">🎬 Filmmaker</option>
+<option value="whitelabl">🏭 Whitelabl</option>
+<option value="wildonmedia">🚚 WildOnMedia</option>
+<option value="appideas">💡 App Ideas</option>
+</select>
+<div class="row">
+<select id="addOwner"><option>You</option><option>AI</option></select>
+<select id="addPriority"><option>High</option><option selected>Medium</option><option>Low</option></select>
+</div>
+<input type="date" id="addDate">
+<div class="weight">
+<div class="weight-label">Priority Weight <span id="addWeightVal">50%</span></div>
+<input type="range" min="0" max="100" value="50" oninput="document.getElementById('addWeightVal').textContent=this.value+'%'">
+</div>
+<button class="btn" onclick="submitTask()">+ Add to Dashboard</button>
+</div>
+
+<div class="card">
+<div class="title">Quick Templates</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<button class="btn-small" onclick="useTemplate('Grant application research')">📝 Grant research</button>
+<button class="btn-small" onclick="useTemplate('SEO blog post')">✍️ SEO content</button>
+<button class="btn-small" onclick="useTemplate('Client outreach email')">📧 Client email</button>
+<button class="btn-small" onclick="useTemplate('Animation frame generation')">🎬 AI animation</button>
+<button class="btn-small" onclick="useTemplate('Social media content')">📱 Social post</button>
+<button class="btn-small" onclick="useTemplate('Pitch deck update')">📊 Pitch deck</button>
+</div>
+</div>
+</div>
+
+</div>
+
+<aside class="sidebar-r">
+<div class="card">
+<div class="title">Your Work</div>
+<div id="yourWork">
+<div class="task todo" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--or)"></div>
+<div class="task-content">
+<div class="task-title">Review grant applications</div>
+<div class="task-meta">Filmmaker • High Priority</div>
+</div>
+<span class="task-weight">80%</span>
+</div>
+<div class="task todo" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--bl)"></div>
+<div class="task-content">
+<div class="task-title">Update pitch deck</div>
+<div class="task-meta">Filmmaker • Medium Priority</div>
+</div>
+<span class="task-weight">60%</span>
+</div>
+<div class="task inprog" onclick="toggleTask(this)">
+<div class="dot"></div>
+<div class="task-content">
+<div class="task-title">SEO content batch</div>
+<div class="task-meta">Whitelabl • AI Assigned</div>
+</div>
+<span class="task-weight">90%</span>
+</div></div>
+</div>
+
+<div class="card">
+<div class="title">Major Milestones</div>
+<div class="milestone" onclick="showModal('episode1')">
+<div class="m-icon">🎬</div>
+<div class="m-content">
+<div class="m-title">Complete Episode 1</div>
+<div class="m-desc">Man of Few Words animation</div>
+<div class="m-date">Due: Feb 28, 2026</div>
+</div>
+</div>
+<div class="milestone" onclick="showModal('seo')">
+<div class="m-icon">🏭</div>
+<div class="m-content">
+<div class="m-title">Launch SEO Campaign</div>
+<div class="m-desc">Whitelabl growth phase kickoff</div>
+<div class="m-date">Due: Mar 15, 2026</div>
+</div>
+</div>
+<div class="milestone" onclick="showModal('client')">
+<div class="m-icon">🚚</div>
+<div class="m-content">
+<div class="m-title">Close First Client</div>
+<div class="m-desc">WildOnMedia expansion goal</div>
+<div class="m-date">Due: Mar 30, 2026</div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="title">History</div>
+<div class="task done" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--gn)"></div>
+<div class="task-content">
+<div class="task-title done">Network with producers</div>
+<div class="task-meta">Feb 15, 2026</div>
+</div>
+</div>
+<div class="task done" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--gn)"></div>
+<div class="task-content">
+<div class="task-title done">Email funnel setup</div>
+<div class="task-meta">Feb 16, 2026</div>
+</div>
+</div>
+<div class="task done" onclick="toggleTask(this)">
+<div class="dot" style="background:var(--gn)"></div>
+<div class="task-content">
+<div class="task-title done">Dashboard redesign</div>
+<div class="task-meta">Feb 18, 2026</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title" id="modalTitle">Details</div>
+<button class="modal-close" onclick="closeModal()">×</button>
+</div>
+<div id="modalBody">Content goes here...</div>
+</div>
+</div>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    const panelId = this.getAttribute('data-tab');
+    document.getElementById(panelId).classList.add('active');
+  });
+});
+
+// Toggle task status
+function toggleTask(el) {
+  const statuses = ['todo', 'inprog', 'done'];
+  const current = statuses.find(s => el.classList.contains(s)) || 'todo';
+  const next = statuses[(statuses.indexOf(current) + 1) % 3];
+  el.classList.remove(...statuses);
+  el.classList.add(next);
+  
+  const title = el.querySelector('.task-title');
+  const dot = el.querySelector('.dot');
+  
+  if (next === 'done') {
+    title.classList.add('done');
+    dot.style.background = 'var(--gn)';
+    dot.style.border = 'none';
+    dot.style.animation = 'none';
+  } else if (next === 'inprog') {
+    title.classList.remove('done');
+    dot.style.background = 'transparent';
+    dot.style.border = '3px solid var(--or)';
+    dot.style.borderTopColor = 'transparent';
+  } else {
+    title.classList.remove('done');
+    dot.style.background = 'var(--bl)';
+    dot.style.border = 'none';
+  }
+}
+
+// Add task
+function addTask() {
+  const title = document.getElementById('quickTitle').value;
+  if (title) {
+    alert('Task added: ' + title);
+    document.getElementById('quickTitle').value = '';
+  }
+}
+
+function submitTask() {
+  const title = document.getElementById('addTitle').value;
+  if (title) {
+    alert('Task added: ' + title);
+    document.getElementById('addTitle').value = '';
+    switchTab('dash');
+  }
+}
+
+function useTemplate(template) {
+  document.getElementById('addTitle').value = template;
+}
+
+// Show modal
+function showModal(type) {
+  const modal = document.getElementById('modal');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  
+  const content = {
+    settings: { t: 'Settings', b: 'Dashboard settings coming soon...' },
+    episode1: { t: '🎬 Complete Episode 1', b: 'Goal: Finish "Man of Few Words" Episode 1 "Anyway"<br><br>Tasks:<br>• Generate all 9 panels<br>• Animate in Higgsfield<br>• Add sound design<br>• Export final video<br><br>Due: Feb 28, 2026' },
+    seo: { t: '🏭 Launch SEO Campaign', b: 'Goal: Scale organic traffic for Whitelabl<br><br>Tasks:<br>• Publish 20 blog posts<br>• Build 50 backlinks<br>• Optimize product pages<br>• Set up Google Analytics<br><br>Due: Mar 15, 2026' },
+    client: { t: '🚚 Close First Client', b: 'Goal: First paying customer for WildOnMedia<br><br>Tasks:<br>• Reach 50 prospects<br>• 5 pitch meetings<br>• 1 signed contract<br>• Deliver first campaign<br><br>Due: Mar 30, 2026' }
+  };
+  
+  const c = content[type] || { t: 'Details', b: 'More information coming soon...' };
+  title.textContent = c.t;
+  body.innerHTML = c.b;
+  modal.classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+}
+
+function showGoalDetail(goal) {
+  const details = {
+    filmmaker: '🎬 Filmmaker Career<br><br>Secure funding & produce animated series. Canadian filmmaker building career in UK/Europe.<br><br>Progress: 35%<br>• 3/8 Grant applications submitted<br>• 1 Pitch deck ready<br>• 3 Industry contacts made<br>• ₹0 raised of ₹50L goal',
+    whitelabl: '🏭 Whitelabl.in Growth<br><br>Scale white-label cosmetics manufacturing in India.<br><br>Progress: 15%<br>• 5/20 Content pieces published<br>• 2 Partnership discussions<br>• 150 Monthly visitors<br>• 0 Sales of 10 goal',
+    wildonmedia: '🚚 WildOnMedia Expansion<br><br>Digital ad trucks & experiential marketing agency.<br><br>Progress: 25%<br>• 3 Media assets created<br>• 15 Cold outreaches sent<br>• 0/1 First client goal<br>• Website live & optimized',
+    appideas: '💡 App Ideas<br><br>Exploring tech products and SaaS opportunities.<br><br>Progress: 5%<br>• 2 Ideas documented<br>• Market research ongoing<br>• Validation pending<br>• No prototypes yet'
+  };
+  showCustomModal(details[goal] || 'Goal details coming soon...');
+}
+
+function showCustomModal(html) {
+  const modal = document.getElementById('modal');
+  document.getElementById('modalTitle').textContent = 'Goal Details';
+  document.getElementById('modalBody').innerHTML = html;
+  modal.classList.add('active');
+}
+
+function editSchedule() {
+  showCustomModal('Schedule editor coming soon...<br><br>You\'ll be able to drag and drop tasks to different time slots!');
+}
+
+function addGoal() {
+  showCustomModal('Add new goal form coming soon...');
+}
+
+function showEvent(type) {
+  const events = {
+    grant: '🎬 Telefilm Canada Grant<br><br>Deadline: Feb 20, 2026<br>Amount: Up to ₹50L<br>Status: Application in progress<br><br>Requirements:<br>• Script complete ✓<br>• Budget breakdown<br>• Producer letter<br>• Sample work',
+    content: '🏭 SEO Blog Post<br><br>Due: Feb 23, 2026<br>Topic: "Top 10 Private Label Cosmetic Trends 2026"<br>Word count: 2000<br>Keywords: 15<br>Status: Research phase',
+    meeting: '🚚 WildOnMedia Client Pitch<br><br>Date: Feb 25, 2026<br>Client: Local retail chain<br>Meeting type: Video call<br>Duration: 30 minutes<br>Status: Pitch deck ready'
+  };
+  showCustomModal(events[type] || 'Event details...');
+}
+
+function showMilestone(id) {
+  const milestones = {
+    script: '🎬 Episode 1 Script Complete<br><br>Completed: Feb 10, 2026<br>Duration: 5 minutes<br>Scenes: 12<br>Characters: 2<br><br>This was a major milestone! The script for "Anyway" is locked and storyboarded.',
+    website: '🏭 Whitelabl.in Launch<br><br>Completed: Jan 28, 2026<br>Pages: 10<br>Products: 25<br>Features: Contact form, catalog download<br><br>First online presence established!',
+    brand: '🚚 WildOnMedia Brand Identity<br><br>Completed: Jan 15, 2026<br>Assets created:<br>• Logo (3 variants)<br>• Color palette<br>• Typography<br>• Media kit PDF<br>• Social templates',
+    network: '🎬 First Industry Contacts<br><br>Completed: Feb 5, 2026<br>Connected with:<br>• Sarah Chen (Producer, London)<br>• Mike Ross (Director, Toronto)<br>• Priya Patel (Film Fund, Mumbai)<br><br>All three expressed interest in seeing the pilot!',
+    dashboard: '⚡ Mission Control v6<br><br>Completed: Feb 18, 2026<br><br>Your personal dashboard is now live with:<br>• AI task monitoring<br>• Full day timetable<br>• Goal tracking<br>• Calendar view<br>• Achievement history<br><br>All clickable and interactive!'
+  };
+  showCustomModal(milestones[id] || 'Milestone details...');
+}
+
+function changeMonth(dir) {
+  showCustomModal(dir > 0 ? 'March 2026 coming soon...' : 'January 2026 history view coming soon...');
+}
+
+// Close modal on backdrop click
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Generate timetable
+const schedule = [
+  {t:'06:00',n:'🌅 Morning Routine',d:'Exercise, shower, breakfast',c:'break'},
+  {t:'07:00',n:'☕ Coffee & Planning',d:'Review goals, set priorities',c:'break'},
+  {t:'08:00',n:'🎬 Deep Work: Animation',d:'Generate panels with Higgsfield AI',c:'high'},
+  {t:'09:00',n:'🎬 Review & Iterate',d:'Check frames, refine style',c:'high'},
+  {t:'10:00',n:'📧 Grant Applications',d:'Telefilm Canada, BFI, UK Film Council',c:''},
+  {t:'11:00',n:'🏭 Whitelabl Content',d:'Write 2 SEO articles for cosmetics blog',c:''},
+  {t:'12:00',n:'🍽️ Lunch Break',d:'Step away from screens',c:'break'},
+  {t:'13:00',n:'🚚 WildOnMedia Outreach',d:'Email 5 potential clients',c:''},
+  {t:'14:00',n:'🎬 Pitch Deck Work',d:'Update investor deck with samples',c:'high'},
+  {t:'15:00',n:'📊 Admin & Planning',d:'Update Mission Control dashboard',c:''},
+  {t:'16:00',n:'🏭 Partnership Research',d:'Find cosmetics distributors in India',c:''},
+  {t:'17:00',n:'‍♂️ Wind Down',d:'Light exercise, meditation',c:'break'},
+  {t:'18:00',n:'🍽️ Dinner',d:'Family time',c:'break'},
+  {t:'19:00',n:'📚 Learning & Research',d:'Film industry news, AI tools',c:''},
+  {t:'20:00',n:'🎬 Entertainment',d:'Watch film for inspiration',c:'break'},
+  {t:'21:00',n:'📝 Journal & Plan',d:'Set priorities for tomorrow',c:'break'},
+  {t:'22:00',n:'😴 Sleep',d:'8 hours for optimal performance',c:'break'}
+];
+
+const tt = document.getElementById('timetable');
+if (tt) {
+  tt.innerHTML = schedule.map(s => `
+    <div class="slot">
+      <div class="time">${s.t}</div>
+      <div class="slot-content ${s.c}" onclick="showCustomModal('${s.n}<br><br>${s.d}<br><br>Time: ${s.t} - ${parseInt(s.t)+1}:00')">
+        <div class="slot-title">${s.n}</div>
+        <div class="slot-meta">${s.d}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Generate calendar
+const days = ['S','M','T','W','T','F','S'];
+const calGrid = document.getElementById('calGrid');
+if (calGrid) {
+  let html = days.map(d => `<div class="cal-day-h">${d}</div>`).join('');
+  
+  // Jan 26-31 (prev month)
+  for (let i = 26; i <= 31; i++) {
+    html += `<div class="cal-day past">${i}</div>`;
+  }
+  
+  // Feb 1-14
+  for (let i = 1; i <= 14; i++) {
+    html += `<div class="cal-day${i <= 14 && i >= 15 ? ' done' : ''}">${i}</div>`;
+  }
+  
+  // Feb 15-28 (with some done, some with events, today)
+  const febData = [
+    {d:15,done:1},{d:16,done:1},{d:17,done:1},
+    {d:18,today:1,has:1},{d:19,has:1},{d:20,has:1},{d:21},
+    {d:22},{d:23,has:1},{d:24},{d:25,has:1},{d:26},{d:27},{d:28}
+  ];
+  
+  febData.forEach(day => {
+    let cls = '';
+    if (day.done) cls += ' done';
+    if (day.today) cls += ' today';
+    if (day.has) cls += ' has';
+    html += `<div class="cal-day${cls}" onclick="showCustomModal('Feb ${day.d}, 2026<br><br>Click to view day details...')">${day.d}</div>`;
+  });
+  
+  calGrid.innerHTML = html;
+}
+</script>
+</body>
+</html>
