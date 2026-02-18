@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Mission Control v7</title>
+<title>Mission Control v7.1</title>
 <style>
 :root{--g1:#0a1f0a;--g2:#1a3d1a;--g3:#2d5a2d;--sd:rgba(10,25,10,.95);--sc:rgba(20,40,20,.85);--bs:rgba(74,222,128,.2);--ba:rgba(74,222,128,.4);--gn:#4ade80;--or:#fb923c;--bl:#60a5fa;--pu:#c084fc;--tp:#f0fdf4;--tm:rgba(240,253,244,.55)}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -25,6 +25,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-g
 .title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--tm);margin-bottom:10px}
 .btn{background:linear-gradient(135deg,var(--gn) 0%,#22c55e 100%);border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:800;color:#052e16;cursor:pointer;width:100%;box-shadow:0 4px 20px rgba(74,222,128,.3)}
 .btn-small{background:rgba(74,222,128,.15);border:1px solid var(--gn);color:var(--gn);padding:6px 12px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer}
+
+/* AI Hero - Clickable */
+.ai-hero{background:linear-gradient(135deg,rgba(74,222,128,.15) 0%,rgba(20,40,20,.9) 100%);border:1px solid var(--bs);border-radius:12px;padding:12px 14px;margin-bottom:12px;cursor:pointer;transition:all .15s}
+.ai-hero:active{transform:scale(.99);border-color:var(--gn)}
+.ai-hero-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.ai-hero-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--gn) 0%,#22c55e 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 10px rgba(74,222,128,.3)}
+.ai-hero-title{font-size:15px;font-weight:800}
+.ai-hero-subtitle{font-size:11px;color:var(--tm)}
+.ai-hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ai-hero-stat{text-align:center;padding:6px;background:rgba(0,0,0,.2);border-radius:8px}
+.ai-hero-stat-num{font-size:16px;font-weight:800;color:var(--gn)}
+.ai-hero-stat-label{font-size:9px;color:var(--tm);text-transform:uppercase;margin-top:2px}
+.ai-expand-hint{text-align:center;font-size:10px;color:var(--tm);margin-top:8px;opacity:.7}
+
+/* AI Detail Panel */
+.ai-detail{display:none;background:var(--sc);border:1px solid var(--bs);border-radius:12px;padding:14px;margin-bottom:12px}
+.ai-detail.active{display:block}
+.ai-detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ai-section{margin-bottom:14px}
+.ai-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:8px}
 
 /* Compact Goal Cards */
 .goals-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
@@ -51,6 +71,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-g
 .task-title{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .task-title.done{text-decoration:line-through;color:var(--tm)}
 .task-meta{font-size:11px;color:var(--tm);margin-top:2px}
+.task-time{font-size:10px;color:var(--gn);margin-left:auto}
 
 /* Compact Calendar */
 .cal-card{margin-bottom:12px}
@@ -66,28 +87,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-g
 .cal-day.done{background:rgba(74,222,128,.2);border-color:var(--gn)}
 .cal-day.past{opacity:.4}
 
-/* AI Stats Compact */
-.ai-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.ai-stat{background:rgba(0,0,0,.2);border-radius:10px;padding:10px 4px;text-align:center}
-.ai-stat-num{font-size:20px;font-weight:800;color:var(--gn)}
-.ai-stat-label{font-size:9px;color:var(--tm);text-transform:uppercase;margin-top:4px;font-weight:600}
-
 input,select{background:rgba(0,0,0,.25);border:1px solid var(--bs);border-radius:10px;padding:12px;font-size:14px;color:var(--tp);width:100%;margin-bottom:8px;-webkit-appearance:none}
 .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
 .modal.active{display:flex}
-.modal-content{background:var(--sc);border:1px solid var(--bs);border-radius:16px;padding:20px;max-width:380px;width:100%;max-height:80vh;overflow-y:auto}
+.modal-content{background:var(--sc);border:1px solid var(--bs);border-radius:16px;padding:20px;max-width:400px;width:100%;max-height:85vh;overflow-y:auto}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-title{font-size:18px;font-weight:700}
 .modal-close{background:transparent;border:none;color:var(--tm);font-size:24px;cursor:pointer}
-
-.hidden{display:none}
 </style>
 </head>
 <body>
 <div class="app">
 <header class="header">
 <div class="brand"><span class="pulse"></span>Mission Control</div>
-<button class="btn-small" onclick="showModal('settings')">⚙️</button>
+<button class="btn-small" onclick="showSettings()">⚙️</button>
 </header>
 
 <nav class="tabs">
@@ -103,20 +116,68 @@ input,select{background:rgba(0,0,0,.25);border:1px solid var(--bs);border-radius
 <!-- DASHBOARD -->
 <div id="dash" class="panel active">
 
-<!-- AI Control Compact -->
-<div class="card compact">
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-<div style="width:40px;height:40px;background:linear-gradient(135deg,var(--gn) 0%,#22c55e 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px">🤖</div>
+<!-- AI Hero - Click to expand -->
+<div class="ai-hero" onclick="toggleAIDetail()">
+<div class="ai-hero-header">
+<div class="ai-hero-icon">🤖</div>
 <div>
-<div style="font-size:16px;font-weight:800">AI Mission Control</div>
-<div style="font-size:11px;color:var(--tm)">3 active • 87% success</div>
+<div class="ai-hero-title">AI Mission Control</div>
+<div class="ai-hero-subtitle">3 agents • 87% success rate</div>
 </div>
 </div>
-<div class="ai-stats">
-<div class="ai-stat"><div class="ai-stat-num">3</div><div class="ai-stat-label">Active</div></div>
-<div class="ai-stat"><div class="ai-stat-num">12</div><div class="ai-stat-label">Done</div></div>
-<div class="ai-stat"><div class="ai-stat-num">87%</div><div class="ai-stat-label">Success</div></div>
-<div class="ai-stat"><div class="ai-stat-num">2m</div><div class="ai-stat-label">Avg</div></div>
+<div class="ai-hero-stats">
+<div class="ai-hero-stat"><div class="ai-hero-stat-num">3</div><div class="ai-hero-stat-label">Active</div></div>
+<div class="ai-hero-stat"><div class="ai-hero-stat-num">12</div><div class="ai-hero-stat-label">Done Today</div></div>
+<div class="ai-hero-stat"><div class="ai-hero-stat-num">87%</div><div class="ai-hero-stat-label">Success</div></div>
+</div>
+<div class="ai-expand-hint">▼ Tap for AI history & details</div>
+</div>
+
+<!-- AI Detail Panel (hidden by default) -->
+<div class="ai-detail" id="aiDetail">
+<div class="ai-detail-header">
+<div class="title" style="margin:0">🤖 AI Activity Log</div>
+<button class="btn-small" onclick="toggleAIDetail()">Close</button>
+</div>
+<div class="ai-section">
+<div class="ai-section-title">Currently Running</div>
+<div class="task inprog">
+<div class="dot"></div>
+<div class="task-content"><div class="task-title">Generate cowboy animation frames</div><div class="task-meta">Man of Few Words — Episode 1</div></div>
+<div class="task-time">65%</div>
+</div>
+<div class="task inprog">
+<div class="dot"></div>
+<div class="task-content"><div class="task-title">Research UK film grants</div><div class="task-meta">Filmmaker pathway</div></div>
+<div class="task-time">90%</div>
+</div>
+</div>
+<div class="ai-section">
+<div class="ai-section-title">Completed Today</div>
+<div class="task done">
+<div class="dot"></div>
+<div class="task-content"><div class="task-title done">Dashboard redesign v7</div><div class="task-meta">Mission Control update</div></div>
+<div class="task-time">9:02 AM</div>
+</div>
+<div class="task done">
+<div class="dot"></div>
+<div class="task-content"><div class="task-title done">SEO content batch x3</div><div class="task-meta">Whitelabl blog posts</div></div>
+<div class="task-time">8:45 AM</div>
+</div>
+<div class="task done">
+<div class="dot"></div>
+<div class="task-content"><div class="task-title done">Grant deadline research</div><div class="task-meta">Telefilm Canada & BFI</div></div>
+<div class="task-time">8:20 AM</div>
+</div>
+</div>
+<div class="ai-section">
+<div class="ai-section-title">AI Performance Stats</div>
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:12px">
+<div style="background:rgba(0,0,0,.2);padding:10px;border-radius:8px"><div style="color:var(--gn);font-size:16px;font-weight:800">156</div><div style="color:var(--tm);font-size:10px">Tasks Completed</div></div>
+<div style="background:rgba(0,0,0,.2);padding:10px;border-radius:8px"><div style="color:var(--gn);font-size:16px;font-weight:800">87%</div><div style="color:var(--tm);font-size:10px">Success Rate</div></div>
+<div style="background:rgba(0,0,0,.2);padding:10px;border-radius:8px"><div style="color:var(--gn);font-size:16px;font-weight:800">2.3m</div><div style="color:var(--tm);font-size:10px">Avg Task Time</div></div>
+<div style="background:rgba(0,0,0,.2);padding:10px;border-radius:8px"><div style="color:var(--gn);font-size:16px;font-weight:800">24h</div><div style="color:var(--tm);font-size:10px">Total AI Hours</div></div>
+</div>
 </div>
 </div>
 
@@ -143,30 +204,21 @@ input,select{background:rgba(0,0,0,.25);border:1px solid var(--bs);border-radius
 </div>
 </div>
 
-<!-- Goal Tasks (shown when goal clicked) -->
+<!-- Goal Tasks -->
 <div id="goalTasks" class="card compact">
 <div class="title" id="goalTasksTitle">🎬 Filmmaker Tasks</div>
 <div id="goalTasksList">
 <div class="task inprog" onclick="toggleTask(this)">
 <div class="dot"></div>
-<div class="task-content">
-<div class="task-title">Generate cowboy animation frames</div>
-<div class="task-meta">Episode 1 • 65% complete</div>
-</div>
+<div class="task-content"><div class="task-title">Generate cowboy animation frames</div><div class="task-meta">Episode 1 • 65% complete</div></div>
 </div>
 <div class="task inprog" onclick="toggleTask(this)">
 <div class="dot"></div>
-<div class="task-content">
-<div class="task-title">Research UK film grants & festivals</div>
-<div class="task-meta">Funding pathway • 90% complete</div>
-</div>
+<div class="task-content"><div class="task-title">Research UK film grants & festivals</div><div class="task-meta">Funding pathway • 90% complete</div></div>
 </div>
 <div class="task todo" onclick="toggleTask(this)">
 <div class="dot"></div>
-<div class="task-content">
-<div class="task-title">Update pitch deck</div>
-<div class="task-meta">For investor meetings</div>
-</div>
+<div class="task-content"><div class="task-title">Update pitch deck</div><div class="task-meta">For investor meetings</div></div>
 </div>
 </div>
 </div>
@@ -183,107 +235,41 @@ input,select{background:rgba(0,0,0,.25);border:1px solid var(--bs);border-radius
 
 </div>
 
-<!-- GOALS -->
+<!-- Other panels same as v7 -->
 <div id="goals" class="panel">
-<div class="card">
-<div class="title">🎬 Filmmaker Career — 35%</div>
-<div style="font-size:13px;color:var(--tm);margin-bottom:12px">Secure funding & produce animated series</div>
-<div class="goal-mini-bar" style="height:8px;margin-bottom:12px"><div class="goal-mini-fill" style="width:35%;background:var(--pu);height:100%"></div></div>
-<div style="font-size:12px;color:var(--tm)">• 3/8 Grant apps submitted<br>• 1 Pitch deck ready<br>• 3 Industry contacts<br>• ₹0 raised of ₹50L</div>
-</div>
-<div class="card">
-<div class="title">🏭 Whitelabl.in — 15%</div>
-<div style="font-size:13px;color:var(--tm);margin-bottom:12px">Scale white-label cosmetics in India</div>
-<div class="goal-mini-bar" style="height:8px;margin-bottom:12px"><div class="goal-mini-fill" style="width:15%;background:var(--bl);height:100%"></div></div>
-<div style="font-size:12px;color:var(--tm)">• 5/20 Content published<br>• 2 Partnership talks<br>• 150 Monthly visitors<br>• 0 Sales of 10 goal</div>
-</div>
-<div class="card">
-<div class="title">🚚 WildOnMedia — 25%</div>
-<div style="font-size:13px;color:var(--tm);margin-bottom:12px">Digital ad trucks & experiential marketing</div>
-<div class="goal-mini-bar" style="height:8px;margin-bottom:12px"><div class="goal-mini-fill" style="width:25%;background:var(--or);height:100%"></div></div>
-<div style="font-size:12px;color:var(--tm)">• 3 Media assets created<br>• 15 Cold outreaches<br>• 0/1 First client<br>• Website live</div>
-</div>
-<div class="card">
-<div class="title">💡 App Ideas — 5%</div>
-<div style="font-size:13px;color:var(--tm);margin-bottom:12px">Exploring tech products & SaaS</div>
-<div class="goal-mini-bar" style="height:8px;margin-bottom:12px"><div class="goal-mini-fill" style="width:5%;background:var(--gn);height:100%"></div></div>
-<div style="font-size:12px;color:var(--tm)">• 2 Ideas documented<br>• Market research ongoing<br>• Validation pending</div>
-</div>
+<div class="card"><div class="title">🎬 Filmmaker — 35%</div><div style="font-size:13px;color:var(--tm);margin-bottom:12px">Secure funding & produce animated series</div><div class="goal-mini-bar" style="height:8px;margin-bottom:12px"><div class="goal-mini-fill" style="width:35%;background:var(--pu);height:100%"></div></div><div style="font-size:12px;color:var(--tm)">• 3/8 Grant apps<br>• 1 Pitch deck ready<br>• ₹0 raised of ₹50L</div></div>
+<div class="card"><div class="title">🏭 Whitelabl — 15%</div><div style="font-size:13px;color:var(--tm);margin-bottom:12px">Scale white-label cosmetics</div><div class="goal-mini-bar" style="height:8px;margin-bottom:12px"><div class="goal-mini-fill" style="width:15%;background:var(--bl);height:100%"></div></div><div style="font-size:12px;color:var(--tm)">• 5/20 Content<br>• 2 Partnership talks<br>• 0 Sales</div></div>
+<div class="card"><div class="title">🚚 WildOnMedia — 25%</div><div style="font-size:13px;color:var(--tm);margin-bottom:12px">Digital ad trucks</div><div class="goal-mini-bar" style="height:8px;margin-bottom:12px"><div class="goal-mini-fill" style="width:25%;background:var(--or);height:100%"></div></div><div style="font-size:12px;color:var(--tm)">• 3 Media assets<br>• 15 Cold outreaches<br>• 0 Clients</div></div>
+<div class="card"><div class="title">💡 App Ideas — 5%</div><div style="font-size:13px;color:var(--tm);margin-bottom:12px">Exploring tech products</div><div class="goal-mini-bar" style="height:8px;margin-bottom:12px"><div class="goal-mini-fill" style="width:5%;background:var(--gn);height:100%"></div></div><div style="font-size:12px;color:var(--tm)">• 2 Ideas documented<br>• Research ongoing</div></div>
 </div>
 
-<!-- CALENDAR -->
 <div id="calendar" class="panel">
 <div class="card">
-<div class="cal-header">
-<button class="cal-nav" onclick="changeMonth(-1)">‹</button>
-<span class="cal-month">February 2026</span>
-<button class="cal-nav" onclick="changeMonth(1)">›</button>
-</div>
+<div class="cal-header"><button class="cal-nav" onclick="changeMonth(-1)">‹</button><span class="cal-month">February 2026</span><button class="cal-nav" onclick="changeMonth(1)">›</button></div>
 <div class="cal-grid" id="calGrid2"></div>
-<div style="margin-top:12px;display:flex;gap:16px;font-size:11px;justify-content:center">
-<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--gn);border-radius:2px"></span>Done</span>
-<span style="display:flex;align-items:center;gap:4px"><span style="width:4px;height:4px;background:var(--or);border-radius:50%"></span>Tasks</span>
-</div>
 </div>
 <div class="card">
 <div class="title">Upcoming</div>
-<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--or)" onclick="showEvent('grant')">
-<div style="font-weight:700;font-size:13px">🎬 Grant Deadline</div>
-<div style="font-size:11px;color:var(--or);margin-top:2px">Feb 20, 2026</div>
-</div>
-<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--bl)" onclick="showEvent('content')">
-<div style="font-weight:700;font-size:13px">🏭 Content Publish</div>
-<div style="font-size:11px;color:var(--bl);margin-top:2px">Feb 23, 2026</div>
-</div>
-<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;border-left:3px solid var(--pu)" onclick="showEvent('meeting')">
-<div style="font-weight:700;font-size:13px">🚚 Client Meeting</div>
-<div style="font-size:11px;color:var(--pu);margin-top:2px">Feb 25, 2026</div>
-</div>
+<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--or)"><div style="font-weight:700;font-size:13px">🎬 Grant Deadline</div><div style="font-size:11px;color:var(--or)">Feb 20, 2026</div></div>
+<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;border-left:3px solid var(--bl)"><div style="font-weight:700;font-size:13px">🏭 Content Publish</div><div style="font-size:11px;color:var(--bl)">Feb 23, 2026</div></div>
 </div>
 </div>
 
-<!-- HISTORY -->
 <div id="history" class="panel">
 <div class="card">
 <div class="title">🏆 Major Accomplishments</div>
-<div class="task done" onclick="toggleTask(this)">
-<div class="dot"></div>
-<div class="task-content"><div class="task-title done">Episode 1 Script Complete</div><div class="task-meta">Feb 10, 2026</div></div>
-</div>
-<div class="task done" onclick="toggleTask(this)">
-<div class="dot"></div>
-<div class="task-content"><div class="task-title done">Whitelabl.in Launch</div><div class="task-meta">Jan 28, 2026</div></div>
-</div>
-<div class="task done" onclick="toggleTask(this)">
-<div class="dot"></div>
-<div class="task-content"><div class="task-title done">WildOnMedia Brand Identity</div><div class="task-meta">Jan 15, 2026</div></div>
-</div>
-<div class="task done" onclick="toggleTask(this)">
-<div class="dot"></div>
-<div class="task-content"><div class="task-title done">First Industry Contacts</div><div class="task-meta">Feb 5, 2026</div></div>
-</div>
-<div class="task done" onclick="toggleTask(this)">
-<div class="dot"></div>
-<div class="task-content"><div class="task-title done">Mission Control v7</div><div class="task-meta">Feb 18, 2026</div></div>
-</div>
+<div class="task done" onclick="toggleTask(this)"><div class="dot"></div><div class="task-content"><div class="task-title done">Episode 1 Script Complete</div><div class="task-meta">Feb 10, 2026</div></div></div>
+<div class="task done" onclick="toggleTask(this)"><div class="dot"></div><div class="task-content"><div class="task-title done">Whitelabl.in Launch</div><div class="task-meta">Jan 28, 2026</div></div></div>
+<div class="task done" onclick="toggleTask(this)"><div class="dot"></div><div class="task-content"><div class="task-title done">Mission Control v7</div><div class="task-meta">Feb 18, 2026</div></div></div>
 </div>
 </div>
 
-<!-- ADD TASK -->
 <div id="add" class="panel">
 <div class="card">
 <div class="title">Add New Task</div>
 <input type="text" placeholder="What needs to be done?" id="addTitle">
-<select id="addGoal">
-<option value="filmmaker">🎬 Filmmaker</option>
-<option value="whitelabl">🏭 Whitelabl</option>
-<option value="wildonmedia">🚚 WildOnMedia</option>
-<option value="appideas">💡 App Ideas</option>
-</select>
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-<select id="addOwner"><option>You</option><option>AI</option></select>
-<select id="addPriority"><option>High</option><option selected>Medium</option><option>Low</option></select>
-</div>
+<select id="addGoal"><option value="filmmaker">🎬 Filmmaker</option><option value="whitelabl">🏭 Whitelabl</option><option value="wildonmedia">🚚 WildOnMedia</option><option value="appideas">💡 App Ideas</option></select>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select id="addOwner"><option>You</option><option>AI</option></select><select id="addPriority"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
 <input type="date" id="addDate">
 <button class="btn" onclick="addTask()">+ Add Task</button>
 </div>
@@ -295,10 +281,7 @@ input,select{background:rgba(0,0,0,.25);border:1px solid var(--bs);border-radius
 <!-- Modal -->
 <div class="modal" id="modal">
 <div class="modal-content">
-<div class="modal-header">
-<div class="modal-title" id="modalTitle">Details</div>
-<button class="modal-close" onclick="closeModal()">×</button>
-</div>
+<div class="modal-header"><div class="modal-title" id="modalTitle">Details</div><button class="modal-close" onclick="closeModal()">×</button></div>
 <div id="modalBody">Content...</div>
 </div>
 </div>
@@ -314,7 +297,12 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// Toggle task status
+// Toggle AI Detail
+function toggleAIDetail() {
+  document.getElementById('aiDetail').classList.toggle('active');
+}
+
+// Toggle task
 function toggleTask(el) {
   const statuses = ['todo', 'inprog', 'done'];
   const current = statuses.find(s => el.classList.contains(s)) || 'todo';
@@ -326,40 +314,12 @@ function toggleTask(el) {
   else title.classList.remove('done');
 }
 
-// Goal tasks data
+// Goal tasks
 const goalData = {
-  filmmaker: {
-    title: '🎬 Filmmaker Tasks',
-    tasks: [
-      {t: 'Generate cowboy animation frames', m: 'Episode 1 • 65% complete', s: 'inprog'},
-      {t: 'Research UK film grants & festivals', m: 'Funding pathway • 90% complete', s: 'inprog'},
-      {t: 'Update pitch deck', m: 'For investor meetings', s: 'todo'},
-      {t: 'Submit Telefilm application', m: 'Deadline Feb 20', s: 'todo'}
-    ]
-  },
-  whitelabl: {
-    title: '🏭 Whitelabl Tasks',
-    tasks: [
-      {t: 'Write SEO content batch', m: 'Blog posts • 45% complete', s: 'inprog'},
-      {t: 'Research distributors', m: 'Find cosmetics partners', s: 'todo'},
-      {t: 'Update product catalog', m: 'Add new SKUs', s: 'todo'}
-    ]
-  },
-  wildonmedia: {
-    title: '🚚 WildOnMedia Tasks',
-    tasks: [
-      {t: 'Create pitch deck', m: 'For retail client', s: 'inprog'},
-      {t: 'Email 5 prospects', m: 'Cold outreach', s: 'todo'},
-      {t: 'Update media kit', m: 'Add truck photos', s: 'todo'}
-    ]
-  },
-  appideas: {
-    title: '💡 App Ideas Tasks',
-    tasks: [
-      {t: 'Document idea #3', m: 'SaaS concept', s: 'todo'},
-      {t: 'Market research', m: 'Competitor analysis', s: 'todo'}
-    ]
-  }
+  filmmaker: {title: '🎬 Filmmaker Tasks', tasks: [{t: 'Generate cowboy animation frames', m: 'Episode 1 • 65% complete', s: 'inprog'}, {t: 'Research UK film grants', m: 'Funding • 90% complete', s: 'inprog'}, {t: 'Update pitch deck', m: 'For investors', s: 'todo'}]},
+  whitelabl: {title: '🏭 Whitelabl Tasks', tasks: [{t: 'Write SEO content batch', m: 'Blog posts • 45% complete', s: 'inprog'}, {t: 'Research distributors', m: 'Find partners', s: 'todo'}]},
+  wildonmedia: {title: '🚚 WildOnMedia Tasks', tasks: [{t: 'Create pitch deck', m: 'For retail client', s: 'inprog'}, {t: 'Email 5 prospects', m: 'Cold outreach', s: 'todo'}]},
+  appideas: {title: '💡 App Ideas Tasks', tasks: [{t: 'Document idea #3', m: 'SaaS concept', s: 'todo'}]}
 };
 
 function showGoalTasks(goal, el) {
@@ -368,52 +328,25 @@ function showGoalTasks(goal, el) {
   const data = goalData[goal];
   document.getElementById('goalTasksTitle').textContent = data.title;
   document.getElementById('goalTasksList').innerHTML = data.tasks.map(t => `
-    <div class="task ${t.s}" onclick="toggleTask(this)">
-      <div class="dot"></div>
-      <div class="task-content">
-        <div class="task-title">${t.t}</div>
-        <div class="task-meta">${t.m}</div>
-      </div>
-    </div>
+    <div class="task ${t.s}" onclick="toggleTask(this)"><div class="dot"></div><div class="task-content"><div class="task-title">${t.t}</div><div class="task-meta">${t.m}</div></div></div>
   `).join('');
 }
 
 function addTask() {
   const title = document.getElementById('addTitle').value;
-  if (title) {
-    alert('Task added: ' + title);
-    document.getElementById('addTitle').value = '';
-    document.querySelector('[data-tab="dash"]').click();
-  }
+  if (title) { alert('Added: ' + title); document.getElementById('addTitle').value = ''; document.querySelector('[data-tab="dash"]').click(); }
 }
 
-function showModal(type) {
-  const modal = document.getElementById('modal');
-  const content = {
-    settings: {t: 'Settings', b: 'Dashboard settings coming soon...'},
-    grant: {t: '🎬 Grant Deadline', b: 'Telefilm Canada<br>Due: Feb 20, 2026<br>Amount: Up to ₹50L'},
-    content: {t: '🏭 Content Publish', b: 'SEO blog post<br>Due: Feb 23, 2026'},
-    meeting: {t: '🚚 Client Meeting', b: 'WildOnMedia pitch<br>Due: Feb 25, 2026'}
-  };
-  const c = content[type] || {t: 'Details', b: 'Coming soon...'};
-  document.getElementById('modalTitle').textContent = c.t;
-  document.getElementById('modalBody').innerHTML = c.b;
-  modal.classList.add('active');
+function showSettings() {
+  document.getElementById('modalTitle').textContent = 'Settings';
+  document.getElementById('modalBody').innerHTML = 'Dashboard settings coming soon...';
+  document.getElementById('modal').classList.add('active');
 }
 
-function closeModal() {
-  document.getElementById('modal').classList.remove('active');
-}
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+function changeMonth(dir) { showSettings(); }
 
-function changeMonth(dir) {
-  showModal(dir > 0 ? 'next' : 'prev');
-}
-
-function showEvent(type) {
-  showModal(type);
-}
-
-// Generate calendars
+// Generate calendar
 function genCal(id) {
   const days = ['S','M','T','W','T','F','S'];
   const el = document.getElementById(id);
@@ -422,22 +355,12 @@ function genCal(id) {
   for (let i = 26; i <= 31; i++) html += `<div class="cal-day past">${i}</div>`;
   for (let i = 1; i <= 14; i++) html += `<div class="cal-day">${i}</div>`;
   const feb = [{d:15,done:1},{d:16,done:1},{d:17,done:1},{d:18,today:1,has:1},{d:19,has:1},{d:20,has:1},{d:21},{d:22},{d:23,has:1},{d:24},{d:25,has:1},{d:26},{d:27},{d:28}];
-  feb.forEach(day => {
-    let cls = '';
-    if (day.done) cls += ' done';
-    if (day.today) cls += ' today';
-    if (day.has) cls += ' has';
-    html += `<div class="cal-day${cls}">${day.d}</div>`;
-  });
+  feb.forEach(day => { let cls = ''; if (day.done) cls += ' done'; if (day.today) cls += ' today'; if (day.has) cls += ' has'; html += `<div class="cal-day${cls}">${day.d}</div>`; });
   el.innerHTML = html;
 }
+genCal('calGrid'); genCal('calGrid2');
 
-genCal('calGrid');
-genCal('calGrid2');
-
-document.getElementById('modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
+document.getElementById('modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 </script>
 </body>
 </html>
