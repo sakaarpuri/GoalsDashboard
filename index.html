@@ -97,7 +97,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gn)}
 <button class="add-btn" onclick="openGoalModal()">+ Add Goal</button>
 </div>
 <div class="card compact">
-<div class="title">⚡ Quick Add</div>
+<div class="title">⚡ Quick Add Task</div>
 <input type="text" id="quickTitle" placeholder="Task name">
 <select id="quickGoal"></select>
 <button class="btn" onclick="addQuickTask()">Add Task</button>
@@ -161,8 +161,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gn)}
 </div>
 </div>
 <div class="card compact">
-<div class="title">🎯 Goal Tasks</div>
-<div id="sidebarTasks"><div style="color:var(--tm);font-size:13px;padding:10px">Click a goal</div></div>
+<div class="title">🎯 Selected Goal Tasks</div>
+<div id="sidebarTasks"><div style="color:var(--tm);font-size:13px;padding:10px">Click a goal to view tasks</div></div>
 </div>
 <div class="card compact">
 <div class="title">🏆 Milestones</div>
@@ -172,8 +172,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gn)}
 </div>
 
 <div class="theme-toggle">
-<button class="theme-btn active" onclick="setTheme('forest')" id="btnForest">Forest</button>
-<button class="theme-btn" onclick="setTheme('ocean')" id="btnOcean">Ocean</button>
+<button class="theme-btn active" onclick="setTheme('forest')" id="btnForest">🌲 Forest</button>
+<button class="theme-btn" onclick="setTheme('ocean')" id="btnOcean">🌊 Ocean</button>
 </div>
 
 <div class="modal" id="goalModal">
@@ -189,7 +189,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gn)}
 <div class="color-option" style="background:#22c55e" onclick="selectColor('green',this)" data-color="green"></div>
 </div>
 <button class="btn" onclick="saveGoal()">Save Goal</button>
-<button class="btn-small" onclick="deleteGoal()" id="deleteGoalBtn" style="width:100%;margin-top:8px;display:none;background:var(--rd);border-color:var(--rd);color:white">Delete</button>
+<button class="btn-small" onclick="deleteGoal()" id="deleteGoalBtn" style="width:100%;margin-top:8px;display:none;background:var(--rd);border-color:var(--rd);color:white">Delete Goal</button>
 </div>
 </div>
 
@@ -197,116 +197,39 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gn)}
 <div class="modal-content">
 <div class="modal-header"><div class="modal-title" id="dayModalTitle">Notes</div><button class="modal-close" onclick="closeDayModal()">×</button></div>
 <div id="dayNotesList" style="max-height:180px;overflow-y:auto;margin-bottom:12px"></div>
-<textarea id="dayNoteInput" placeholder="Add note..." rows="2"></textarea>
+<textarea id="dayNoteInput" placeholder="Add a note for this day..." rows="3"></textarea>
 <button class="btn" onclick="addDayNote()">+ Add Note</button>
 </div>
 </div>
 
 <script>
-const themeForest=':root{--g1:#0a1f0a;--g2:#1a3d1a;--g3:#2d5a2d;--sd:rgba(10,25,10,.95);--sc:rgba(20,40,20,.85);--bs:rgba(74,222,128,.2);--gn:#4ade80;--or:#fb923c;--bl:#60a5fa;--pu:#a855f7;--tp:#f0fdf4;--tm:rgba(240,253,244,.55);--rd:#ef4444;--card:rgba(20,40,20,.85)}';
-const themeOcean=':root{--g1:#0a1929;--g2:#0d2847;--g3:#1e3a5f;--sd:rgba(10,25,50,.95);--sc:rgba(15,35,60,.85);--bs:rgba(56,189,248,.2);--gn:#38bdf8;--or:#fbbf24;--bl:#818cf8;--pu:#c084fc;--tp:#f0f9ff;--tm:rgba(200,230,255,.55);--rd:#f87171;--card:rgba(15,35,60,.85)}';
-
+const themes={forest:':root{--g1:#0a1f0a;--g2:#1a3d1a;--g3:#2d5a2d;--sd:rgba(10,25,10,.95);--sc:rgba(20,40,20,.85);--bs:rgba(74,222,128,.2);--gn:#4ade80;--or:#fb923c;--bl:#60a5fa;--pu:#a855f7;--tp:#f0fdf4;--tm:rgba(240,253,244,.55);--rd:#ef4444;--card:rgba(20,40,20,.85)}',ocean:':root{--g1:#0a1929;--g2:#0d2847;--g3:#1e3a5f;--sd:rgba(10,25,50,.95);--sc:rgba(15,35,60,.85);--bs:rgba(56,189,248,.2);--gn:#38bdf8;--or:#fbbf24;--bl:#818cf8;--pu:#c084fc;--tp:#f0f9ff;--tm:rgba(200,230,255,.55);--rd:#f87171;--card:rgba(15,35,60,.85)}'};
 let goals=JSON.parse(localStorage.getItem('mc_goals'))||[{id:1,name:'Filmmaker',emoji:'🎬',color:'purple',progress:35},{id:2,name:'Whitelabl',emoji:'🏭',color:'blue',progress:15},{id:3,name:'WildOnMedia',emoji:'🚚',color:'orange',progress:25},{id:4,name:'App Ideas',emoji:'💡',color:'green',progress:5}];
-let tasks=JSON.parse(localStorage.getItem('mc_tasks'))||[{id:1,title:'Generate animation',goalId:1,status:'inprog'},{id:2,title:'Research grants',goalId:1,status:'inprog'},{id:3,title:'SEO content',goalId:2,status:'todo'}];
+let tasks=JSON.parse(localStorage.getItem('mc_tasks'))||[{id:1,title:'Generate animation frames',goalId:1,status:'inprog'},{id:2,title:'Research UK film grants',goalId:1,status:'inprog'},{id:3,title:'Write SEO content batch',goalId:2,status:'todo'}];
 let notes=JSON.parse(localStorage.getItem('mc_notes'))||{};
 let selectedColor='purple',selectedDate=null,currentMonth=new Date().getMonth(),currentYear=new Date().getFullYear(),currentWeekStart=new Date(),selectedGoalId=null,calView='month',draggedEl=null;
 const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const fullMonths=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const colors={purple:'#a855f7',blue:'#3b82f6',orange:'#f97316',green:'#22c55e'};
-
-function init(){
-  const saved=localStorage.getItem('mc_theme')||'forest';
-  document.getElementById('themeStyles').textContent=saved==='forest'?themeForest:themeOcean;
-  document.getElementById('btnForest').classList.toggle('active',saved==='forest');
-  document.getElementById('btnOcean').classList.toggle('active',saved==='ocean');
-  renderGoals();renderTasks();renderCalendar();updateStats();updateGoalSelect();renderMilestones();
-}
-
-function setTheme(name){
-  document.getElementById('themeStyles').textContent=name==='forest'?themeForest:themeOcean;
-  localStorage.setItem('mc_theme',name);
-  document.getElementById('btnForest').classList.toggle('active',name==='forest');
-  document.getElementById('btnOcean').classList.toggle('active',name==='ocean');
-}
-
-function setCalView(view){
-  calView=view;
-  document.getElementById('tabMonth').classList.toggle('active',view==='month');
-  document.getElementById('tabWeek').classList.toggle('active',view==='week');
-  document.getElementById('monthView').style.display=view==='month'?'block':'none';
-  document.getElementById('weekView').classList.toggle('active',view==='week');
-  if(view==='week')renderWeekView();
-}
-
-function renderCalendar(){
-  const grid=document.getElementById('calGrid');
-  const firstDay=new Date(currentYear,currentMonth,1).getDay();
-  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-  const daysInPrevMonth=new Date(currentYear,currentMonth,0).getDate();
-  document.getElementById('calMonth').textContent=`${fullMonths[currentMonth]} ${currentYear}`;
-  let html='';
-  ['S','M','T','W','T','F','S'].forEach(h=>html+=`<div class="cal-day-h">${h}</div>`);
-  for(let i=firstDay-1;i>=0;i--)html+=`<div class="cal-day other">${daysInPrevMonth-i}</div>`;
-  const today=new Date();
-  for(let i=1;i<=daysInMonth;i++){
-    const dk=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-    const isToday=i===today.getDate()&&currentMonth===today.getMonth()&&currentYear===today.getFullYear();
-    const hasNote=notes[dk]&&notes[dk].length>0;
-    let cls='cal-day';if(isToday)cls+=' today';if(hasNote)cls+=' has-note';
-    html+=`<div class="${cls}" onclick="openDayModal('${dk}',${i})">${i}</div>`;
-  }
-  grid.innerHTML=html;
-}
-
-function renderWeekView(){
-  const start=new Date(currentWeekStart);
-  start.setDate(start.getDate()-start.getDay());
-  const end=new Date(start);end.setDate(end.getDate()+6);
-  document.getElementById('weekRange').textContent=`${monthNames[start.getMonth()]} ${start.getDate()}-${monthNames[end.getMonth()]} ${end.getDate()}`;
-  let html='';
-  for(let i=0;i<7;i++){
-    const d=new Date(start);d.setDate(d.getDate()+i);
-    const dk=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const dn=notes[dk]||[];
-    const isToday=d.toDateString()===new Date().toDateString();
-    html+=`<div class="week-day" style="${isToday?'border:1px solid var(--gn)':''}" onclick="openDayModal('${dk}',${d.getDate()})"><div class="week-day-header">${dayNames[i]}</div><div class="week-day-number" style="${isToday?'color:var(--gn)':''}">${d.getDate()}</div>${dn.map(n=>`<div class="week-note">${n.text.substring(0,25)}${n.text.length>25?'...':''}</div>`).join('')}</div>`;
-  }
-  document.getElementById('weekGrid').innerHTML=html;
-}
-
+function init(){const saved=localStorage.getItem('mc_theme')||'forest';document.getElementById('themeStyles').textContent=themes[saved];updateThemeButtons(saved);renderGoals();renderTasks();renderCalendar();updateStats();updateGoalSelect();renderMilestones();}
+function setTheme(name){document.getElementById('themeStyles').textContent=themes[name];localStorage.setItem('mc_theme',name);updateThemeButtons(name);}
+function updateThemeButtons(active){document.getElementById('btnForest').classList.toggle('active',active==='forest');document.getElementById('btnOcean').classList.toggle('active',active==='ocean');}
+function setCalView(view){calView=view;document.getElementById('tabMonth').classList.toggle('active',view==='month');document.getElementById('tabWeek').classList.toggle('active',view==='week');document.getElementById('monthView').style.display=view==='month'?'block':'none';document.getElementById('weekView').classList.toggle('active',view==='week');if(view==='week')renderWeekView();}
+function renderCalendar(){const grid=document.getElementById('calGrid');const firstDay=new Date(currentYear,currentMonth,1).getDay();const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();const daysInPrevMonth=new Date(currentYear,currentMonth,0).getDate();document.getElementById('calMonth').textContent=`${fullMonths[currentMonth]} ${currentYear}`;let html='<div class="cal-day-h">S</div><div class="cal-day-h">M</div><div class="cal-day-h">T</div><div class="cal-day-h">W</div><div class="cal-day-h">T</div><div class="cal-day-h">F</div><div class="cal-day-h">S</div>';for(let i=firstDay-1;i>=0;i--){html+=`<div class="cal-day other">${daysInPrevMonth-i}</div>`;}const today=new Date();for(let i=1;i<=daysInMonth;i++){const dateKey=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;const isToday=i===today.getDate()&&currentMonth===today.getMonth()&&currentYear===today.getFullYear();const hasNote=notes[dateKey]&&notes[dateKey].length>0;let cls='cal-day';if(isToday)cls+=' today';if(hasNote)cls+=' has-note';html+=`<div class="${cls}" onclick="openDayModal('${dateKey}',${i})">${i}</div>`;}grid.innerHTML=html;}
+function renderWeekView(){const start=new Date(currentWeekStart);start.setDate(start.getDate()-start.getDay());const end=new Date(start);end.setDate(end.getDate()+6);document.getElementById('weekRange').textContent=`${monthNames[start.getMonth()]} ${start.getDate()}-${monthNames[end.getMonth()]} ${end.getDate()}`;let html='';for(let i=0;i<7;i++){const d=new Date(start);d.setDate(d.getDate()+i);const dateKey=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const dayNotes=notes[dateKey]||[];const isToday=d.toDateString()===new Date().toDateString();html+=`<div class="week-day" style="${isToday?'border:1px solid var(--gn)':''}" onclick="openDayModal('${dateKey}',${d.getDate()})"><div class="week-day-header">${dayNames[i]}</div><div class="week-day-number" style="${isToday?'color:var(--gn)':''}">${d.getDate()}</div>${dayNotes.map(n=>`<div class="week-note">${n.text.substring(0,25)}${n.text.length>25?'...':''}</div>`).join('')}</div>`;}document.getElementById('weekGrid').innerHTML=html;}
 function changeMonth(dir){currentMonth+=dir;if(currentMonth>11){currentMonth=0;currentYear++;}if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();}
 function changeWeek(dir){currentWeekStart.setDate(currentWeekStart.getDate()+(dir*7));renderWeekView();}
-
-function renderGoals(){
-  const c=document.getElementById('goalsList');c.innerHTML='';
-  goals.forEach((g,i)=>{
-    const el=document.createElement('div');
-    el.className='goal-item '+(g.id===selectedGoalId?'active':'');
-    el.dataset.index=i;el.dataset.id=g.id;
-    el.innerHTML=`<div class="drag-handle">⋮⋮</div><div class="goal-header"><div class="goal-name">${g.emoji} ${g.name}</div><div class="goal-pct">${g.progress}%</div></div><div class="goal-bar"><div class="goal-fill" style="width:${g.progress}%;background:${colors[g.color]}"></div></div><div class="goal-actions" style="position:absolute;right:8px;top:8px;opacity:0;transition:opacity .2s"><button class="btn-icon" onclick="event.stopPropagation();editGoal(${g.id})">✏️</button></div>`;
-    el.querySelector('.drag-handle').addEventListener('mousedown',()=>{el.draggable=true;});
-    el.addEventListener('dragstart',e=>{draggedEl=el;el.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',i);});
-    el.addEventListener('dragend',()=>{el.classList.remove('dragging');draggedEl=null;});
-    el.addEventListener('dragover',e=>{if(draggedEl&&draggedEl!==el)e.preventDefault();});
-    el.addEventListener('drop',e=>{e.preventDefault();if(draggedEl&&draggedEl!==el){const from=parseInt(draggedEl.dataset.index);const to=parseInt(el.dataset.index);const item=goals.splice(from,1)[0];goals.splice(to,0,item);localStorage.setItem('mc_goals',JSON.stringify(goals));renderGoals();}});
-    el.addEventListener('click',e=>{if(!e.target.closest('.btn-icon')&&!e.target.closest('.drag-handle'))showGoalDetail(g.id);});
-    el.addEventListener('mouseenter',()=>{el.querySelector('.goal-actions').style.opacity='1';});
-    el.addEventListener('mouseleave',()=>{el.querySelector('.goal-actions').style.opacity='0';});
-    c.appendChild(el);
-  });
-  updateGoalSelect();
-}
-
-function showGoalDetail(id){selectedGoalId=id;const g=goals.find(x=>x.id===id);if(!g)return;document.getElementById('detailTitle').innerHTML=`${g.emoji} ${g.name}`;const gt=tasks.filter(t=>t.goalId===id);document.getElementById('detailTasks').innerHTML=gt.map(t=>renderTask(t)).join('')||'<div style="color:var(--tm);padding:10px">No tasks</div>';document.getElementById('goalDetail').classList.add('active');document.getElementById('sidebarTasks').innerHTML=gt.slice(0,5).map(t=>`<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px"><div style="font-weight:600;font-size:13px">${t.title}</div><div style="color:var(--tm);font-size:11px;text-transform:capitalize">${t.status}</div></div>`).join('')||'<div style="color:var(--tm);padding:10px">No tasks</div>';renderGoals();}
+function renderGoals(){const container=document.getElementById('goalsList');container.innerHTML='';goals.forEach((g,i)=>{const el=document.createElement('div');el.className='goal-item '+(g.id===selectedGoalId?'active':'');el.draggable=true;el.dataset.index=i;el.dataset.id=g.id;el.innerHTML=`<div class="drag-handle">⋮⋮</div><div class="goal-header"><div class="goal-name">${g.emoji} ${g.name}</div><div class="goal-pct">${g.progress}%</div></div><div class="goal-bar"><div class="goal-fill" style="width:${g.progress}%;background:${colors[g.color]}"></div></div><div class="goal-actions" style="position:absolute;right:8px;top:8px;opacity:0;transition:opacity .2s"><button class="btn-icon" onclick="event.stopPropagation();editGoal(${g.id})">✏️</button></div>`;el.addEventListener('click',(e)=>{if(!e.target.closest('.btn-icon')&&!e.target.closest('.drag-handle')){showGoalDetail(g.id);}});el.addEventListener('dragstart',(e)=>{draggedEl=el;el.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',i);});el.addEventListener('dragend',()=>{el.classList.remove('dragging');draggedEl=null;});el.addEventListener('dragover',(e)=>{if(draggedEl&&draggedEl!==el){e.preventDefault();e.dataTransfer.dropEffect='move';}});el.addEventListener('drop',(e)=>{e.preventDefault();if(draggedEl&&draggedEl!==el){const fromIndex=parseInt(draggedEl.dataset.index);const toIndex=parseInt(el.dataset.index);const item=goals.splice(fromIndex,1)[0];goals.splice(toIndex,0,item);localStorage.setItem('mc_goals',JSON.stringify(goals));renderGoals();}});el.addEventListener('mouseenter',()=>{el.querySelector('.goal-actions').style.opacity='1';});el.addEventListener('mouseleave',()=>{el.querySelector('.goal-actions').style.opacity='0';});container.appendChild(el);});updateGoalSelect();}
+function showGoalDetail(id){selectedGoalId=id;const g=goals.find(x=>x.id===id);if(!g)return;document.getElementById('detailTitle').innerHTML=`${g.emoji} ${g.name}`;const goalTasks=tasks.filter(t=>t.goalId===id);document.getElementById('detailTasks').innerHTML=goalTasks.map(t=>renderTask(t)).join('')||'<div style="color:var(--tm);padding:10px">No tasks for this goal</div>';document.getElementById('goalDetail').classList.add('active');document.getElementById('sidebarTasks').innerHTML=goalTasks.slice(0,5).map(t=>`<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px"><div style="font-weight:600;font-size:13px">${t.title}</div><div style="color:var(--tm);font-size:11px;text-transform:capitalize">${t.status}</div></div>`).join('')||'<div style="color:var(--tm);padding:10px">No tasks</div>';renderGoals();}
 function closeGoalDetail(){document.getElementById('goalDetail').classList.remove('active');selectedGoalId=null;renderGoals();}
 function renderTask(t){const g=goals.find(x=>x.id===t.goalId);return `<div class="task ${t.status}"><div class="dot" onclick="cycleTask(${t.id})"></div><div class="task-content"><div class="task-title ${t.status}">${t.title}</div><div class="task-meta">${g?g.emoji:''} ${g?g.name:'Unknown'}</div></div><button class="task-btn" onclick="deleteTask(${t.id})">🗑️</button></div>`;}
-function renderTasks(){document.getElementById('allTasksList').innerHTML=tasks.map(t=>renderTask(t)).join('');}
+function renderTasks(){document.getElementById('allTasksList').innerHTML=tasks.map(t=>renderTask(t)).join('')||'<div style="color:var(--tm);padding:20px;text-align:center">No tasks yet</div>';}
 function cycleTask(id){const t=tasks.find(x=>x.id===id);if(t){const s=['todo','inprog','done'];t.status=s[(s.indexOf(t.status)+1)%3];localStorage.setItem('mc_tasks',JSON.stringify(tasks));renderTasks();updateStats();if(selectedGoalId)showGoalDetail(selectedGoalId);}}
-function deleteTask(id){if(!confirm('Delete?'))return;tasks=tasks.filter(t=>t.id!==id);localStorage.setItem('mc_tasks',JSON.stringify(tasks));renderTasks();updateStats();if(selectedGoalId)showGoalDetail(selectedGoalId);}
-function addQuickTask(){const t=document.getElementById('quickTitle').value.trim();const g=parseInt(document.getElementById('quickGoal').value);if(!t)return;tasks.unshift({id:Date.now(),title:t,goalId:g,status:'todo'});localStorage.setItem('mc_tasks',JSON.stringify(tasks));document.getElementById('quickTitle').value='';renderTasks();updateStats();if(selectedGoalId===g)showGoalDetail(g);}
+function deleteTask(id){if(!confirm('Delete this task?'))return;tasks=tasks.filter(t=>t.id!==id);localStorage.setItem('mc_tasks',JSON.stringify(tasks));renderTasks();updateStats();if(selectedGoalId)showGoalDetail(selectedGoalId);}
+function addQuickTask(){const title=document.getElementById('quickTitle').value.trim();const goalId=parseInt(document.getElementById('quickGoal').value);if(!title)return alert('Enter a task name');tasks.unshift({id:Date.now(),title,goalId,status:'todo'});localStorage.setItem('mc_tasks',JSON.stringify(tasks));document.getElementById('quickTitle').value='';renderTasks();updateStats();if(selectedGoalId===goalId)showGoalDetail(goalId);}
 function updateGoalSelect(){document.getElementById('quickGoal').innerHTML=goals.map(g=>`<option value="${g.id}">${g.emoji} ${g.name}</option>`).join('');}
-function updateStats(){const d=tasks.filter(t=>t.status==='done').length,ip=tasks.filter(t=>t.status==='inprog').length,td=tasks.filter(t=>t.status==='todo').length;document.getElementById('statDone').textContent=d;document.getElementById('statProgress').textContent=ip;document.getElementById('statTodo').textContent=td;document.getElementById('aiActive').textContent=ip;document.getElementById('aiDone').textContent=d;goals.forEach(g=>{const gt=tasks.filter(t=>t.goalId===g.id);const gd=gt.filter(t=>t.status==='done').length;g.progress=gt.length?Math.round((gd/gt.length)*100):0;});localStorage.setItem('mc_goals',JSON.stringify(goals));renderGoals();renderMilestones();}
+function updateStats(){const done=tasks.filter(t=>t.status==='done').length;const inprog=tasks.filter(t=>t.status==='inprog').length;const todo=tasks.filter(t=>t.status==='todo').length;document.getElementById('statDone').textContent=done;document.getElementById('statProgress').textContent=inprog;document.getElementById('statTodo').textContent=todo;document.getElementById('aiActive').textContent=inprog;document.getElementById('aiDone').textContent=done;goals.forEach(g=>{const gt=tasks.filter(t=>t.goalId===g.id);const gd=gt.filter(t=>t.status==='done').length;g.progress=gt.length?Math.round((gd/gt.length)*100):0;});localStorage.setItem('mc_goals',JSON.stringify(goals));renderGoals();renderMilestones();}
 function renderMilestones(){document.getElementById('milestonesList').innerHTML=goals.map(g=>`<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px;border-left:3px solid ${colors[g.color]}"><div style="font-weight:700;font-size:13px">${g.emoji} ${g.name}</div><div style="font-size:11px;color:var(--tm)">${g.progress}% complete</div></div>`).join('');}
 function openGoalModal(){document.getElementById('goalModalTitle').textContent='Add Goal';document.getElementById('goalNameInput').value='';document.getElementById('goalEmojiInput').value='';document.getElementById('editGoalId').value='';document.getElementById('deleteGoalBtn').style.display='none';selectColor('purple',document.querySelector('[data-color="purple"]'));document.getElementById('goalModal').classList.add('active');}
 function editGoal(id){const g=goals.find(x=>x.id===id);if(!g)return;document.getElementById('goalModalTitle').textContent='Edit Goal';document.getElementById('goalNameInput').value=g.name;document.getElementById('goalEmojiInput').value=g.emoji;document.getElementById('editGoalId').value=g.id;document.getElementById('deleteGoalBtn').style.display='block';selectColor(g.color,document.querySelector(`[data-color="${g.color}"]`));document.getElementById('goalModal').classList.add('active');}
@@ -316,4 +239,12 @@ function saveGoal(){const n=document.getElementById('goalNameInput').value.trim(
 function deleteGoal(){const editId=document.getElementById('editGoalId').value;if(!editId)return;if(!confirm('Delete?'))return;goals=goals.filter(g=>g.id!=editId);tasks=tasks.filter(t=>t.goalId!=editId);localStorage.setItem('mc_goals',JSON.stringify(goals));localStorage.setItem('mc_tasks',JSON.stringify(tasks));renderGoals();renderTasks();closeGoalModal();}
 function openDayModal(dk,d){selectedDate=dk;document.getElementById('dayModalTitle').textContent=`${fullMonths[currentMonth]} ${d}, ${currentYear}`;renderDayNotes();document.getElementById('dayModal').classList.add('active');}
 function closeDayModal(){document.getElementById('dayModal').classList.remove('active');document.getElementById('dayNoteInput').value='';selectedDate=null;}
-function renderDayNotes(){const dn=notes[selectedDate]||[],c=document.getElementById('dayNotesList');if(dn.length===0)c.innerHTML='<div style="color
+function renderDayNotes(){const dn=notes[selectedDate]||[];const c=document.getElementById('dayNotesList');if(dn.length===0)c.innerHTML='<div style="color:var(--tm);text-align:center;padding:20px">No notes for this day</div>';else c.innerHTML=dn.map((n,i)=>`<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px"><div style="font-size:10px;color:var(--tm);margin-bottom:4px">${new Date(n.time).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div><div style="font-size:13px">${n.text}</div><button class="task-btn" onclick="deleteDayNote(${i})" style="margin-top:6px">🗑️ Delete</button></div>`).join('');}
+function addDayNote(){const text=document.getElementById('dayNoteInput').value.trim();if(!text)return;if(!notes[selectedDate])notes[selectedDate]=[];notes[selectedDate].push({text,time:new Date().toISOString()});localStorage.setItem('mc_notes',JSON.stringify(notes));document.getElementById('dayNoteInput').value='';renderDayNotes();if(calView==='month')renderCalendar();else renderWeekView();}
+function deleteDayNote(index){notes[selectedDate].splice(index,1);if(notes[selectedDate].length===0)delete notes[selectedDate];localStorage.setItem('mc_notes',JSON.stringify(notes));renderDayNotes();if(calView==='month')renderCalendar();else renderWeekView();}
+document.getElementById('dayModal').addEventListener('click',function(e){if(e.target===this)closeDayModal();});
+document.getElementById('goalModal').addEventListener('click',function(e){if(e.target===this)closeGoalModal();});
+init();
+</script>
+</body>
+</html>
