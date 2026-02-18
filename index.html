@@ -98,6 +98,7 @@ input:focus,select:focus{outline:none;border-color:var(--gn)}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-title{font-size:18px;font-weight:700}
 .modal-close{background:transparent;border:none;color:var(--tm);font-size:24px;cursor:pointer}
+.sidebar,.sidebar-r{display:none}
 
 /* Desktop Layout */
 @media(min-width:1024px){
@@ -105,8 +106,8 @@ input:focus,select:focus{outline:none;border-color:var(--gn)}
 .app{display:grid;grid-template-columns:280px 1fr 300px;max-width:1400px;margin:0 auto}
 .content{padding:20px;display:block}
 .panel{display:block!important}
-.sidebar{background:var(--sd);padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;border-right:1px solid var(--bs)}
-.sidebar-r{background:var(--sd);padding:20px;overflow-y:auto;border-left:1px solid var(--bs)}
+.sidebar{display:flex!important;background:var(--sd);padding:20px;flex-direction:column;gap:16px;overflow-y:auto;border-right:1px solid var(--bs)}
+.sidebar-r{display:block!important;background:var(--sd);padding:20px;overflow-y:auto;border-left:1px solid var(--bs)}
 .ai-hero-stats{grid-template-columns:repeat(3,1fr)}
 .goals-grid{grid-template-columns:repeat(2,1fr)}
 }
