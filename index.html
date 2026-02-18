@@ -79,8 +79,14 @@ input:focus,select:focus{outline:none;border-color:var(--gn)}
 .cal-month{font-size:14px;font-weight:800}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cal-day-h{text-align:center;font-size:9px;color:var(--tm);padding:6px 2px;font-weight:700}
-.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.2);border-radius:6px;font-size:11px;cursor:pointer}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.2);border-radius:6px;font-size:11px;cursor:pointer;position:relative;transition:all .15s}
+.cal-day:hover{background:rgba(74,222,128,.2)}
 .cal-day.today{background:var(--gn);color:#000;font-weight:800}
+.cal-day.has-note::after{content:'•';position:absolute;bottom:2px;font-size:16px;color:var(--gn)}
+.note-modal textarea{width:100%;min-height:100px;background:rgba(0,0,0,.25);border:1px solid var(--bs);border-radius:10px;padding:12px;font-size:14px;color:var(--tp);resize:vertical}
+.day-notes-list{max-height:200px;overflow-y:auto}
+.day-note{padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px;font-size:13px}
+.day-note-time{color:var(--tm);font-size:10px;margin-bottom:4px}
 
 .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
 .modal.active{display:flex}
@@ -155,13 +161,9 @@ input:focus,select:focus{outline:none;border-color:var(--gn)}
 </div>
 
 <div class="card">
-<div class="cal-header"><button class="cal-nav">‹</button><span class="cal-month">February 2026</span><button class="cal-nav">›</button></div>
-<div class="cal-grid">
+<div class="cal-header"><button class="cal-nav" onclick="changeMonth(-1)">‹</button><span class="cal-month" id="calMonth">February 2026</span><button class="cal-nav" onclick="changeMonth(1)">›</button></div>
+<div class="cal-grid" id="calGrid">
 <div class="cal-day-h">S</div><div class="cal-day-h">M</div><div class="cal-day-h">T</div><div class="cal-day-h">W</div><div class="cal-day-h">T</div><div class="cal-day-h">F</div><div class="cal-day-h">S</div>
-<div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div><div class="cal-day">30</div><div class="cal-day">31</div><div class="cal-day">1</div>
-<div class="cal-day">2</div><div class="cal-day">3</div><div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div>
-<div class="cal-day">9</div><div class="cal-day">10</div><div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div>
-<div class="cal-day">16</div><div class="cal-day">17</div><div class="cal-day today">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day">21</div><div class="cal-day">22</div>
 </div>
 </div>
 
@@ -190,6 +192,21 @@ input:focus,select:focus{outline:none;border-color:var(--gn)}
 </div>
 </aside>
 
+</div>
+
+<!-- Calendar Note Modal -->
+<div class="modal" id="dayModal">
+<div class="modal-content note-modal">
+<div class="modal-header">
+<div class="modal-title" id="dayModalTitle">Day Notes</div>
+<button class="modal-close" onclick="closeDayModal()">×</button>
+</div>
+<div class="day-notes-list" id="dayNotesList"></div>
+<div style="margin-top:16px">
+<textarea id="dayNoteInput" placeholder="Add a note for this day..."></textarea>
+<button class="btn" onclick="addDayNote()" style="margin-top:8px">+ Add Note</button>
+</div>
+</div>
 </div>
 
 <script>
@@ -229,6 +246,124 @@ document.getElementById('quickTitle').value='';render();
 function toggleAI(){document.getElementById('aiDetail').classList.toggle('active');}
 
 render();
+
+// Calendar Notes
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
+let selectedDate = null;
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function getNotes() {
+  return JSON.parse(localStorage.getItem('mc_notes') || '{}');
+}
+
+function saveNotes(notes) {
+  localStorage.setItem('mc_notes', JSON.stringify(notes));
+}
+
+function renderCalendar() {
+  const grid = document.getElementById('calGrid');
+  const notes = getNotes();
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+  
+  document.getElementById('calMonth').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+  
+  let html = '';
+  // Headers
+  html += '<div class="cal-day-h">S</div><div class="cal-day-h">M</div><div class="cal-day-h">T</div><div class="cal-day-h">W</div><div class="cal-day-h">T</div><div class="cal-day-h">F</div><div class="cal-day-h">S</div>';
+  
+  // Previous month days
+  for (let i = firstDay - 1; i >= 0; i--) {
+    html += `<div class="cal-day" style="opacity:0.3">${daysInPrevMonth - i}</div>`;
+  }
+  
+  // Current month days
+  const today = new Date();
+  for (let i = 1; i <= daysInMonth; i++) {
+    const dateKey = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+    const isToday = i === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+    const hasNote = notes[dateKey] && notes[dateKey].length > 0;
+    const classes = ['cal-day'];
+    if (isToday) classes.push('today');
+    if (hasNote) classes.push('has-note');
+    html += `<div class="${classes.join(' ')}" onclick="openDayModal('${dateKey}', ${i})">${i}</div>`;
+  }
+  
+  grid.innerHTML = html;
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  renderCalendar();
+}
+
+function openDayModal(dateKey, day) {
+  selectedDate = dateKey;
+  document.getElementById('dayModalTitle').textContent = `Notes for ${monthNames[currentMonth]} ${day}, ${currentYear}`;
+  renderDayNotes();
+  document.getElementById('dayModal').classList.add('active');
+}
+
+function closeDayModal() {
+  document.getElementById('dayModal').classList.remove('active');
+  document.getElementById('dayNoteInput').value = '';
+  selectedDate = null;
+}
+
+function renderDayNotes() {
+  const notes = getNotes();
+  const dayNotes = notes[selectedDate] || [];
+  const container = document.getElementById('dayNotesList');
+  
+  if (dayNotes.length === 0) {
+    container.innerHTML = '<div style="color:var(--tm);text-align:center;padding:20px">No notes for this day</div>';
+  } else {
+    container.innerHTML = dayNotes.map((n, i) => `
+      <div class="day-note">
+        <div class="day-note-time">${new Date(n.time).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div>
+        <div>${n.text}</div>
+        <button class="task-btn" onclick="deleteDayNote(${i})" style="margin-top:6px">🗑️ Delete</button>
+      </div>
+    `).join('');
+  }
+}
+
+function addDayNote() {
+  const text = document.getElementById('dayNoteInput').value.trim();
+  if (!text) return;
+  
+  const notes = getNotes();
+  if (!notes[selectedDate]) notes[selectedDate] = [];
+  notes[selectedDate].push({text, time: new Date().toISOString()});
+  saveNotes(notes);
+  
+  document.getElementById('dayNoteInput').value = '';
+  renderDayNotes();
+  renderCalendar();
+}
+
+function deleteDayNote(index) {
+  const notes = getNotes();
+  if (notes[selectedDate]) {
+    notes[selectedDate].splice(index, 1);
+    if (notes[selectedDate].length === 0) delete notes[selectedDate];
+    saveNotes(notes);
+    renderDayNotes();
+    renderCalendar();
+  }
+}
+
+// Close modal on backdrop click
+document.getElementById('dayModal').addEventListener('click', function(e) {
+  if (e.target === this) closeDayModal();
+});
+
+// Initial render
+renderCalendar();
 </script>
 </body>
 </html>
