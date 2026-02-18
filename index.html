@@ -98,6 +98,18 @@ input:focus,select:focus{outline:none;border-color:var(--gn)}
 .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .modal-title{font-size:18px;font-weight:700}
 .modal-close{background:transparent;border:none;color:var(--tm);font-size:24px;cursor:pointer}
+
+/* Desktop Layout */
+@media(min-width:1024px){
+.header,.tabs{display:none}
+.app{display:grid;grid-template-columns:280px 1fr 300px;max-width:1400px;margin:0 auto}
+.content{padding:20px;display:block}
+.panel{display:block!important}
+.sidebar{background:var(--sd);padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;border-right:1px solid var(--bs)}
+.sidebar-r{background:var(--sd);padding:20px;overflow-y:auto;border-left:1px solid var(--bs)}
+.ai-hero-stats{grid-template-columns:repeat(3,1fr)}
+.goals-grid{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
@@ -126,6 +138,24 @@ input:focus,select:focus{outline:none;border-color:var(--gn)}
 <button class="tab" data-tab="calendar">Calendar</button>
 <button class="tab" data-tab="add">+ Add</button>
 </nav>
+
+<!-- Desktop Left Sidebar -->
+<aside class="sidebar" id="leftSidebar">
+<div class="brand"><span class="pulse"></span>Mission Control</div>
+<div class="card compact">
+<div class="title">Quick Add Task</div>
+<input type="text" id="quickTaskTitle" placeholder="What needs doing?" style="margin-bottom:8px">
+<select id="quickTaskGoal" style="margin-bottom:8px"><option value="filmmaker">🎬 Filmmaker</option><option value="whitelabl">🏭 Whitelabl</option><option value="wildonmedia">🚚 WildOnMedia</option><option value="appideas">💡 App Ideas</option></select>
+<button class="btn" onclick="addQuickTask()">+ Add Task</button>
+</div>
+<div class="card compact">
+<div class="title">Your Goals</div>
+<div class="goal-mini" style="margin-bottom:8px"><div class="goal-mini-header"><span class="goal-mini-name">🎬 Filmmaker</span><span class="goal-mini-pct">35%</span></div><div class="goal-mini-bar"><div class="goal-mini-fill" style="width:35%;background:var(--pu)"></div></div></div>
+<div class="goal-mini" style="margin-bottom:8px"><div class="goal-mini-header"><span class="goal-mini-name">🏭 Whitelabl</span><span class="goal-mini-pct">15%</span></div><div class="goal-mini-bar"><div class="goal-mini-fill" style="width:15%;background:var(--bl)"></div></div></div>
+<div class="goal-mini" style="margin-bottom:8px"><div class="goal-mini-header"><span class="goal-mini-name">🚚 WildOnMedia</span><span class="goal-mini-pct">25%</span></div><div class="goal-mini-bar"><div class="goal-mini-fill" style="width:25%;background:var(--or)"></div></div></div>
+<div class="goal-mini"><div class="goal-mini-header"><span class="goal-mini-name">💡 App Ideas</span><span class="goal-mini-pct">5%</span></div><div class="goal-mini-bar"><div class="goal-mini-fill" style="width:5%;background:var(--gn)"></div></div></div>
+</div>
+</aside>
 
 <main class="content">
 
@@ -232,6 +262,25 @@ input:focus,select:focus{outline:none;border-color:var(--gn)}
 </div>
 
 </main>
+
+<!-- Desktop Right Sidebar -->
+<aside class="sidebar-r" id="rightSidebar">
+<div class="card compact">
+<div class="title">Your Work</div>
+<div id="sidebarYourWork"><div style="color:var(--tm);font-size:13px;padding:10px">No tasks assigned</div></div>
+</div>
+<div class="card compact">
+<div class="title">Major Milestones</div>
+<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--pu)"><div style="font-weight:700;font-size:13px">🎬 Episode 1 Complete</div><div style="font-size:11px;color:var(--tm)">Due: Feb 28</div></div>
+<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--bl)"><div style="font-weight:700;font-size:13px">🏭 SEO Campaign</div><div style="font-size:11px;color:var(--tm)">Due: Mar 15</div></div>
+<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;border-left:3px solid var(--or)"><div style="font-weight:700;font-size:13px">🚚 First Client</div><div style="font-size:11px;color:var(--tm)">Due: Mar 30</div></div>
+</div>
+<div class="card compact">
+<div class="title">History</div>
+<div id="sidebarHistory"><div style="color:var(--tm);font-size:13px;padding:10px">No recent history</div></div>
+</div>
+</aside>
+
 </div>
 
 <div class="modal" id="settingsModal">
@@ -255,7 +304,7 @@ function saveTasks(tasks){localStorage.setItem(TASKS_KEY,JSON.stringify(tasks))}
 function getActivity(){return JSON.parse(localStorage.getItem(ACTIVITY_KEY)||'[]')}
 function addActivity(text){const activity=getActivity();activity.unshift({time:new Date().toISOString(),text});localStorage.setItem(ACTIVITY_KEY,JSON.stringify(activity.slice(0,100)))}
 function initDefaultTasks(){if(getTasks().length===0){saveTasks([{id:1,title:'Generate cowboy animation frames',goal:'filmmaker',status:'inprog',priority:'high',date:'2026-02-18',created:Date.now()},{id:2,title:'Research UK film grants',goal:'filmmaker',status:'inprog',priority:'high',date:'2026-02-18',created:Date.now()},{id:3,title:'Write SEO content batch',goal:'whitelabl',status:'todo',priority:'medium',date:'2026-02-19',created:Date.now()},{id:4,title:'Update pitch deck',goal:'filmmaker',status:'todo',priority:'high',date:'2026-02-20',created:Date.now()},{id:5,title:'Email 5 prospects',goal:'wildonmedia',status:'todo',priority:'medium',date:'2026-02-19',created:Date.now()}])}}
-function initApp(){initDefaultTasks();document.getElementById('newTaskDate').valueAsDate=new Date();document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});updateDashboard();renderCalendar();document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));this.classList.add('active');document.getElementById(this.getAttribute('data-tab')).classList.add('active');if(this.getAttribute('data-tab')==='tasks')renderTasks('all');if(this.getAttribute('data-tab')==='today')renderToday()})})}
+function initApp(){initDefaultTasks();document.getElementById('newTaskDate').valueAsDate=new Date();document.getElementById('todayDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});updateDashboard();renderCalendar();updateSidebars();document.querySelectorAll('.tab').forEach(tab=>{tab.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));this.classList.add('active');document.getElementById(this.getAttribute('data-tab')).classList.add('active');if(this.getAttribute('data-tab')==='tasks')renderTasks('all');if(this.getAttribute('data-tab')==='today')renderToday()})})}
 function updateDashboard(){const tasks=getTasks(),today=new Date().toISOString().split('T')[0];const todo=tasks.filter(t=>t.status==='todo').length,inprog=tasks.filter(t=>t.status==='inprog').length,doneToday=tasks.filter(t=>t.status==='done'&&t.completedDate===today).length;document.getElementById('todayTodo').textContent=todo;document.getElementById('todayInProgress').textContent=inprog;document.getElementById('todayCompleted').textContent=doneToday;document.getElementById('allCount').textContent=tasks.length;document.getElementById('aiActive').textContent=inprog;document.getElementById('aiDone').textContent=doneToday;document.getElementById('aiSubtitle').textContent=`${inprog} active • ${doneToday} done today`;const running=tasks.filter(t=>t.status==='inprog').map(t=>`<div class="task inprog"><div class="dot" onclick="cycleTask(${t.id})"></div><div class="task-content"><div class="task-title">${t.title}</div><div class="task-meta">${t.goal}</div></div></div>`).join('')||'<div style="color:var(--tm);font-size:13px;padding:10px">No active tasks</div>';const completed=tasks.filter(t=>t.status==='done').slice(0,5).map(t=>`<div class="task done"><div class="dot"></div><div class="task-content"><div class="task-title done">${t.title}</div><div class="task-meta">${t.goal}</div></div></div>`).join('')||'<div style="color:var(--tm);font-size:13px;padding:10px">No completed tasks</div>';document.getElementById('aiRunningTasks').innerHTML=running;document.getElementById('aiCompletedTasks').innerHTML=completed;const recent=tasks.slice(0,5).map(t=>renderTaskItem(t)).join('');document.getElementById('recentTasksList').innerHTML=recent||'<div style="color:var(--tm);padding:20px;text-align:center">No tasks yet. Add one!</div>'}
 function renderTaskItem(t){const goalEmoji={filmmaker:'🎬',whitelabl:'🏭',wildonmedia:'🚚',appideas:'💡'}[t.goal]||'📋';return`<div class="task ${t.status}" id="task-${t.id}"><div class="dot" onclick="cycleTask(${t.id})"></div><div class="task-content"><input type="text" class="task-title ${t.status}" value="${t.title}" onblur="saveTaskEdit(${t.id},this.value)"><div class="task-meta">${goalEmoji} ${t.goal} • ${t.priority}</div></div><div class="task-actions"><button class="task-btn" onclick="deleteTask(${t.id})">🗑️</button></div></div>`}
 function cycleTask(id){const tasks=getTasks(),task=tasks.find(t=>t.id===id);if(task){const statuses=['todo','inprog','done'];task.status=statuses[(statuses.indexOf(task.status)+1)%3];if(task.status==='done'){task.completedDate=new Date().toISOString().split('T')[0];addActivity(`Completed: ${task.title}`)}saveTasks(tasks);updateDashboard();renderTasks('all')}}
@@ -269,6 +318,8 @@ function renderToday(){const activity=getActivity();const html=activity.length?a
 function renderCalendar(){const days=['S','M','T','W','T','F','S'],el=document.getElementById('calGrid'),el2=document.getElementById('calGrid2');if(!el)return;let html=days.map(d=>`<div class="cal-day-h">${d}</div>`).join('');for(let i=26;i<=31;i++)html+=`<div class="cal-day past">${i}</div>`;for(let i=1;i<=14;i++)html+=`<div class="cal-day">${i}</div>`;const feb=[{d:15,done:1},{d:16,done:1},{d:17,done:1},{d:18,today:1,has:1},{d:19,has:1},{d:20,has:1},{d:21},{d:22},{d:23,has:1},{d:24},{d:25,has:1},{d:26},{d:27},{d:28}];feb.forEach(day=>{let cls='';if(day.done)cls+=' done';if(day.today)cls+=' today';if(day.has)cls+=' has';html+=`<div class="cal-day${cls}">${day.d}</div>`});if(el)el.innerHTML=html;if(el2)el2.innerHTML=html;const tasks=getTasks(),upcoming=tasks.filter(t=>t.date>new Date().toISOString().split('T')[0]).slice(0,3).map(t=>`<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--or)"><div style="font-weight:700;font-size:13px">${t.title}</div><div style="font-size:11px;color:var(--or)">${t.date}</div></div>`).join('')||'<div style="color:var(--tm);padding:10px">No upcoming deadlines</div>';document.getElementById('upcomingDeadlines').innerHTML=upcoming}
 function toggleAIDetail(){document.getElementById('aiDetail').classList.toggle('active')}
 function changeMonth(dir){alert(dir>0?'March coming soon':'January history')}
+function addQuickTask(){const title=document.getElementById('quickTaskTitle').value.trim();if(!title)return;const task={id:Date.now(),title,goal:document.getElementById('quickTaskGoal').value,status:'todo',priority:'medium',date:new Date().toISOString().split('T')[0],created:Date.now()};const tasks=getTasks();tasks.unshift(task);saveTasks(tasks);addActivity(`Added: ${title}`);document.getElementById('quickTaskTitle').value='';updateDashboard();updateSidebars()}
+function updateSidebars(){const tasks=getTasks();const yourWork=tasks.filter(t=>t.status!=='done').slice(0,5).map(t=>`<div style="padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:6px;font-size:12px"><div style="font-weight:600">${t.title}</div><div style="color:var(--tm);font-size:11px">${t.goal} • ${t.status}</div></div>`).join('')||'<div style="color:var(--tm);font-size:13px;padding:10px">No active tasks</div>';document.getElementById('sidebarYourWork').innerHTML=yourWork;const history=getActivity().slice(0,5).map(a=>`<div style="padding:8px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:6px;font-size:12px"><div>${a.text}</div><div style="color:var(--tm);font-size:10px">${new Date(a.time).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div></div>`).join('')||'<div style="color:var(--tm);font-size:13px;padding:10px">No recent activity</div>';document.getElementById('sidebarHistory').innerHTML=history}
 checkAuth();
 </script>
 </body>
