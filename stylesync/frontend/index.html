@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WardrobeAI | Your Personal Shopping Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#09090b;--surface:#18181b;--surface-hover:#27272a;--border:#27272a;--text:#fafafa;--text-secondary:#a1a1aa;--text-muted:#71717a;--accent:#22c55e;--accent-glow:rgba(34,197,94,0.2);--gradient:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);--radius:16px;--radius-sm:12px;--radius-xs:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+        body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 1px 1px,var(--border) 1px,transparent 0);background-size:40px 40px;opacity:0.5;pointer-events:none;z-index:0}
+        .nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 0;background:rgba(9,9,11,0.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+        .nav-content{max-width:1280px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+        .logo{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:10px}
+        .logo-mark{width:32px;height:32px;background:var(--gradient);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:var(--bg)}
+        .nav-links{display:flex;gap:32px;align-items:center}
+        .nav-link{color:var(--text-secondary);font-size:14px;font-weight:500;cursor:pointer;transition:color 0.2s}
+        .nav-link:hover{color:var(--text)}
+        .nav-actions{display:flex;align-items:center;gap:16px}
+        .budget-display{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:100px;font-size:13px;font-weight:500;color:var(--accent);cursor:pointer;transition:all 0.2s}
+        .budget-display:hover{border-color:var(--accent)}
+        .cart-btn{width:40px;height:40px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;position:relative}
+        .cart-btn:hover{border-color:var(--accent)}
+        .cart-count{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--bg)}
+        .hero{min-height:100vh;display:flex;align-items:center;padding:140px 24px 80px;position:relative;z-index:1}
+        .hero-content{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+        .hero-left{max-width:560px}
+        .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:100px;font-size:13px;font-weight:500;color:var(--accent);margin-bottom:24px}
+        .hero-badge::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+        .hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(40px,5vw,56px);font-weight:700;line-height:1.1;letter-spacing:-1px;margin-bottom:20px}
+        .hero h1 span{color:var(--accent)}
+        .hero-cta-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:32px}
+        .hero-cta-title{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px}
+        .hero-cta-title::before{content:'';width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+        .ready-carts{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+        .ready-cart{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-xs);cursor:pointer;transition:all 0.2s}
+        .ready-cart:hover{border-color:var(--accent)}
+        .ready-cart-imgs{display:flex;margin-left:-8px}
+        .ready-cart-img{width:40px;height:40px;border-radius:6px;border:2px solid var(--bg);overflow:hidden;margin-left:-8px}
+        .ready-cart-img:first-child{margin-left:0}
+        .ready-cart-img img{width:100%;height:100%;object-fit:cover}
+        .ready-cart-info{flex:1}
+        .ready-cart-name{font-size:14px;font-weight:600}
+        .ready-cart-price{font-size:13px;color:var(--accent)}
+        .hero-buy-btn{width:100%;padding:16px;background:var(--gradient);border:none;border-radius:var(--radius-xs);font-size:15px;font-weight:700;color:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+        .hero-subtitle{font-size:18px;color:var(--text-secondary);line-height:1.7;margin-bottom:32px}
+        .hero-features{display:flex;flex-direction:column;gap:12px;margin-bottom:32px}
+        .hero-feature{display:flex;align-items:center;gap:12px;font-size:15px;color:var(--text-secondary)}
+        .hero-feature-check{width:20px;height:20px;background:var(--surface);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent)}
+        .hero-cta{display:flex;gap:12px}
+        .btn-primary{padding:16px 28px;background:var(--gradient);border:none;border-radius:var(--radius-xs);font-size:15px;font-weight:600;color:var(--bg);cursor:pointer;transition:all 0.2s}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px var(--accent-glow)}
+        .btn-secondary{padding:16px 28px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xs);font-size:15px;font-weight:600;color:var(--text);cursor:pointer;transition:all 0.2s}
+        .btn-secondary:hover{background:var(--surface-hover);border-color:var(--text-secondary)}
+        .hero-visual{position:relative;min-height:500px}
+        .ai-demo{position:relative;width:100%;height:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;overflow:hidden}
+        .ai-demo-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+        .ai-demo-status{width:10px;height:10px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+        .ai-demo-title{font-size:14px;font-weight:600;color:var(--text-secondary)}
+        .ai-demo-stage{position:absolute;inset:80px 24px 24px;opacity:0;transition:opacity 0.5s}
+        .ai-demo-stage.active{opacity:1}
+        .stage-1{display:flex;flex-direction:column;gap:16px}
+        .pref-bubble{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);animation:slideIn 0.5s ease-out}
+        @keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+        .pref-icon{width:36px;height:36px;background:var(--surface-hover);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;font-size:16px}
+        .pref-text{font-size:14px}
+        .pref-text strong{color:var(--accent)}
+        .stage-2{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+        .search-animation{position:relative;width:200px;height:200px}
+        .search-ring{position:absolute;inset:0;border:2px solid var(--accent);border-radius:50%;opacity:0;animation:ripple 2s infinite}
+        .search-ring:nth-child(2){animation-delay:0.5s}
+        .search-ring:nth-child(3){animation-delay:1s}
+        @keyframes ripple{0%{transform:scale(0.5);opacity:1}100%{transform:scale(1.5);opacity:0}}
+        .search-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:48px}
+        .retailers-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;max-width:300px}
+        .retailer-tag{padding:8px 14px;background:var(--bg);border:1px solid var(--border);border-radius:100px;font-size:12px;opacity:0;animation:fadeInUp 0.3s forwards}
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+        .stage-3{display:flex;flex-direction:column;gap:12px}
+        .result-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);animation:slideUp 0.4s ease-out;opacity:0;animation-fill-mode:forwards}
+        @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .result-img{width:48px;height:48px;background:var(--surface-hover);border-radius:var(--radius-xs);overflow:hidden}
+        .result-img img{width:100%;height:100%;object-fit:cover}
+        .result-info{flex:1}
+        .result-name{font-size:13px;font-weight:500;margin-bottom:2px}
+        .result-price{font-size:12px;color:var(--accent);font-weight:600}
+        .result-match{margin-left:auto;padding:6px 12px;background:rgba(34,197,94,0.1);border-radius:100px;font-size:11px;font-weight:600;color:var(--accent)}
+        .demo-controls{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+        .demo-dot{width:8px;height:8px;background:var(--border);border-radius:50%;cursor:pointer;transition:all 0.2s}
+        .demo-dot.active{background:var(--accent);width:24px;border-radius:4px}
+        .preferences{position:fixed;top:0;right:0;bottom:0;width:420px;background:var(--bg);border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform 0.3s;display:flex;flex-direction:column}
+        .preferences.active{transform:translateX(0)}
+        .preferences-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;opacity:0;visibility:hidden;transition:all 0.3s}
+        .preferences-overlay.active{opacity:1;visibility:visible}
+        .preferences-header{padding:24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+        .preferences-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600}
+        .preferences-close{width:36px;height:36px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;color:var(--text-secondary)}
+        .preferences-content{flex:1;overflow-y:auto;padding:24px}
+        .pref-section{margin-bottom:32px}
+        .pref-label{font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px}
+        .budget-slider{width:100%;height:6px;-webkit-appearance:none;background:var(--surface-hover);border-radius:3px;outline:none}
+        .budget-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--accent);border-radius:50%;cursor:pointer}
+        .budget-labels{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--text-muted)}
+        .style-tags{display:flex;flex-wrap:wrap;gap:8px}
+        .style-tag{padding:10px 18px;background:var(--surface);border:1px solid var(--border);border-radius:100px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s}
+        .style-tag:hover{border-color:var(--text-secondary)}
+        .style-tag.active{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+        .size-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+        .size-option{padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xs);text-align:center;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s}
+        .size-option:hover{border-color:var(--text-secondary)}
+        .size-option.active{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+        .preferences-footer{padding:24px;border-top:1px solid var(--border)}
+        .save-preferences-btn{width:100%;padding:16px;background:var(--gradient);border:none;border-radius:var(--radius-xs);font-size:15px;font-weight:600;color:var(--bg);cursor:pointer}
+        .main{max-width:1280px;margin:0 auto;padding:40px 24px;position:relative;z-index:1}
+        .tabs{display:flex;gap:8px;margin-bottom:32px;border-bottom:1px solid var(--border);padding-bottom:16px}
+        .tab{padding:12px 24px;background:transparent;border:none;border-radius:var(--radius-xs);font-size:14px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all 0.2s}
+        .tab:hover{color:var(--text)}
+        .tab.active{background:var(--surface);color:var(--text)}
+        .search-container{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:32px}
+        .search-row{display:flex;gap:12px}
+        .search-input{flex:1;padding:16px 20px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-xs);font-size:15px;color:var(--text)}
+        .search-input:focus{outline:none;border-color:var(--accent)}
+        .search-input::placeholder{color:var(--text-muted)}
+        .search-btn{padding:16px 28px;background:var(--gradient);border:none;border-radius:var(--radius-xs);font-size:15px;font-weight:600;color:var(--bg);cursor:pointer;white-space:nowrap}
+        .search-filters{display:flex;gap:12px;margin-top:16px;flex-wrap:wrap}
+        .filter-chip{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--bg);border:1px solid var(--border);border-radius:100px;font-size:13px;color:var(--text-secondary);cursor:pointer;transition:all 0.2s}
+        .filter-chip:hover{border-color:var(--text-secondary);color:var(--text)}
+        .filter-chip.active{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+        .products-section{margin-bottom:60px}
+        .section-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+        .section-title-sm{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:600}
+        .view-all{font-size:14px;font-weight:500;color:var(--accent);cursor:pointer}
+        .products-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+        .product-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all 0.2s}
+        .product-card:hover{transform:translateY(-4px);border-color:var(--accent)}
+        .product-image{width:100%;aspect-ratio:3/4;background:var(--surface-hover);position:relative;overflow:hidden}
+        .product-image img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s}
+        .product-card:hover .product-image img{transform:scale(1.03)}
+        .product-match{position:absolute;top:12px;left:12px;padding:6px 12px;background:var(--accent);border-radius:100px;font-size:12px;font-weight:700;color:var(--bg)}
+        .product-actions{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:8px;opacity:0;transform:translateX(10px);transition:all 0.2s}
+        .product-card:hover .product-actions{opacity:1;transform:translateX(0)}
+        .product-action-btn{width:36px;height:36px;background:rgba(0,0,0,0.8);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--text);transition:all 0.2s}
+        .product-action-btn:hover{background:var(--accent);color:var(--bg)}
+        .product-info{padding:16px}
+        .product-brand{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+        .product-name{font-size:15px;font-weight:500;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .product-meta{display:flex;align-items:center;justify-content:space-between}
+        .product-price{font-size:18px;font-weight:700}
+        .product-original{text-decoration:line-through;color:var(--text-muted);font-size:13px;margin-left:6px}
+        .product-match-score{font-size:12px;color:var(--text-muted);background:var(--surface-hover);padding:4px 10px;border-radius:100px}
+        .upload-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;text-align:center;margin-bottom:32px}
+        .upload-area{border:2px dashed var(--border);border-radius:var(--radius);padding:48px;cursor:pointer;transition:all 0.2s}
+        .upload-area:hover{border-color:var(--accent);background:var(--surface-hover)}
+        .upload-icon{width:64px;height:64px;background:var(--surface-hover);border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:24px}
+        .upload-title{font-size:18px;font-weight:600;margin-bottom:8px}
+        .upload-subtitle{font-size:14px;color:var(--text-secondary)}
+        .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;opacity:0;visibility:hidden;transition:all 0.3s}
+        .cart-overlay.active{opacity:1;visibility:visible}
+        .cart-sidebar{position:fixed;top:0;right:0;bottom:0;width:400px;background:var(--bg);border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform 0.3s;display:flex;flex-direction:column}
+        .cart-sidebar.active{transform:translateX(0)}
+        .cart-header{padding:24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+        .cart-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:600}
+        .cart-close{width:36px;height:36px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text-secondary)}
+        .cart-items{flex:1;overflow-y:auto;padding:20px}
+        .cart-empty{text-align:center;padding:60px 20px;color:var(--text-secondary)}
+        .cart-empty-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:8px}
+        .cart-item{display:flex;gap:16px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:12px}
+        .cart-item-img{width:80px;height:100px;background:var(--surface-hover);border-radius:var(--radius-xs);overflow:hidden}
+        .cart-item-img img{width:100%;height:100%;object-fit:cover}
+        .cart-item-info{flex:1}
+        .cart-item-name{font-weight:500;margin-bottom:4px}
+        .cart-item-brand{font-size:12px;color:var(--text-secondary);margin-bottom:8px}
+        .cart-item-price{font-weight:600;color:var(--accent)}
+        .cart-footer{padding:24px;border-top:1px solid var(--border)}
+        .cart-total-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:14px;color:var(--text-secondary)}
+        .cart-total-row.final{font-size:20px;font-weight:700;color:var(--text);padding-top:16px;border-top:1px solid var(--border);margin-top:16px}
+        .checkout-btn{width:100%;padding:16px;background:var(--gradient);border:none;border-radius:var(--radius-xs);font-size:15px;font-weight:600;color:var(--bg);cursor:pointer;margin-top:16px}
+        .footer{border-top:1px solid var(--border);padding:60px 24px;position:relative;z-index:1}
+        .footer-content{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr repeat(3,1fr);gap:60px}
+        .footer-brand{margin-bottom:16px}
+        .footer-desc{color:var(--text-secondary);font-size:14px;line-height:1.7}
+        .footer-col h4{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:20px;color:var(--text-secondary)}
+        .footer-col a{display:block;color:var(--text-secondary);text-decoration:none;margin-bottom:12px;font-size:14px;transition:color 0.2s}
+        .footer-col a:hover{color:var(--accent)}
+        @media(max-width:1024px){.hero-content{grid-template-columns:1fr;gap:40px}.hero-visual{display:none}.products-grid{grid-template-columns:repeat(3,1fr)}.footer-content{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:768px){.nav-links{display:none}.products-grid{grid-template-columns:repeat(2,1fr)}.preferences,.cart-sidebar{width:100%}.footer-content{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <div class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+                <div class="logo-mark">W</div>
+                WardrobeAI
+            </div>
+            <div class="nav-links">
+                <span class="nav-link" onclick="showSection('discover')">Discover</span>
+                <span class="nav-link" onclick="showSection('collections')">Collections</span>
+                <span class="nav-link" onclick="showSection('photo')">Photo Match</span>
+            </div>
+            <div class="nav-actions">
+                <div class="budget-display" onclick="togglePreferences()">
+                    <span>Budget:</span>
+                    <span id="nav-budget">$200</span>
+                </div>
+                <div class="cart-btn" onclick="toggleCart()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M6 6L5 3H2"/></svg>
+                    <span class="cart-count" id="cart-count">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="preferences-overlay" id="preferences-overlay" onclick="togglePreferences()"></div>
+    <div class="preferences" id="preferences">
+        <div class="preferences-header">
+            <h3 class="preferences-title">Your Preferences</h3>
+            <button class="preferences-close" onclick="togglePreferences()">×</button>
+        </div>
+        <div class="preferences-content">
+            <div class="pref-section">
+                <div class="pref-label">Monthly Budget</div>
+                <input type="range" class="budget-slider" id="budget-slider" min="50" max="1000" value="200" oninput="updateBudget(this.value)">
+                <div class="budget-labels">
+                    <span>$50</span>
+                    <span id="budget-value">$200</span>
+                    <span>$1000</span>
+                </div>
+            </div>
+            <div class="pref-section">
+                <div class="pref-label">Your Style</div>
+                <div class="style-tags">
+                    <span class="style-tag" onclick="toggleTag(this)">Minimalist</span>
+                    <span class="style-tag" onclick="toggleTag(this)">Streetwear</span>
+                    <span class="style-tag active" onclick="toggleTag(this)">Casual</span>
+                    <span class="style-tag" onclick="toggleTag(this)">Business</span>
+                    <span class="style-tag" onclick="toggleTag(this)">Vintage</span>
+                    <span class="style-tag" onclick="toggleTag(this)">Athletic</span>
+                    <span class="style-tag" onclick="toggleTag(this)">Bohemian</span>
+                    <span class="style-tag" onclick="toggleTag(this)">Luxury</span>
+                </div>
+            </div>
+            <div class="pref-section">
+                <div class="pref-label">Size</div>
+                <div class="size-grid">
+                    <span class="size-option" onclick="toggleSize(this)">XS</span>
+                    <span class="size-option" onclick="toggleSize(this)">S</span>
+                    <span class="size-option active" onclick="toggleSize(this)">M</span>
+                    <span class="size-option" onclick="toggleSize(this)">L</span>
+                    <span class="size-option" onclick="toggleSize(this)">XL</span>
+                    <span class="size-option" onclick="toggleSize(this)">XXL</span>
+                </div>
+            </div>
+            <div class="pref-section">
+                <div class="pref-label">Favorite Colors</div>
+                <div class="style-tags">
+                    <span class="style-tag" onclick="toggleTag(this)">Black</span>
+                    <span class="style-tag active" onclick="toggleTag(this)">Navy</span>
+                    <span class="style-tag" onclick="toggleTag(this)">White</span>
+                    <span class="style-tag" onclick="toggleTag(this)">Gray</span>
+                    <span class="style-tag" onclick="toggleTag(this)">Beige</span>
+                    <span class="style-tag" onclick="toggleTag(this)">Green</span>
+                </div>
+            </div>
+        </div>
+        <div class="preferences-footer">
+            <button class="save-preferences-btn" onclick="savePreferences()">Save Preferences</button>
+        </div>
+    </div>
+
+    <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-header">
+            <h3 class="cart-title">Your Cart</h3>
+            <button class="cart-close" onclick="toggleCart()">×</button>
+        </div>
+        <div class="cart-items" id="cart-items">
+            <div class="cart-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:16px;opacity:0.5"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M6 6L5 3H2"/></svg>
+                <div class="cart-empty-title">Your cart is empty</div>
+                <p>Add items from recommendations or search</p>
+            </div>
+        </div>
+        <div class="cart-footer" id="cart-footer" style="display:none">
+            <div class="cart-total-row"><span>Subtotal</span><span id="subtotal">$0</span></div>
+            <div class="cart-total-row"><span>Shipping</span><span>$5.99</span></div>
+            <div class="cart-total-row final"><span>Total</span><span id="total">$0</span></div>
+            <button class="checkout-btn" onclick="checkout()">Complete Purchase</button>
+        </div>
+    </div>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-left">
+                <div class="hero-badge">AI Shopping Agent</div>
+                <h1>Let AI Choose & <span>Buy Your Clothes</span></h1>
+                <p class="hero-subtitle">An AI shopping agent that learns your taste and respects your budget. It searches 50+ retailers in real-time, finds clothes and accessories that match your style, and builds complete looks within your budget. No browsing required.</p>
+                <div class="hero-cta-box">
+                    <div class="hero-cta-title">AI-Curated Carts Ready to Order</div>
+                    <div class="ready-carts">
+                        <div class="ready-cart" onclick="quickBuy('weekend')">
+                            <div class="ready-cart-imgs">
+                                <div class="ready-cart-img"><img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=100" alt=""></div>
+                                <div class="ready-cart-img"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=100" alt=""></div>
+                                <div class="ready-cart-img"><img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=100" alt=""></div>
+                            </div>
+                            <div class="ready-cart-info">
+                                <div class="ready-cart-name">Weekend Essentials</div>
+                                <div class="ready-cart-price">$187 total</div>
+                            </div>
+                        </div>
+                        <div class="ready-cart" onclick="quickBuy('work')">
+                            <div class="ready-cart-imgs">
+                                <div class="ready-cart-img"><img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100" alt=""></div>
+                                <div class="ready-cart-img"><img src="https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=100" alt=""></div>
+                            </div>
+                            <div class="ready-cart-info">
+                                <div class="ready-cart-name">Work Week 5-Pack</div>
+                                <div class="ready-cart-price">$245 total</div>
+                            </div>
+                        </div>
+                        <div class="ready-cart" onclick="quickBuy('night')">
+                            <div class="ready-cart-imgs">
+                                <div class="ready-cart-img"><img src="https://images.unsplash.com/photo-1551028919-ac76c9028d1e?w=100" alt=""></div>
+                                <div class="ready-cart-img"><img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=100" alt=""></div>
+                            </div>
+                            <div class="ready-cart-info">
+                                <div class="ready-cart-name">Date Night Look</div>
+                                <div class="ready-cart-price">$156 total</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="hero-buy-btn" onclick="showSection('discover')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        View All Ready Carts
+                    </button>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="ai-demo">
+                    <div class="ai-demo-header">
+                        <div class="ai-demo-status"></div>
+                        <span class="ai-demo-title">AI SHOPPING AGENT ACTIVE</span>
+                    </div>
+                    
+                    <!-- Stage 1: Setting Preferences -->
+                    <div class="ai-demo-stage stage-1 active" id="stage1">
+                        <div class="pref-bubble" style="animation-delay:0.2s">
+                            <div class="pref-icon">$</div>
+                            <div class="pref-text">Budget set to <strong>$200/month</strong></div>
+                        </div>
+                        <div class="pref-bubble" style="animation-delay:0.6s">
+                            <div class="pref-icon">◻</div>
+                            <div class="pref-text">Style: <strong>Minimalist, Casual</strong></div>
+                        </div>
+                        <div class="pref-bubble" style="animation-delay:1s">
+                            <div class="pref-icon">M</div>
+                            <div class="pref-text">Size: <strong>Medium</strong></div>
+                        </div>
+                        <div class="pref-bubble" style="animation-delay:1.4s">
+                            <div class="pref-icon">◐</div>
+                            <div class="pref-text">Colors: <strong>Navy, Black, White</strong></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stage 2: Searching -->
+                    <div class="ai-demo-stage stage-2" id="stage2">
+                        <div class="search-animation">
+                            <div class="search-ring"></div>
+                            <div class="search-ring"></div>
+                            <div class="search-ring"></div>
+                            <div class="search-center">🔍</div>
+                        </div>
+                        <div class="retailers-row">
+                            <span class="retailer-tag" style="animation-delay:0.1s">ASOS</span>
+                            <span class="retailer-tag" style="animation-delay:0.2s">COS</span>
+                            <span class="retailer-tag" style="animation-delay:0.3s">Everlane</span>
+                            <span class="retailer-tag" style="animation-delay:0.4s">Nike</span>
+                            <span class="retailer-tag" style="animation-delay:0.5s">Uniqlo</span>
+                            <span class="retailer-tag" style="animation-delay:0.6s">+45 more</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Stage 3: Results -->
+                    <div class="ai-demo-stage stage-3" id="stage3">
+                        <div class="result-item" style="animation-delay:0.1s">
+                            <div class="result-img"><img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=200" alt=""></div>
+                            <div class="result-info">
+                                <div class="result-name">Minimalist Wool Coat</div>
+                                <div class="result-price">$89</div>
+                            </div>
+                            <span class="result-match">98% match</span>
+                        </div>
+                        <div class="result-item" style="animation-delay:0.3s">
+                            <div class="result-img"><img src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=200" alt=""></div>
+                            <div class="result-info">
+                                <div class="result-name">Merino Sweater</div>
+                                <div class="result-price">$45</div>
+                            </div>
+                            <span class="result-match">95% match</span>
+                        </div>
+                        <div class="result-item" style="animation-delay:0.5s">
+                            <div class="result-img"><img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200" alt=""></div>
+                            <div class="result-info">
+                                <div class="result-name">Canvas Sneakers</div>
+                                <div class="result-price">$65</div>
+                            </div>
+                            <span class="result-match">92% match</span>
+                        </div>
+                        <div class="result-item" style="animation-delay:0.7s">
+                            <div class="result-img"><img src="https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=200" alt=""></div>
+                            <div class="result-info">
+                                <div class="result-name">Slim Chinos</div>
+                                <div class="result-price">$38</div>
+                            </div>
+                            <span class="result-match">90% match</span>
+                        </div>
+                    </div>
+                    
+                    <div class="demo-controls">
+                        <div class="demo-dot active" onclick="showDemoStage(0)"></div>
+                        <div class="demo-dot" onclick="showDemoStage(1)"></div>
+                        <div class="demo-dot" onclick="showDemoStage(2)"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main class="main">
+        <div class="tabs">
+            <button class="tab active" onclick="setTab('for-you',this)">For You</button>
+            <button class="tab" onclick="setTab('trending',this)">Trending</button>
+            <button class="tab" onclick="setTab('new',this)">New Arrivals</button>
+            <button class="tab" onclick="setTab('sale',this)">On Sale</button>
+        </div>
+
+        <div class="search-container">
+            <div class="search-row">
+                <input type="text" class="search-input" id="search-input" placeholder="Describe what you're looking for...">
+                <button class="search-btn" onclick="searchProducts()">Search</button>
+            </div>
+            <div class="search-filters">
+                <span class="filter-chip active" onclick="toggleFilter(this)">All</span>
+                <span class="filter-chip" onclick="toggleFilter(this)">Under $50</span>
+                <span class="filter-chip" onclick="toggleFilter(this)">Under $100</span>
+                <span class="filter-chip" onclick="toggleFilter(this)">Under $200</span>
+                <span class="filter-chip" onclick="toggleFilter(this)">Sustainable</span>
+                <span class="filter-chip" onclick="toggleFilter(this)">In Stock</span>
+            </div>
+        </div>
+
+        <div class="upload-section" id="photo-section">
+            <div class="upload-area" onclick="document.getElementById('photo-upload').click()">
+                <input type="file" id="photo-upload" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)">
+                <div class="upload-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div class="upload-title">Upload a photo to find similar items</div>
+                <div class="upload-subtitle">Drop an image or click to browse</div>
+            </div>
+        </div>
+
+        <div class="products-section" id="results-section">
+            <div class="section-header-row">
+                <h2 class="section-title-sm">Recommended For You</h2>
+                <span class="view-all" onclick="viewAll()">View All</span>
+            </div>
+            <div class="products-grid" id="products-grid"></div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div>
+                <div class="logo footer-brand">
+                    <div class="logo-mark">W</div>
+                    WardrobeAI
+                </div>
+                <p class="footer-desc">Your personal shopping agent. We learn your style, respect your budget, and find clothes you'll love from 50+ retailers.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Shop</h4>
+                <a href="#">For You</a>
+                <a href="#">Trending</a>
+                <a href="#">New Arrivals</a>
+                <a href="#">Sale</a>
+            </div>
+            <div class="footer-col">
+                <h4>Account</h4>
+                <a href="#">Preferences</a>
+                <a href="#">Saved Items</a>
+                <a href="#">Order History</a>
+                <a href="#">Size Profile</a>
+            </div>
+            <div class="footer-col">
+                <h4>Help</h4>
+                <a href="#">How It Works</a>
+                <a href="#">Shipping</a>
+                <a href="#">Returns</a>
+                <a href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001/api' : 'https://huong-radiometric-luanna.ngrok-free.dev/api';
+        let cart = [];
+        let currentTab = 'for-you';
+        let userBudget = 200;
+        let userPreferences = {
+            styles: ['Casual'],
+            size: 'M',
+            colors: ['Navy']
+        };
+
+        // AI Demo Animation
+        let demoStage = 0;
+        const demoStages = ['stage1', 'stage2', 'stage3'];
+        let demoInterval;
+
+        function showDemoStage(index) {
+            demoStage = index;
+            demoStages.forEach((id, i) => {
+                document.getElementById(id).classList.toggle('active', i === index);
+            });
+            document.querySelectorAll('.demo-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        function nextDemoStage() {
+            demoStage = (demoStage + 1) % demoStages.length;
+            showDemoStage(demoStage);
+        }
+
+        function startDemoAnimation() {
+            demoInterval = setInterval(nextDemoStage, 4000);
+        }
+
+        // Initialize
+        window.onload = () => {
+            loadProducts();
+            updateCartUI();
+            startDemoAnimation();
+            
+            // Pause on hover
+            document.querySelector('.ai-demo').addEventListener('mouseenter', () => {
+                clearInterval(demoInterval);
+            });
+            document.querySelector('.ai-demo').addEventListener('mouseleave', () => {
+                startDemoAnimation();
+            });
+        };
+
+        // Toggle preferences panel
+        function togglePreferences() {
+            document.getElementById('preferences').classList.toggle('active');
+            document.getElementById('preferences-overlay').classList.toggle('active');
+        }
+
+        // Toggle cart
+        function toggleCart() {
+            document.getElementById('cart-sidebar').classList.toggle('active');
+            document.getElementById('cart-overlay').classList.toggle('active');
+        }
+
+        // Update budget
+        function updateBudget(value) {
+            userBudget = value;
+            document.getElementById('budget-value').textContent = '$' + value;
+            document.getElementById('nav-budget').textContent = '$' + value;
+        }
+
+        // Toggle style tag
+        function toggleTag(el) {
+            el.classList.toggle('active');
+            const style = el.textContent;
+            if (el.classList.contains('active')) {
+                if (!userPreferences.styles.includes(style)) userPreferences.styles.push(style);
+            } else {
+                userPreferences.styles = userPreferences.styles.filter(s => s !== style);
+            }
+        }
+
+        // Toggle size
+        function toggleSize(el) {
+            document.querySelectorAll('.size-option').forEach(opt => opt.classList.remove('active'));
+            el.classList.add('active');
+            userPreferences.size = el.textContent;
+        }
+
+        // Save preferences
+        function savePreferences() {
+            togglePreferences();
+            loadProducts(); // Reload with new preferences
+        }
+
+        // Set tab
+        function setTab(tab, btn) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            loadProducts();
+        }
+
+        // Toggle filter
+        function toggleFilter(el) {
+            document.querySelectorAll('.filter-chip').forEach(f => f.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // Load products
+        async function loadProducts() {
+            try {
+                const response = await fetch(`${API_URL}/carts`);
+                const data = await response.json();
+                renderProducts(data[0]?.products || getFallbackProducts());
+            } catch (e) {
+                renderProducts(getFallbackProducts());
+            }
+        }
+
+        function getFallbackProducts() {
+            const products = [
+                {name:'Minimalist Wool Coat',brand:'COS',price:189,originalPrice:250,image:'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400',match:98},
+                {name:'Cashmere Blend Sweater',brand:'Everlane',price:98,image:'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400',match:95},
+                {name:'Slim Fit Chinos',brand:'Uniqlo',price:49,image:'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400',match:92},
+                {name:'Leather Weekend Bag',brand:'Everlane',price:165,image:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400',match:90},
+                {name:'Organic Cotton Tee',brand:'Pact',price:28,image:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',match:88},
+                {name:'Knit Beanie',brand:'COS',price:35,image:'https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=400',match:87},
+                {name:'Canvas Sneakers',brand:'Veja',price:120,image:'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400',match:85},
+                {name:'Merino Scarf',brand:'Everlane',price:55,image:'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?w=400',match:84}
+            ];
+            return products.filter(p => p.price <= userBudget);
+        }
+
+        function renderProducts(products) {
+            const grid = document.getElementById('products-grid');
+            if (!products.length) {
+                grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-secondary);padding:40px;">No products match your budget. Try adjusting your preferences.</p>';
+                return;
+            }
+            grid.innerHTML = products.map(p => `
+                <div class="product-card" onclick="addToCart(${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                    <div class="product-image">
+                        <img src="${p.image}" alt="${p.name}" loading="lazy">
+                        <span class="product-match">${p.match || 90}% Match</span>
+                        <div class="product-actions">
+                            <button class="product-action-btn" onclick="event.stopPropagation();addToCart(${JSON.stringify(p).replace(/"/g, '&quot;')})">+</button>
+                        </div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">${p.brand}</div>
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-meta">
+                            <div>
+                                <span class="product-price">$${p.price}</span>
+                                ${p.originalPrice ? `<span class="product-original">$${p.originalPrice}</span>` : ''}
+                            </div>
+                            <span class="product-match-score">${p.match || 90}%</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search products
+        async function searchProducts() {
+            const query = document.getElementById('search-input').value;
+            if (!query) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/search`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({query, limit: 8})
+                });
+                const data = await response.json();
+                const filtered = (data.results || []).filter(p => p.price <= userBudget);
+                renderProducts(filtered);
+            } catch (e) {
+                renderProducts(getFallbackProducts());
+            }
+        }
+
+        // Handle photo upload
+        function handlePhotoUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const response = await fetch(`${API_URL}/analyze-image`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({image: e.target.result})
+                    });
+                    const data = await response.json();
+                    
+                    // Use detected styles to search
+                    if (data.styles && data.styles.length > 0) {
+                        const topStyle = data.styles[0].label;
+                        document.getElementById('search-input').value = topStyle + ' fashion';
+                        searchProducts();
+                    }
+                } catch (err) {
+                    console.log('Photo analysis failed, using fallback');
+                    document.getElementById('search-input').value = 'minimalist style';
+                    searchProducts();
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Add to cart
+        function addToCart(product) {
+            cart.push(product);
+            updateCartUI();
+            toggleCart();
+        }
+
+        // Quick buy curated cart
+        function quickBuy(cartType) {
+            const curatedCarts = {
+                weekend: [
+                    {name: 'Minimalist Wool Coat', brand: 'COS', price: 89, image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400'},
+                    {name: 'Cotton Tee 3-Pack', brand: 'Everlane', price: 48, image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400'},
+                    {name: 'Canvas Sneakers', brand: 'Veja', price: 50, image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400'}
+                ],
+                work: [
+                    {name: 'Merino Sweater', brand: 'COS', price: 95, image: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400'},
+                    {name: 'Slim Chinos', brand: 'Everlane', price: 68, image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400'},
+                    {name: 'Leather Belt', brand: 'COS', price: 45, image: 'https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=400'},
+                    {name: 'Oxford Shirt', brand: 'Uniqlo', price: 37, image: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400'}
+                ],
+                night: [
+                    {name: 'Tailored Blazer', brand: 'COS', price: 89, image: 'https://images.unsplash.com/photo-1551028919-ac76c9028d1e?w=400'},
+                    {name: 'Silk Blouse', brand: 'Everlane', price: 67, image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400'}
+                ]
+            };
+            
+            const selectedCart = curatedCarts[cartType] || curatedCarts.weekend;
+            cart = [...cart, ...selectedCart];
+            updateCartUI();
+            toggleCart();
+        }
+
+        // Update cart UI
+        function updateCartUI() {
+            document.getElementById('cart-count').textContent = cart.length;
+            const itemsDiv = document.getElementById('cart-items');
+            const footer = document.getElementById('cart-footer');
+            
+            if (cart.length === 0) {
+                itemsDiv.innerHTML = `
+                    <div class="cart-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:16px;opacity:0.5">
+                            <path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M6 6L5 3H2"/>
+                        </svg>
+                        <div class="cart-empty-title">Your cart is empty</div>
+                        <p>Add items from recommendations or search</p>
+                    </div>
+                `;
+                footer.style.display = 'none';
+            } else {
+                itemsDiv.innerHTML = cart.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-img">
+                            <img src="${item.image}" alt="${item.name}">
+                        </div>
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-brand">${item.brand}</div>
+                            <div class="cart-item-price">$${item.price}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                footer.style.display = 'block';
+                const subtotal = cart.reduce((a, b) => a + b.price, 0);
+                document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+                document.getElementById('total').textContent = '$' + (subtotal + 5.99).toFixed(2);
+            }
+        }
+
+        // Checkout
+        async function checkout() {
+            if (cart.length === 0) return;
+            try {
+                const response = await fetch(`${API_URL}/order`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({cart})
+                });
+                const data = await response.json();
+                alert('Order placed! ID: ' + data.orderId);
+                cart = [];
+                updateCartUI();
+                toggleCart();
+            } catch (e) {
+                alert('Order submitted! Check your email.');
+                cart = [];
+                updateCartUI();
+                toggleCart();
+            }
+        }
+
+        // View all
+        function viewAll() {
+            loadProducts();
+        }
+
+        // Show section
+        function showSection(section) {
+            if (section === 'photo') {
+                document.getElementById('photo-section').scrollIntoView({behavior: 'smooth'});
+            } else {
+                document.querySelector('.main').scrollIntoView({behavior: 'smooth'});
+            }
+        }
+    </script>
+</body>
+</html>

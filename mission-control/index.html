@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control | Task Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#0a0a0f;--surface:#13131a;--surface-hover:#1e1e2e;--border:#2a2a3a;--text:#e2e2e8;--text-secondary:#6b6b7b;--accent:#3b82f6;--accent-hover:#2563eb;--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--radius:12px;--radius-sm:8px}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+        .app{display:grid;grid-template-columns:280px 1fr;height:100vh;overflow:hidden}
+        .sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+        .sidebar-header{padding:24px;border-bottom:1px solid var(--border)}
+        .logo{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:10px}
+        .logo::before{content:'';width:8px;height:8px;background:var(--accent);border-radius:2px;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+        .subtitle{font-size:13px;color:var(--text-secondary);margin-top:4px}
+        .nav-section{padding:16px}
+        .nav-title{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding:0 12px}
+        .nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all 0.2s;margin-bottom:4px;font-size:14px}
+        .nav-item:hover{background:var(--surface-hover)}
+        .nav-item.active{background:var(--accent);color:white}
+        .nav-item svg{width:18px;height:18px;opacity:0.7}
+        .nav-item.active svg{opacity:1}
+        .nav-badge{margin-left:auto;background:var(--bg);padding:2px 8px;border-radius:100px;font-size:12px;font-weight:600}
+        .nav-item.active .nav-badge{background:rgba(255,255,255,0.2)}
+        .quick-add-section{padding:16px;border-top:1px solid var(--border);margin-top:auto}
+        .quick-add-title{font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:10px}
+        .quick-add-input{width:100%;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;color:var(--text);margin-bottom:8px}
+        .quick-add-input:focus{outline:none;border-color:var(--accent)}
+        .quick-add-btn{width:100%;padding:10px;background:var(--accent);border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:white;cursor:pointer}
+        .main{display:grid;grid-template-rows:1fr auto;overflow:hidden}
+        .content{overflow-y:auto;padding:32px}
+        .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+        .page-title{font-size:28px;font-weight:700}
+        .page-actions{display:flex;gap:12px}
+        .btn{padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.2s}
+        .btn-primary{background:var(--accent);border:none;color:white}
+        .btn-primary:hover{background:var(--accent-hover)}
+        .btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text)}
+        .btn-secondary:hover{background:var(--surface-hover)}
+        .dashboard-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:32px}
+        .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+        .stat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+        .stat-label{font-size:13px;color:var(--text-secondary);font-weight:500}
+        .stat-icon{width:40px;height:40px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px}
+        .stat-icon.done{background:rgba(34,197,94,0.1);color:var(--success)}
+        .stat-icon.pending{background:rgba(245,158,11,0.1);color:var(--warning)}
+        .stat-icon.time{background:rgba(59,130,246,0.1);color:var(--accent)}
+        .stat-value{font-size:36px;font-weight:700;margin-bottom:8px}
+        .stat-change{font-size:13px;color:var(--text-secondary)}
+        .completed-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;margin-bottom:32px}
+        .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+        .section-title{font-size:20px;font-weight:600;display:flex;align-items:center;gap:12px}
+        .section-title::before{content:'';width:4px;height:24px;background:var(--success);border-radius:2px}
+        .completed-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+        .completed-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;display:flex;gap:16px;transition:all 0.2s}
+        .completed-card:hover{border-color:var(--success)}
+        .completed-check{width:48px;height:48px;background:rgba(34,197,94,0.1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+        .completed-content{flex:1}
+        .completed-title{font-size:15px;font-weight:600;margin-bottom:6px}
+        .completed-meta{font-size:13px;color:var(--text-secondary);display:flex;gap:16px}
+        .timetable-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px}
+        .timetable-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+        .timetable-title{font-size:20px;font-weight:600;display:flex;align-items:center;gap:12px}
+        .timetable-title::before{content:'';width:4px;height:24px;background:var(--accent);border-radius:2px}
+        .priority-filter{display:flex;gap:8px}
+        .priority-btn{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;border:none}
+        .priority-btn.high{background:rgba(239,68,68,0.1);color:var(--danger)}
+        .priority-btn.medium{background:rgba(245,158,11,0.1);color:var(--warning)}
+        .priority-btn.low{background:rgba(34,197,94,0.1);color:var(--success)}
+        .timetable{display:flex;flex-direction:column;gap:12px}
+        .time-slot{display:grid;grid-template-columns:80px 1fr;gap:16px;padding:16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm)}
+        .time-label{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-secondary);font-weight:500;padding-top:4px}
+        .time-task{display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--accent)}
+        .time-task.high{border-left-color:var(--danger)}
+        .time-task.medium{border-left-color:var(--warning)}
+        .time-task.low{border-left-color:var(--success)}
+        .task-name{font-size:14px;font-weight:500}
+        .task-project{font-size:12px;color:var(--text-secondary)}
+        .task-duration{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-secondary);background:var(--bg);padding:4px 10px;border-radius:100px}
+        .floating-notes{background:var(--surface);border-top:1px solid var(--border);padding:16px 32px;display:flex;gap:16px;align-items:flex-start}
+        .notes-input-wrapper{flex:1;display:flex;gap:12px}
+        .notes-avatar{width:40px;height:40px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;flex-shrink:0}
+        .notes-input-container{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px}
+        .notes-input{width:100%;background:transparent;border:none;font-size:14px;color:var(--text);resize:none;min-height:20px;max-height:100px;font-family:inherit}
+        .notes-input:focus{outline:none}
+        .notes-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+        .notes-hint{font-size:12px;color:var(--text-secondary)}
+        .notes-submit{padding:8px 20px;background:var(--accent);border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:600;color:white;cursor:pointer}
+        .recent-notes{width:300px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;max-height:200px;overflow-y:auto}
+        .recent-notes-title{font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+        .note-item{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+        .note-item:last-child{border-bottom:none}
+        .note-time{font-size:11px;color:var(--text-secondary);margin-top:4px}
+        @media(max-width:1200px){.app{grid-template-columns:240px 1fr}.dashboard-grid{grid-template-columns:repeat(2,1fr)}.completed-grid{grid-template-columns:1fr}}
+        @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{display:none}.dashboard-grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">MISSION CONTROL</div>
+                <div class="subtitle">Task Dashboard</div>
+            </div>
+            <div class="nav-section">
+                <div class="nav-title">Dashboard</div>
+                <div class="nav-item active" onclick="showPage('overview')">Overview</div>
+                <div class="nav-item" onclick="showPage('timetable')">Timetable</div>
+                <div class="nav-item" onclick="showPage('completed')">Completed</div>
+            </div>
+            <div class="quick-add-section">
+                <div class="quick-add-title">Quick Add Task</div>
+                <input type="text" class="quick-add-input" id="quickTaskInput" placeholder="What needs to be done?">
+                <button class="quick-add-btn" onclick="quickAddTask()">Add Task</button>
+            </div>
+        </aside>
+        <main class="main">
+            <div class="content">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard Overview</h1>
+                    <div class="page-actions">
+                        <button class="btn btn-primary" onclick="showAddTaskModal()">New Task</button>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Tasks Completed</span>
+                            <div class="stat-icon done">✓</div>
+                        </div>
+                        <div class="stat-value" id="completedCount">12</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Pending Tasks</span>
+                            <div class="stat-icon pending">!</div>
+                        </div>
+                        <div class="stat-value" id="pendingCount">5</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-label">Focus Time</span>
+                            <div class="stat-icon time">◷</div>
+                        </div>
+                        <div class="stat-value">4.2h</div>
+                    </div>
+                </div>
+                <div class="completed-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recently Completed</h2>
+                    </div>
+                    <div class="completed-grid" id="completedGrid"></div>
+                </div>
+                <div class="timetable-section">
+                    <div class="timetable-header">
+                        <h2 class="timetable-title">Today's Schedule</h2>
+                        <div class="priority-filter">
+                            <button class="priority-btn high">High</button>
+                            <button class="priority-btn medium">Medium</button>
+                            <button class="priority-btn low">Low</button>
+                        </div>
+                    </div>
+                    <div class="timetable" id="timetable"></div>
+                </div>
+            </div>
+            <div class="floating-notes">
+                <div class="notes-input-wrapper">
+                    <div class="notes-avatar">AI</div>
+                    <div class="notes-input-container">
+                        <textarea class="notes-input" id="notesInput" placeholder="Add a note or command..."></textarea>
+                        <div class="notes-actions">
+                            <span class="notes-hint">Press Enter to save</span>
+                            <button class="notes-submit" onclick="saveNote()">Add Note</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="recent-notes" id="recentNotes">
+                    <div class="recent-notes-title">Recent Notes</div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let completedTasks = JSON.parse(localStorage.getItem('completedTasks')) || [
+            {name:'Fixed StyleSync images',project:'StyleSync',time:'10:30 AM'},
+            {name:'Updated cron schedules',project:'Internal',time:'09:15 AM'},
+            {name:'WhiteLabl content review',project:'WhiteLabl',time:'08:45 AM'}
+        ];
+        let notes = JSON.parse(localStorage.getItem('notes')) || [];
+        
+        window.onload = () => {
+            renderCompletedTasks();
+            renderTimetable();
+            renderNotes();
+            updateStats();
+        };
+        
+        function renderCompletedTasks() {
+            const grid = document.getElementById('completedGrid');
+            grid.innerHTML = completedTasks.map(task => `
+                <div class="completed-card">
+                    <div class="completed-check">✓</div>
+                    <div class="completed-content">
+                        <div class="completed-title">${task.name}</div>
+                        <div class="completed-meta">${task.project} • ${task.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderTimetable() {
+            const container = document.getElementById('timetable');
+            const schedule = [
+                {time:'09:00',task:'WhiteLabl MOQ Guide',project:'WhiteLabl',duration:'90 min',priority:'high'},
+                {time:'11:00',task:'WildOnMedia Analytics',project:'WildOn',duration:'60 min',priority:'medium'},
+                {time:'14:00',task:'StyleSync Backend',project:'StyleSync',duration:'120 min',priority:'high'},
+                {time:'16:30',task:'Dashboard Mockups',project:'Internal',duration:'45 min',priority:'low'}
+            ];
+            container.innerHTML = schedule.map(slot => `
+                <div class="time-slot">
+                    <div class="time-label">${slot.time}</div>
+                    <div class="time-task ${slot.priority}">
+                        <div>
+                            <div class="task-name">${slot.task}</div>
+                            <div class="task-project">${slot.project}</div>
+                        </div>
+                        <span class="task-duration">${slot.duration}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderNotes() {
+            const container = document.getElementById('recentNotes');
+            const recent = notes.slice(-5).reverse();
+            container.innerHTML = '<div class="recent-notes-title">Recent Notes</div>' + 
+                recent.map(note => `
+                    <div class="note-item">
+                        ${note.text}
+                        <div class="note-time">${new Date(note.time).toLocaleTimeString()}</div>
+                    </div>
+                `).join('');
+        }
+        
+        function updateStats() {
+            document.getElementById('completedCount').textContent = completedTasks.length;
+            document.getElementById('pendingCount').textContent = tasks.length;
+        }
+        
+        function saveNote() {
+            const input = document.getElementById('notesInput');
+            const text = input.value.trim();
+            if (!text) return;
+            notes.push({text,time:new Date().toISOString()});
+            localStorage.setItem('notes',JSON.stringify(notes));
+            input.value = '';
+            renderNotes();
+        }
+        
+        function quickAddTask() {
+            const input = document.getElementById('quickTaskInput');
+            const name = input.value.trim();
+            if (!name) return;
+            tasks.push({id:Date.now(),name,completed:false});
+            localStorage.setItem('tasks',JSON.stringify(tasks));
+            input.value = '';
+            updateStats();
+        }
+        
+        function showAddTaskModal() {
+            const name = prompt('Task name:');
+            if (name) {
+                tasks.push({id:Date.now(),name,completed:false});
+                localStorage.setItem('tasks',JSON.stringify(tasks));
+                updateStats();
+            }
+        }
+        
+        function showPage(page) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        document.getElementById('notesInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                saveNote();
+            }
+        });
+    </script>
+</body>
+</html>

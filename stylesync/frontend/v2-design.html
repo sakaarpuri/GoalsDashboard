@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleSync | AI Fashion Curator</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,sans-serif}
+        :root{
+            --bg:#fafafa;
+            --surface:#ffffff;
+            --text:#0f0f0f;
+            --text-secondary:#666666;
+            --text-tertiary:#999999;
+            --purple:#6366f1;
+            --purple-light:#818cf8;
+            --purple-glow:rgba(99,102,241,0.15);
+            --green:#22c55e;
+            --gradient-start:#fafafa;
+            --gradient-mid:#f3f0ff;
+            --gradient-end:#faf5ff;
+        }
+        
+        body{
+            background:linear-gradient(180deg,var(--gradient-start) 0%,var(--gradient-mid) 50%,var(--gradient-end) 100%);
+            min-height:100vh;
+            color:var(--text);
+            font-size:16px;
+            line-height:1.5;
+        }
+        
+        .container{max-width:1400px;margin:0 auto;padding:0 24px}
+        
+        /* Navigation */
+        .nav{
+            position:fixed;
+            top:0;
+            left:0;
+            right:0;
+            z-index:100;
+            background:rgba(255,255,255,0.8);
+            backdrop-filter:blur(20px);
+            border-bottom:1px solid rgba(0,0,0,0.05);
+            padding:16px 0;
+        }
+        
+        .nav-content{
+            max-width:1400px;
+            margin:0 auto;
+            padding:0 24px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+        }
+        
+        .logo{
+            font-size:24px;
+            font-weight:800;
+            background:linear-gradient(135deg,var(--purple) 0%,#8b5cf6 100%);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            letter-spacing:-0.5px;
+        }
+        
+        .nav-links{display:flex;gap:32px;align-items:center}
+        
+        .nav-link{
+            color:var(--text-secondary);
+            text-decoration:none;
+            font-size:14px;
+            font-weight:500;
+            transition:color 0.2s;
+            cursor:pointer;
+        }
+        
+        .nav-link:hover{color:var(--text)}
+        
+        .kbd-shortcut{
+            background:#f3f4f6;
+            padding:4px 8px;
+            border-radius:6px;
+            font-size:12px;
+            font-family:monospace;
+            color:var(--text-secondary);
+            margin-left:8px;
+        }
+        
+        /* Hero Section */
+        .hero{
+            padding:140px 0 80px;
+            text-align:center;
+        }
+        
+        .hero-badge{
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            background:rgba(99,102,241,0.1);
+            color:var(--purple);
+            padding:8px 16px;
+            border-radius:100px;
+            font-size:14px;
+            font-weight:600;
+            margin-bottom:32px;
+        }
+        
+        .hero h1{
+            font-size:72px;
+            font-weight:800;
+            letter-spacing:-3px;
+            line-height:1.1;
+            margin-bottom:24px;
+            background:linear-gradient(135deg,#1a1a2e 0%,var(--purple) 50%,#8b5cf6 100%);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+        
+        .hero p{
+            font-size:20px;
+            color:var(--text-secondary);
+            max-width:600px;
+            margin:0 auto 48px;
+            line-height:1.6;
+        }
+        
+        /* Stats Section */
+        .stats{
+            display:grid;
+            grid-template-columns:repeat(4,1fr);
+            gap:24px;
+            margin-bottom:64px;
+        }
+        
+        .stat-card{
+            background:var(--surface);
+            border-radius:20px;
+            padding:32px 24px;
+            text-align:center;
+            box-shadow:0 4px 24px rgba(0,0,0,0.04),0 1px 3px rgba(0,0,0,0.02);
+            border:1px solid rgba(0,0,0,0.04);
+            transition:all 0.3s ease;
+        }
+        
+        .stat-card:hover{
+            transform:translateY(-4px);
+            box-shadow:0 12px 40px rgba(99,102,241,0.1);
+        }
+        
+        .stat-number{
+            font-size:48px;
+            font-weight:800;
+            background:linear-gradient(135deg,var(--purple) 0%,#8b5cf6 100%);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+            margin-bottom:8px;
+        }
+        
+        .stat-label{
+            font-size:14px;
+            color:var(--text-secondary);
+            font-weight:500;
+        }
+        
+        /* Glass Card */
+        .glass-card{
+            background:rgba(255,255,255,0.7);
+            backdrop-filter:blur(20px);
+            border-radius:24px;
+            padding:40px;
+            border:1px solid rgba(255,255,255,0.5);
+            box-shadow:0 8px 32px rgba(99,102,241,0.08),inset 0 1px 0 rgba(255,255,255,0.6);
+            margin-bottom:32px;
+        }
+        
+        /* Input Area */
+        .input-section{margin-bottom:48px}
+        
+        .input-tabs{
+            display:flex;
+            gap:8px;
+            margin-bottom:24px;
+            background:#f3f4f6;
+            padding:6px;
+            border-radius:12px;
+            width:fit-content;
+        }
+        
+        .input-tab{
+            padding:10px 20px;
+            border-radius:8px;
+            border:none;
+            background:transparent;
+            color:var(--text-secondary);
+            font-size:14px;
+            font-weight:500;
+            cursor:pointer;
+            transition:all 0.2s;
+        }
+        
+        .input-tab.active{
+            background:var(--surface);
+            color:var(--text);
+            box-shadow:0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .url-input{
+            width:100%;
+            padding:20px 24px;
+            border:2px solid #e5e7eb;
+            border-radius:16px;
+            font-size:16px;
+            background:var(--surface);
+            transition:all 0.2s;
+            margin-bottom:16px;
+        }
+        
+        .url-input:focus{
+            outline:none;
+            border-color:var(--purple);
+            box-shadow:0 0 0 4px var(--purple-glow);
+        }
+        
+        .drop-zone{
+            border:2px dashed #e5e7eb;
+            border-radius:16px;
+            padding:48px 24px;
+            text-align:center;
+            background:#fafafa;
+            transition:all 0.2s;
+            cursor:pointer;
+        }
+        
+        .drop-zone:hover,.drop-zone.dragover{
+            border-color:var(--purple);
+            background:var(--purple-glow);
+        }
+        
+        .btn{
+            background:linear-gradient(135deg,var(--purple) 0%,#7c3aed 100%);
+            color:#fff;
+            border:none;
+            padding:16px 32px;
+            border-radius:12px;
+            font-size:16px;
+            font-weight:600;
+            cursor:pointer;
+            transition:all 0.2s;
+            box-shadow:0 4px 16px rgba(99,102,241,0.3);
+        }
+        
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 8px 24px rgba(99,102,241,0.4);
+        }
+        
+        .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+        
+        /* Command Palette */
+        .command-palette-overlay{
+            position:fixed;
+            top:0;
+            left:0;
+            right:0;
+            bottom:0;
+            background:rgba(0,0,0,0.5);
+            backdrop-filter:blur(4px);
+            z-index:200;
+            display:flex;
+            align-items:flex-start;
+            justify-content:center;
+            padding-top:120px;
+        }
+        
+        .command-palette{
+            background:var(--surface);
+            border-radius:16px;
+            width:100%;
+            max-width:640px;
+            box-shadow:0 24px 48px rgba(0,0,0,0.2);
+            overflow:hidden;
+        }
+        
+        .command-input{
+            width:100%;
+            padding:20px 24px;
+            border:none;
+            border-bottom:1px solid #e5e7eb;
+            font-size:16px;
+            outline:none;
+        }
+        
+        .command-list{
+            max-height:400px;
+            overflow-y:auto;
+        }
+        
+        .command-item{
+            padding:12px 24px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            cursor:pointer;
+            transition:background 0.1s;
+        }
+        
+        .command-item:hover,.command-item.selected{
+            background:#f3f4f6;
+        }
+        
+        .command-icon{
+            width:32px;
+            height:32px;
+            background:#f3f4f6;
+            border-radius:8px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+        
+        /* Product Grid */
+        .section-title{
+            font-size:32px;
+            font-weight:700;
+            margin-bottom:32px;
+            letter-spacing:-1px;
+        }
+        
+        .product-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+            gap:24px;
+        }
+        
+        .product-card{
+            background:var(--surface);
+            border-radius:20px;
+            overflow:hidden;
+            box-shadow:0 4px 12px rgba(0,0,0,0.05);
+            transition:all 0.3s ease;
+            border:1px solid rgba(0,0,0,0.04);
+        }
+        
+        .product-card:hover{
+            transform:translateY(-8px);
+            box-shadow:0 20px 40px rgba(99,102,241,0.15);
+        }
+        
+        .product-image{
+            width:100%;
+            height:360px;
+            object-fit:cover;
+            background:linear-gradient(135deg,#f3f4f6 0%,#e5e7eb 100%);
+        }
+        
+        .product-info{padding:24px}
+        
+        .product-brand{
+            font-size:12px;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+            color:var(--purple);
+            margin-bottom:8px;
+        }
+        
+        .product-name{
+            font-size:18px;
+            font-weight:600;
+            margin-bottom:12px;
+            line-height:1.4;
+        }
+        
+        .product-meta{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+        }
+        
+        .product-price{
+            font-size:24px;
+            font-weight:700;
+        }
+        
+        .match-badge{
+            background:var(--purple-glow);
+            color:var(--purple);
+            padding:6px 12px;
+            border-radius:100px;
+            font-size:12px;
+            font-weight:600;
+        }
+        
+        /* Skeleton Loading */
+        .skeleton{
+            background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+            background-size:200% 100%;
+            animation:shimmer 1.5s infinite;
+            border-radius:8px;
+        }
+        
+        @keyframes shimmer{
+            0%{background-position:200% 0}
+            100%{background-position:-200% 0}
+        }
+        
+        /* Cart */
+        .cart-fab{
+            position:fixed;
+            bottom:32px;
+            right:32px;
+            background:var(--surface);
+            border-radius:16px;
+            padding:16px 24px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.15);
+            display:flex;
+            align-items:center;
+            gap:16px;
+            z-index:50;
+            cursor:pointer;
+            transition:all 0.2s;
+        }
+        
+        .cart-fab:hover{transform:scale(1.05)}
+        
+        .cart-count{
+            background:var(--purple);
+            color:#fff;
+            width:28px;
+            height:28px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:700;
+            font-size:14px;
+        }
+        
+        .hidden{display:none!important}
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+        const { motion, AnimatePresence } = window.Motion;
+        
+        const API_URL = 'http://localhost:3001/api';
+        
+        // Command palette commands
+        const COMMANDS = [
+            { id: 'search-url', name: 'Search by URL', icon: '🔗', shortcut: 'U' },
+            { id: 'upload-photo', name: 'Upload Photo', icon: '📸', shortcut: 'P' },
+            { id: 'view-cart', name: 'View Cart', icon: '🛒', shortcut: 'C' },
+            { id: 'filter-budget', name: 'Set Budget Filter', icon: '💰', shortcut: 'B' },
+            { id: 'sort-price-low', name: 'Sort: Price Low to High', icon: '⬇️', shortcut: 'L' },
+            { id: 'sort-price-high', name: 'Sort: Price High to Low', icon: '⬆️', shortcut: 'H' },
+            { id: 'sort-match', name: 'Sort: Best Match', icon: '✨', shortcut: 'M' },
+        ];
+        
+        function App() {
+            const [url, setUrl] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [products, setProducts] = useState([]);
+            const [cart, setCart] = useState([]);
+            const [dragActive, setDragActive] = useState(false);
+            const [error, setError] = useState('');
+            const [activeTab, setActiveTab] = useState('url');
+            const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+            const [commandSearch, setCommandSearch] = useState('');
+            const [selectedCommand, setSelectedCommand] = useState(0);
+            const [stats, setStats] = useState({
+                itemsMatched: 14237,
+                retailers: 3,
+                avgMatch: 87,
+                happyUsers: 2847
+            });
+            
+            // Command palette keyboard shortcut
+            useEffect(() => {
+                const handleKeyDown = (e) => {
+                    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                        e.preventDefault();
+                        setCommandPaletteOpen(true);
+                    }
+                    if (e.key === 'Escape') {
+                        setCommandPaletteOpen(false);
+                    }
+                };
+                window.addEventListener('keydown', handleKeyDown);
+                return () => window.removeEventListener('keydown', handleKeyDown);
+            }, []);
+            
+            const handleCommandSelect = (command) => {
+                setCommandPaletteOpen(false);
+                switch(command.id) {
+                    case 'search-url': setActiveTab('url'); break;
+                    case 'upload-photo': setActiveTab('photo'); break;
+                    case 'view-cart': break;
+                    case 'filter-budget': break;
+                }
+            };
+            
+            const filteredCommands = COMMANDS.filter(c => 
+                c.name.toLowerCase().includes(commandSearch.toLowerCase())
+            );
+            
+            const handleUrlSubmit = async (e) => {
+                e.preventDefault();
+                if (!url) return;
+                setLoading(true);
+                // ... API call logic
+                setTimeout(() => {
+                    setProducts([
+                        { id: 1, name: "Silk Midi Dress", brand: "COS", price: 198, match: 96, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400" },
+                        { id: 2, name: "Wool Coat", brand: "Everlane", price: 285, match: 94, image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400" },
+                        { id: 3, name: "Relaxed Blazer", brand: "ASOS", price: 89, match: 91, image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400" },
+                    ]);
+                    setLoading(false);
+                }, 1500);
+            };
+            
+            return (
+                <div>
+                    {/* Navigation */}
+                    <nav className="nav">
+                        <div className="nav-content">
+                            <div className="logo">StyleSync</div>
+                            <div className="nav-links">
+                                <span className="nav-link" onClick={() => setActiveTab('url')}>Search</span>
+                                <span className="nav-link" onClick={() => setCommandPaletteOpen(true)}>
+                                    Commands <span className="kbd-shortcut">⌘K</span>
+                                </span>
+                                <span className="nav-link">About</span>
+                            </div>
+                        </div>
+                    </nav>
+                    
+                    {/* Hero */}
+                    <div className="hero">
+                        <div className="hero-badge">
+                            <span>✨</span> Powered by CLIP AI Vision
+                        </div>
+                        <h1>Find your perfect style.<br/>Instantly.</h1>
+                        <p>Upload a photo or paste a URL. Our AI searches ASOS, COS, and Everlane to find similar items within your budget.</p>
+                    </div>
+                    
+                    {/* Stats */}
+                    <div className="container">
+                        <div className="stats">
+                            <div className="stat-card">
+                                <div className="stat-number">{stats.itemsMatched.toLocaleString()}</div>
+                                <div className="stat-label">Items Matched</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-number">{stats.retailers}</div>
+                                <div className="stat-label">Top Retailers</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-number">{stats.avgMatch}%</div>
+                                <div className="stat-label">Avg Match Score</div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-number">{stats.happyUsers.toLocaleString()}</div>
+                                <div className="stat-label">Happy Shoppers</div>
+                            </div>
+                        </div>
+                        
+                        {/* Input Section */}
+                        <div className="glass-card">
+                            <div className="input-section">
+                                <div className="input-tabs">
+                                    <button 
+                                        className={`input-tab ${activeTab === 'url' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('url')}
+                                    >
+                                        🔗 Paste URL
+                                    </button>
+                                    <button 
+                                        className={`input-tab ${activeTab === 'photo' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('photo')}
+                                    >
+                                        📸 Upload Photo
+                                    </button>
+                                </div>
+                                
+                                {activeTab === 'url' ? (
+                                    <form onSubmit={handleUrlSubmit}>
+                                        <input
+                                            type="url"
+                                            className="url-input"
+                                            placeholder="https://www.asos.com/..."
+                                            value={url}
+                                            onChange={(e) => setUrl(e.target.value)}
+                                        />
+                                        <button type="submit" className="btn" disabled={loading}>
+                                            {loading ? 'Searching...' : 'Find Similar Styles'}
+                                        </button>
+                                    </form>
+                                ) : (
+                                    <div className="drop-zone">
+                                        <div style={{fontSize: '48px', marginBottom: '16px'}}>📸</div>
+                                        <p style={{fontSize: '18px', fontWeight: '600', marginBottom: '8px'}}>
+                                            Drop a photo or click to upload
+                                        </p>
+                                        <p style={{fontSize: '14px', color: '#999'}}>
+                                            Our CLIP AI will analyze the style and find matches
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        
+                        {/* Results */}
+                        {products.length > 0 && (
+                            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                                <h2 className="section-title">✨ {products.length} Similar Styles Found</h2>
+                                <div className="product-grid">
+                                    {products.map((product, i) => (
+                                        <motion.div
+                                            key={product.id}
+                                            className="product-card"
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: i * 0.1 }}
+                                        >
+                                            <img src={product.image} alt={product.name} className="product-image" />
+                                            <div className="product-info">
+                                                <div className="product-brand">{product.brand}</div>
+                                                <div className="product-name">{product.name}</div>
+                                                <div className="product-meta">
+                                                    <span className="product-price">${product.price}</span>
+                                                    <span className="match-badge">{product.match}% match</span>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        )}
+                    </div>
+                    
+                    {/* Command Palette */}
+                    <AnimatePresence>
+                        {commandPaletteOpen && (
+                            <motion.div 
+                                className="command-palette-overlay"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setCommandPaletteOpen(false)}
+                            >
+                                <motion.div 
+                                    className="command-palette"
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    onClick={e => e.stopPropagation()}
+                                >
+                                    <input
+                                        type="text"
+                                        className="command-input"
+                                        placeholder="Type a command or search..."
+                                        value={commandSearch}
+                                        onChange={(e) => setCommandSearch(e.target.value)}
+                                        autoFocus
+                                    />
+                                    <div className="command-list">
+                                        {filteredCommands.map((cmd, i) => (
+                                            <div
+                                                key={cmd.id}
+                                                className={`command-item ${i === selectedCommand ? 'selected' : ''}`}
+                                                onClick={() => handleCommandSelect(cmd)}
+                                            >
+                                                <div className="command-icon">{cmd.icon}</div>
+                                                <div style={{flex:1}}>{cmd.name}</div>
+                                                <span className="kbd-shortcut">{cmd.shortcut}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    
+                    {/* Cart FAB */}
+                    {cart.length > 0 && (
+                        <motion.div 
+                            className="cart-fab"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                        >
+                            <div className="cart-count">{cart.length}</div>
+                            <div>
+                                <div style={{fontWeight:600}}>Cart</div>
+                                <div style={{fontSize:14,color:'#666'}}>${cart.reduce((a,b) => a + b.price, 0)}</div>
+                            </div>
+                        </motion.div>
+                    )}
+                </div>
+            );
+        }
+        
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

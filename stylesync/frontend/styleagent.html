@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleAgent | Your AI Wardrobe Assistant</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,sans-serif}
+        :root{
+            --bg:#fafafa;
+            --surface:#ffffff;
+            --text:#0f0f0f;
+            --text-secondary:#666666;
+            --purple:#6366f1;
+            --purple-light:#818cf8;
+            --purple-glow:rgba(99,102,241,0.15);
+            --green:#22c55e;
+        }
+        
+        body{
+            background:linear-gradient(180deg,var(--bg) 0%,#f3f0ff 50%,#faf5ff 100%);
+            min-height:100vh;
+            color:var(--text);
+        }
+        
+        .container{max-width:1400px;margin:0 auto;padding:0 24px}
+        
+        /* Nav */
+        .nav{
+            position:fixed;
+            top:0;
+            left:0;
+            right:0;
+            z-index:100;
+            background:rgba(255,255,255,0.8);
+            backdrop-filter:blur(20px);
+            border-bottom:1px solid rgba(0,0,0,0.05);
+            padding:16px 0;
+        }
+        
+        .nav-content{
+            max-width:1400px;
+            margin:0 auto;
+            padding:0 24px;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+        }
+        
+        .logo{
+            font-size:24px;
+            font-weight:800;
+            background:linear-gradient(135deg,var(--purple) 0%,#8b5cf6 100%);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+        
+        .agent-badge{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            background:rgba(99,102,241,0.1);
+            padding:8px 16px;
+            border-radius:100px;
+            font-size:13px;
+            font-weight:600;
+            color:var(--purple);
+        }
+        
+        .agent-badge::before{
+            content:'';
+            width:8px;
+            height:8px;
+            background:var(--green);
+            border-radius:50%;
+            animation:pulse 2s infinite;
+        }
+        
+        @keyframes pulse{
+            0%,100%{opacity:1}
+            50%{opacity:0.5}
+        }
+        
+        /* Hero */
+        .hero{
+            padding:140px 0 60px;
+            text-align:center;
+        }
+        
+        .hero h1{
+            font-size:64px;
+            font-weight:800;
+            letter-spacing:-3px;
+            line-height:1.1;
+            margin-bottom:24px;
+        }
+        
+        .hero h1 span{
+            background:linear-gradient(135deg,var(--purple) 0%,#8b5cf6 100%);
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+        
+        .hero-subtitle{
+            font-size:22px;
+            color:var(--text-secondary);
+            max-width:650px;
+            margin:0 auto 48px;
+            line-height:1.6;
+        }
+        
+        /* How it Works */
+        .how-it-works{
+            display:grid;
+            grid-template-columns:repeat(4,1fr);
+            gap:24px;
+            margin-bottom:64px;
+        }
+        
+        .step-card{
+            background:var(--surface);
+            border-radius:20px;
+            padding:32px 24px;
+            text-align:center;
+            box-shadow:0 4px 24px rgba(0,0,0,0.04);
+            border:1px solid rgba(0,0,0,0.04);
+        }
+        
+        .step-number{
+            width:48px;
+            height:48px;
+            background:linear-gradient(135deg,var(--purple) 0%,#7c3aed 100%);
+            color:#fff;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+            font-weight:700;
+            margin:0 auto 16px;
+        }
+        
+        .step-title{
+            font-size:16px;
+            font-weight:700;
+            margin-bottom:8px;
+        }
+        
+        .step-desc{
+            font-size:14px;
+            color:var(--text-secondary);
+        }
+        
+        /* Main Interface */
+        .glass-card{
+            background:rgba(255,255,255,0.8);
+            backdrop-filter:blur(20px);
+            border-radius:24px;
+            padding:40px;
+            border:1px solid rgba(255,255,255,0.6);
+            box-shadow:0 8px 32px rgba(99,102,241,0.1),inset 0 1px 0 rgba(255,255,255,0.8);
+            margin-bottom:40px;
+        }
+        
+        .section-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:32px;
+        }
+        
+        .section-title{
+            font-size:28px;
+            font-weight:700;
+        }
+        
+        .agent-status{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            font-size:14px;
+            color:var(--text-secondary);
+        }
+        
+        /* Input */
+        .input-tabs{
+            display:flex;
+            gap:8px;
+            margin-bottom:24px;
+            background:#f3f4f6;
+            padding:6px;
+            border-radius:12px;
+            width:fit-content;
+        }
+        
+        .input-tab{
+            padding:12px 24px;
+            border-radius:10px;
+            border:none;
+            background:transparent;
+            color:var(--text-secondary);
+            font-size:15px;
+            font-weight:500;
+            cursor:pointer;
+            transition:all 0.2s;
+        }
+        
+        .input-tab.active{
+            background:var(--surface);
+            color:var(--text);
+            box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .url-input{
+            width:100%;
+            padding:20px 24px;
+            border:2px solid #e5e7eb;
+            border-radius:16px;
+            font-size:16px;
+            background:var(--surface);
+            transition:all 0.2s;
+            margin-bottom:16px;
+        }
+        
+        .url-input:focus{
+            outline:none;
+            border-color:var(--purple);
+            box-shadow:0 0 0 4px var(--purple-glow);
+        }
+        
+        .btn{
+            background:linear-gradient(135deg,var(--purple) 0%,#7c3aed 100%);
+            color:#fff;
+            border:none;
+            padding:18px 36px;
+            border-radius:12px;
+            font-size:16px;
+            font-weight:600;
+            cursor:pointer;
+            transition:all 0.2s;
+            box-shadow:0 4px 16px rgba(99,102,241,0.3);
+        }
+        
+        .btn:hover{
+            transform:translateY(-2px);
+            box-shadow:0 8px 24px rgba(99,102,241,0.4);
+        }
+        
+        /* AI Selection Preview */
+        .ai-selection{
+            background:linear-gradient(135deg,rgba(99,102,241,0.05) 0%,rgba(139,92,246,0.05) 100%);
+            border-radius:16px;
+            padding:24px;
+            margin-top:24px;
+            border:1px solid rgba(99,102,241,0.1);
+        }
+        
+        .ai-selection-header{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            margin-bottom:16px;
+        }
+        
+        .ai-avatar{
+            width:40px;
+            height:40px;
+            background:linear-gradient(135deg,var(--purple) 0%,#8b5cf6 100%);
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:20px;
+        }
+        
+        .ai-message{
+            font-size:15px;
+            color:var(--text-secondary);
+            line-height:1.6;
+        }
+        
+        /* Product Grid */
+        .product-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+            gap:24px;
+        }
+        
+        .product-card{
+            background:var(--surface);
+            border-radius:20px;
+            overflow:hidden;
+            box-shadow:0 4px 12px rgba(0,0,0,0.06);
+            transition:all 0.3s ease;
+            border:1px solid rgba(0,0,0,0.04);
+            position:relative;
+        }
+        
+        .product-card:hover{
+            transform:translateY(-6px);
+            box-shadow:0 20px 40px rgba(99,102,241,0.15);
+        }
+        
+        .ai-recommended{
+            position:absolute;
+            top:12px;
+            left:12px;
+            background:var(--purple);
+            color:#fff;
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:11px;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+            z-index:10;
+        }
+        
+        .product-image{
+            width:100%;
+            height:320px;
+            object-fit:cover;
+            background:linear-gradient(135deg,#f3f4f6 0%,#e5e7eb 100%);
+        }
+        
+        .product-info{padding:20px}
+        
+        .product-brand{
+            font-size:12px;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:0.5px;
+            color:var(--purple);
+            margin-bottom:6px;
+        }
+        
+        .product-name{
+            font-size:16px;
+            font-weight:600;
+            margin-bottom:12px;
+            line-height:1.4;
+        }
+        
+        .product-reason{
+            font-size:13px;
+            color:var(--text-secondary);
+            margin-bottom:12px;
+            padding:8px 12px;
+            background:#f9fafb;
+            border-radius:8px;
+        }
+        
+        .product-meta{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+        }
+        
+        .product-price{
+            font-size:22px;
+            font-weight:700;
+        }
+        
+        .btn-add{
+            background:var(--text);
+            color:#fff;
+            border:none;
+            padding:10px 20px;
+            border-radius:10px;
+            font-size:14px;
+            font-weight:600;
+            cursor:pointer;
+            transition:all 0.2s;
+        }
+        
+        .btn-add:hover{
+            background:var(--purple);
+        }
+        
+        /* Cart */
+        .cart-panel{
+            position:fixed;
+            right:0;
+            top:0;
+            bottom:0;
+            width:400px;
+            background:var(--surface);
+            box-shadow:-8px 0 32px rgba(0,0,0,0.1);
+            z-index:200;
+            padding:24px;
+            overflow-y:auto;
+        }
+        
+        .cart-header{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:24px;
+            padding-bottom:24px;
+            border-bottom:1px solid #e5e7eb;
+        }
+        
+        .cart-title{
+            font-size:20px;
+            font-weight:700;
+        }
+        
+        .cart-total{
+            font-size:24px;
+            font-weight:700;
+            color:var(--purple);
+            margin:24px 0;
+        }
+        
+        .btn-checkout{
+            width:100%;
+            padding:18px;
+            font-size:16px;
+            margin-top:16px;
+        }
+        
+        .order-note{
+            font-size:13px;
+            color:var(--text-secondary);
+            text-align:center;
+            margin-top:16px;
+        }
+        
+        .hidden{display:none!important}
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { motion, AnimatePresence } = window.Motion;
+        
+        function App() {
+            const [activeTab, setActiveTab] = useState('style');
+            const [url, setUrl] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [cart, setCart] = useState([]);
+            const [showCart, setShowCart] = useState(false);
+            const [products, setProducts] = useState([
+                {
+                    id: 1,
+                    name: "Cashmere Blend Coat",
+                    brand: "COS",
+                    price: 320,
+                    image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400",
+                    reason: "Matches your preference for minimalist outerwear",
+                    aiRecommended: true
+                },
+                {
+                    id: 2,
+                    name: "Merino Wool Sweater",
+                    brand: "Everlane",
+                    price: 98,
+                    image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400",
+                    reason: "Similar to items you've liked before",
+                    aiRecommended: true
+                },
+                {
+                    id: 3,
+                    name: "Tailored Wool Trousers",
+                    brand: "ASOS",
+                    price: 76,
+                    image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400",
+                    reason: "Fits your smart-casual style profile",
+                    aiRecommended: false
+                },
+                {
+                    id: 4,
+                    name: "Silk Blend Shirt",
+                    brand: "COS",
+                    price: 145,
+                    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
+                    reason: "Recommended based on your color preferences",
+                    aiRecommended: true
+                }
+            ]);
+            
+            const addToCart = (product) => {
+                setCart([...cart, product]);
+            };
+            
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setTimeout(() => setLoading(false), 1500);
+            };
+            
+            return (
+                <div>
+                    {/* Nav */}
+                    <nav className="nav">
+                        <div className="nav-content">
+                            <div className="logo">StyleAgent</div>
+                            <div className="agent-badge">
+                                <span>AI Agent Active</span>
+                            </div>
+                        </div>
+                    </nav>
+                    
+                    {/* Hero */}
+                    <div className="hero">
+                        <h1>Your Personal <span>AI Stylist</span></h1>
+                        <p className="hero-subtitle">
+                            StyleAgent learns your taste, curates outfits you'll love, 
+                            and handles the ordering. Just approve and wear.
+                        </p>
+                    </div>
+                    
+                    <div className="container">
+                        {/* How it Works */}
+                        <div className="how-it-works">
+                            <div className="step-card">
+                                <div className="step-number">1</div>
+                                <div className="step-title">Show Your Style</div>
+                                <div className="step-desc">Upload a photo or paste a product URL</div>
+                            </div>
+                            <div className="step-card">
+                                <div className="step-number">2</div>
+                                <div className="step-title">AI Curates</div>
+                                <div className="step-desc">Agent finds matches across top retailers</div>
+                            </div>
+                            <div className="step-card">
+                                <div className="step-number">3</div>
+                                <div className="step-title">You Approve</div>
+                                <div className="step-desc">Swipe through selections, pick favorites</div>
+                            </div>
+                            <div className="step-card">
+                                <div className="step-number">4</div>
+                                <div className="step-title">Agent Orders</div>
+                                <div className="step-desc">We purchase from retailers, you just pay</div>
+                            </div>
+                        </div>
+                        
+                        {/* Input Section */}
+                        <div className="glass-card">
+                            <div className="section-header">
+                                <h2 className="section-title">What are you looking for?</h2>
+                                <div className="agent-status">
+                                    <span>🤖</span>
+                                    <span>Agent ready to curate</span>
+                                </div>
+                            </div>
+                            
+                            <div className="input-tabs">
+                                <button 
+                                    className={`input-tab ${activeTab === 'style' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('style')}
+                                >
+                                    🎯 My Style
+                                </button>
+                                <button 
+                                    className={`input-tab ${activeTab === 'url' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('url')}
+                                >
+                                    🔗 Product URL
+                                </button>
+                                <button 
+                                    className={`input-tab ${activeTab === 'photo' ? 'active' : ''}`}
+                                    onClick={() => setActiveTab('photo')}
+                                >
+                                    📸 Upload Photo
+                                </button>
+                            </div>
+                            
+                            {activeTab === 'style' && (
+                                <form onSubmit={handleSubmit}>
+                                    <input
+                                        type="text"
+                                        className="url-input"
+                                        placeholder="Describe what you need (e.g., 'minimalist winter coat for office')"
+                                    />
+                                    <button type="submit" className="btn" disabled={loading}>
+                                        {loading ? 'Agent is searching...' : 'Find My Style'}
+                                    </button>
+                                </form>
+                            )}
+                            
+                            {activeTab === 'url' && (
+                                <form onSubmit={handleSubmit}>
+                                    <input
+                                        type="url"
+                                        className="url-input"
+                                        placeholder="https://www.asos.com/..."
+                                        value={url}
+                                        onChange={(e) => setUrl(e.target.value)}
+                                    />
+                                    <button type="submit" className="btn" disabled={loading}>
+                                        {loading ? 'Agent is analyzing...' : 'Find Similar Items'}
+                                    </button>
+                                </form>
+                            )}
+                            
+                            {/* AI Preview */}
+                            <div className="ai-selection">
+                                <div className="ai-selection-header">
+                                    <div className="ai-avatar">🤖</div>
+                                    <div>
+                                        <div style={{fontWeight:600}}>StyleAgent</div>
+                                        <div style={{fontSize:13,color:'#666'}}>Analyzing your preferences...</div>
+                                    </div>
+                                </div>
+                                <div className="ai-message">
+                                    Based on your previous selections, I'll search COS for minimalist pieces 
+                                    in your preferred color palette, Everlane for sustainable basics, and ASOS 
+                                    for trendy options within your budget.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* AI Curated Results */}
+                        <div style={{marginBottom:40}}>
+                            <h2 className="section-title" style={{marginBottom:24}}>
+                                ✨ AI Curated For You
+                            </h2>
+                            <div className="product-grid">
+                                {products.map((product, i) => (
+                                    <motion.div
+                                        key={product.id}
+                                        className="product-card"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                    >
+                                        {product.aiRecommended && (
+                                            <div className="ai-recommended">AI Pick</div>
+                                        )}
+                                        <img src={product.image} alt={product.name} className="product-image" />
+                                        <div className="product-info">
+                                            <div className="product-brand">{product.brand}</div>
+                                            <div className="product-name">{product.name}</div>
+                                            <div className="product-reason">{product.reason}</div>
+                                            <div className="product-meta">
+                                                <span className="product-price">${product.price}</span>
+                                                <button className="btn-add" onClick={() => addToCart(product)}>
+                                                    Approve
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Cart Panel */}
+                    <AnimatePresence>
+                        {showCart && (
+                            <motion.div 
+                                className="cart-panel"
+                                initial={{ x: 400 }}
+                                animate={{ x: 0 }}
+                                exit={{ x: 400 }}
+                            >
+                                <div className="cart-header">
+                                    <h3 className="cart-title">Your Selection</h3>
+                                    <button onClick={() => setShowCart(false)} style={{border:'none',background:'none',fontSize:24,cursor:'pointer'}}>×</button>
+                                </div>
+                                
+                                {cart.map((item, i) => (
+                                    <div key={i} style={{display:'flex',gap:16,padding:16,background:'#f9fafb',borderRadius:12,marginBottom:12}}>
+                                        <img src={item.image} style={{width:60,height:60,objectFit:'cover',borderRadius:8}} />
+                                        <div style={{flex:1}}>
+                                            <div style={{fontWeight:600}}>{item.name}</div>
+                                            <div style={{fontSize:14,color:'#666'}}>{item.brand}</div>
+                                            <div style={{fontWeight:700}}>${item.price}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                                
+                                {cart.length > 0 && (
+                                    <>
+                                        <div className="cart-total">
+                                            Total: ${cart.reduce((a,b) => a + b.price, 0)}
+                                        </div>
+                                        <button className="btn btn-checkout">
+                                            Let Agent Place Order →
+                                        </button>
+                                        <p className="order-note">
+                                            StyleAgent will purchase from {cart.length} retailer{cart.length > 1 ? 's' : ''}. 
+                                            You'll receive one consolidated payment link.
+                                        </p>
+                                    </>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    
+                    {/* Cart FAB */}
+                    {cart.length > 0 && (
+                        <motion.button
+                            style={{
+                                position:'fixed',
+                                bottom:32,
+                                right:32,
+                                background:'#1a1a1a',
+                                color:'#fff',
+                                border:'none',
+                                padding:'18px 28px',
+                                borderRadius:16,
+                                fontSize:16,
+                                fontWeight:600,
+                                cursor:'pointer',
+                                boxShadow:'0 8px 32px rgba(0,0,0,0.2)',
+                                display:'flex',
+                                alignItems:'center',
+                                gap:12,
+                                zIndex:100
+                            }}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            onClick={() => setShowCart(true)}
+                        >
+                            <span>🛒</span>
+                            <span>{cart.length} items</span>
+                            <span style={{opacity:0.7}}>|</span>
+                            <span>${cart.reduce((a,b) => a + b.price, 0)}</span>
+                        </motion.button>
+                    )}
+                </div>
+            );
+        }
+        
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

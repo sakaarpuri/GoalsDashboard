@@ -1,0 +1,35 @@
+{
+  "updatedAt": "—",
+  "agents": [
+    {
+      "name": "Crawley-Forge",
+      "role": "Builder / implementation",
+      "status": "idle",
+      "task": "",
+      "eta": "",
+      "note": "Standing by",
+      "risk": "normal",
+      "pos": { "x": 235, "y": 175 }
+    },
+    {
+      "name": "Crawley-Lens",
+      "role": "Research / planning",
+      "status": "idle",
+      "task": "",
+      "eta": "",
+      "note": "Standing by",
+      "risk": "normal",
+      "pos": { "x": 525, "y": 120 }
+    },
+    {
+      "name": "Crawley-Guard",
+      "role": "Security / risk review",
+      "status": "idle",
+      "task": "",
+      "eta": "",
+      "note": "Standing by",
+      "risk": "normal",
+      "pos": { "x": 780, "y": 280 }
+    }
+  ]
+}

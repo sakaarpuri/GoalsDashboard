@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control - Interactive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#f5f5f7;--card:#fff;--text:#1d1d1f;--muted:#86868b;--blue:#0071e3;--purple:#af52de;--orange:#ff9500;--green:#34c759;--red:#ff3b30;--teal:#5ac8fa}
+        [data-theme="dark"]{--bg:#000;--card:#1c1c1e;--text:#fff;--muted:#8e8e93}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,sans-serif}
+        body{background:var(--bg);color:var(--text);padding:20px}
+        .app{max-width:1200px;margin:0 auto}
+        header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+        h1{font-size:28px;font-weight:700}
+        .theme-btn{width:40px;height:40px;border-radius:50%;border:none;background:var(--card);cursor:pointer;font-size:18px}
+        nav{display:flex;gap:8px;margin-bottom:24px;background:var(--card);padding:4px;border-radius:12px;width:fit-content;flex-wrap:wrap}
+        nav button{padding:10px 16px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-weight:500;color:var(--muted);font-size:14px}
+        nav button.active{background:var(--blue);color:#fff}
+        .card{background:var(--card);border-radius:16px;padding:20px;margin-bottom:16px}
+        .progress{height:4px;background:var(--bg);border-radius:2px;margin-top:8px}
+        .progress-fill{height:100%;border-radius:2px}
+        .task{display:flex;align-items:center;gap:12px;padding:14px;background:var(--bg);border-radius:10px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+        .task:hover{background:rgba(0,0,0,.05)}
+        .task.completed{opacity:.6}
+        .task.completed .task-title{text-decoration:line-through;color:var(--muted)}
+        .checkbox{width:20px;height:20px;border:2px solid var(--muted);border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+        .checkbox:hover{border-color:var(--blue)}
+        .checkbox.checked{background:var(--green);border-color:var(--green)}
+        .checkbox.checked::after{content:'✓';color:#fff;font-size:14px;font-weight:700}
+        .tag{font-size:11px;padding:4px 8px;border-radius:4px;font-weight:600}
+        .tag-film{background:rgba(175,82,222,.1);color:var(--purple)}
+        .tag-white{background:rgba(0,113,227,.1);color:var(--blue)}
+        .tag-wild{background:rgba(255,149,0,.1);color:var(--orange)}
+        .hidden{display:none!important}
+        .view{padding:20px;background:var(--card);border-radius:16px}
+        .btn{padding:10px 20px;border:none;border-radius:8px;background:var(--blue);color:#fff;cursor:pointer;font-weight:500;font-size:14px}
+        .btn:hover{background:#005bb5}
+        textarea{width:100%;min-height:200px;padding:16px;border:2px solid var(--bg);border-radius:12px;font-size:14px;resize:vertical;background:var(--bg)}
+        textarea:focus{outline:none;border-color:var(--blue)}
+        .alert{padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:14px}
+        .alert-success{background:rgba(52,199,89,.1);color:var(--green)}
+        .alert-error{background:rgba(255,59,48,.1);color:var(--red)}
+        @media(max-width:768px){nav button{font-size:12px;padding:8px 12px}}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <div>
+                <h1>🚀 Mission Control</h1>
+                <p style="color:var(--muted);font-size:14px">Click tabs below • Type in notes • Check off tasks</p>
+            </div>
+            <button class="theme-btn" onclick="toggleTheme()">🌓</button>
+        </header>
+        
+        <nav>
+            <button class="active" onclick="showTab('overview',this)">📋 Overview</button>
+            <button onclick="showTab('filmmaker',this)">🎬 Film</button>
+            <button onclick="showTab('whitelabl',this)">🏭 Whitelabl</button>
+            <button onclick="showTab('wildonmedia',this)">🚚 WildOn</button>
+            <button onclick="showTab('notes',this)">📝 My Notes</button>
+            <button onclick="showTab('tasks',this)">✅ All Tasks</button>
+        </nav>
+        
+        <!-- Overview -->
+        <div id="tab-overview" class="view">
+            <h2 style="margin-bottom:20px">Your Goals</h2>
+            
+            <div class="card" style="border-left:4px solid var(--purple)">
+                <h3>🎬 Filmmaker Career</h3>
+                <p style="color:var(--muted);margin:8px 0">Canadian filmmaker in UK/Europe • 35% complete</p>
+                <div class="progress"><div class="progress-fill" style="width:35%;background:var(--purple)"></div></div>
+                <div style="margin-top:12px;display:flex;gap:16px;font-size:14px">
+                    <span><strong>5</strong> Grants</span>
+                    <span><strong>3</strong> Pitches</span>
+                    <span><strong>8</strong> Network</span>
+                </div>
+            </div>
+            
+            <div class="card" style="border-left:4px solid var(--blue)">
+                <h3>🏭 Whitelabl.in</h3>
+                <p style="color:var(--muted);margin:8px 0">White-label cosmetics India • 15% complete</p>
+                <div class="progress"><div class="progress-fill" style="width:15%;background:var(--blue)"></div></div>
+                <div style="margin-top:12px;display:flex;gap:16px;font-size:14px">
+                    <span><strong>20</strong> Content</span>
+                    <span><strong>5</strong> Partners</span>
+                </div>
+            </div>
+            
+            <div class="card" style="border-left:4px solid var(--orange)">
+                <h3>🚚 WildOnMedia</h3>
+                <p style="color:var(--muted);margin:8px 0">Digital ad trucks • 25% complete</p>
+                <div class="progress"><div class="progress-fill" style="width:25%;background:var(--orange)"></div></div>
+                <div style="margin-top:12px;display:flex;gap:16px;font-size:14px">
+                    <span><strong>6</strong> Clients</span>
+                    <span><strong>3</strong> Media Kit</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filmmaker -->
+        <div id="tab-filmmaker" class="view hidden">
+            <div style="border-left:4px solid var(--purple);padding-left:20px;margin-bottom:24px">
+                <h2>🎬 Filmmaker Career</h2>
+                <p style="color:var(--muted)">Secure funding for documentary/animation/film</p>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom:16px">💰 Funding Opportunities</h3>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                    <div style="padding:14px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
+                        <div><strong>Telefilm Canada</strong><div style="font-size:13px;color:var(--muted)">Rolling deadline</div></div>
+                        <strong style="color:var(--purple)">$250K-2M</strong>
+                    </div>
+                    <div style="padding:14px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
+                        <div><strong>BFI Network</strong><div style="font-size:13px;color:var(--muted)">Rolling deadline</div></div>
+                        <strong style="color:var(--purple)">£15K-100K</strong>
+                    </div>
+                    <div style="padding:14px;background:var(--bg);border-radius:10px;display:flex;justify-content:space-between;align-items:center">
+                        <div><strong>Creative Europe MEDIA</strong><div style="font-size:13px;color:var(--muted)">Annual call</div></div>
+                        <strong style="color:var(--purple)">€50K-1M</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom:16px">🎯 Grant Applications (2/5)</h3>
+                <ul style="padding-left:20px;line-height:2">
+                    <li>Telefilm Canada research — <strong>Due Feb 20</strong></li>
+                    <li>BFI funding research — <strong>Due Feb 22</strong></li>
+                    <li>Creative Europe MEDIA — Due Feb 25</li>
+                    <li>Hot Docs Forum prep</li>
+                    <li>Sundance Documentary Fund</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Whitelabl -->
+        <div id="tab-whitelabl" class="view hidden">
+            <div style="border-left:4px solid var(--blue);padding-left:20px;margin-bottom:24px">
+                <h2>🏭 Whitelabl.in</h2>
+                <p style="color:var(--muted)">Scale white-label cosmetics manufacturing</p>
+            </div>
+            
+            <div class="card" style="background:rgba(255,59,48,.08);border:1px solid rgba(255,59,48,.2)">
+                <h3 style="color:var(--red);margin-bottom:12px">⚠️ Urgent Tasks</h3>
+                <ul style="padding-left:20px;line-height:2">
+                    <li><strong>Fix lorem ipsum testimonials</strong> — Due Feb 18</li>
+                    <li>Add ISO/GMP trust badges — Due Feb 20</li>
+                    <li>Write origin story — Due Feb 22</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom:16px">📝 SEO Content (0/20)</h3>
+                <ul style="padding-left:20px;line-height:2">
+                    <li>CDSCO License Guide blog — <strong>Due Feb 25</strong></li>
+                    <li>Pricing strategy post</li>
+                    <li>Mumbai landing page</li>
+                    <li>Delhi landing page</li>
+                    <li>12 Licenses Checklist PDF</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- WildOn -->
+        <div id="tab-wildonmedia" class="view hidden">
+            <div style="border-left:4px solid var(--orange);padding-left:20px;margin-bottom:24px">
+                <h2>🚚 WildOnMedia</h2>
+                <p style="color:var(--muted)">Digital ad trucks & experiential marketing</p>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom:16px">👥 Client Acquisition (1/6)</h3>
+                <ul style="padding-left:20px;line-height:2">
+                    <li>Case study: truck campaign — <strong>Due Feb 25</strong></li>
+                    <li>LinkedIn content calendar</li>
+                    <li>Event agency partnerships</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3 style="margin-bottom:16px">📄 Media Kit (1/3)</h3>
+                <ul style="padding-left:20px;line-height:2">
+                    <li>Professional media kit PDF — <strong>Due Mar 1</strong></li>
+                    <li>Client logo showcase</li>
+                    <li>Truck spec sheets</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- My Notes -->
+        <div id="tab-notes" class="view hidden">
+            <h2 style="margin-bottom:16px">📝 My Notes</h2>
+            <p style="color:var(--muted);margin-bottom:16px">Type anything here — ideas, reminders, thoughts. Saves automatically.</p>
+            
+            <textarea id="my-notes" placeholder="Your notes...
+
+Example:
+- Call Telefilm Canada tomorrow
+- Ask Crawley about X
+- Remember to update website"></textarea>
+            
+            <div style="display:flex;gap:12px;margin-top:16px">
+                <button class="btn" onclick="saveMyNotes()">💾 Save to Browser</button>
+                <button class="btn" style="background:var(--green)" onclick="exportNotes()">📤 Export as File</button>
+            </div>
+            
+            <div id="notes-status" style="margin-top:12px;font-size:14px;color:var(--muted)"></div>
+        </div>
+        
+        <!-- All Tasks -->
+        <div id="tab-tasks" class="view hidden">
+            <h2 style="margin-bottom:16px">✅ All Tasks</h2>
+            <p style="color:var(--muted);margin-bottom:20px">Click any task to mark it complete. Refresh page to see saved state.</p>
+            
+            <h3 style="margin:20px 0 12px;color:var(--red)">🔥 Urgent</h3>
+            <div class="task" onclick="toggleTask(this,'task1')">
+                <div class="checkbox" id="cb-task1"></div>
+                <div style="flex:1">
+                    <div class="task-title">Fix lorem ipsum testimonials on whitelabl.in</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:4px"><span class="tag tag-white">Whitelabl</span> Due Feb 18</div>
+                </div>
+            </div>
+            
+            <h3 style="margin:20px 0 12px;color:var(--purple)">🎬 Filmmaker</h3>
+            <div class="task" onclick="toggleTask(this,'task2')">
+                <div class="checkbox" id="cb-task2"></div>
+                <div style="flex:1">
+                    <div class="task-title">Research Telefilm Canada funding</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:4px"><span class="tag tag-film">Film</span> Due Feb 20</div>
+                </div>
+            </div>
+            <div class="task" onclick="toggleTask(this,'task3')">
+                <div class="checkbox" id="cb-task3"></div>
+                <div style="flex:1">
+                    <div class="task-title">Research BFI funding</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:4px"><span class="tag tag-film">Film</span> Due Feb 22</div>
+                </div>
+            </div>
+            
+            <h3 style="margin:20px 0 12px;color:var(--blue)">🏭 Whitelabl</h3>
+            <div class="task" onclick="toggleTask(this,'task4')">
+                <div class="checkbox" id="cb-task4"></div>
+                <div style="flex:1">
+                    <div class="task-title">Write About Us origin story</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:4px"><span class="tag tag-white">Whitelabl</span> Due Feb 20</div>
+                </div>
+            </div>
+            <div class="task" onclick="toggleTask(this,'task5')">
+                <div class="checkbox" id="cb-task5"></div>
+                <div style="flex:1">
+                    <div class="task-title">CDSCO License Guide blog</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:4px"><span class="tag tag-white">Whitelabl</span> Due Feb 25</div>
+                </div>
+            </div>
+            
+            <h3 style="margin:20px 0 12px;color:var(--orange)">🚚 WildOnMedia</h3>
+            <div class="task" onclick="toggleTask(this,'task6')">
+                <div class="checkbox" id="cb-task6"></div>
+                <div style="flex:1">
+                    <div class="task-title">Create case study: truck campaign</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:4px"><span class="tag tag-wild">WildOn</span> Due Feb 25</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching
+        function showTab(tabId,btn){
+            document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
+            document.getElementById('tab-'+tabId).classList.remove('hidden');
+            document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        
+        // Theme toggle
+        function toggleTheme(){
+            const t=document.documentElement.getAttribute('data-theme');
+            document.documentElement.setAttribute('data-theme',t==='dark'?'light':'dark');
+            localStorage.setItem('theme',document.documentElement.getAttribute('data-theme'));
+        }
+        
+        // Load saved theme
+        const savedTheme=localStorage.getItem('theme')||'light';
+        document.documentElement.setAttribute('data-theme',savedTheme);
+        
+        // Task toggling
+        function toggleTask(el,taskId){
+            el.classList.toggle('completed');
+            const cb=document.getElementById('cb-'+taskId);
+            cb.classList.toggle('checked');
+            
+            // Save to localStorage
+            const isDone=cb.classList.contains('checked');
+            localStorage.setItem('task_'+taskId,isDone);
+        }
+        
+        // Load saved tasks
+        function loadTasks(){
+            for(let i=1;i<=10;i++){
+                const isDone=localStorage.getItem('task_task'+i)==='true';
+                if(isDone){
+                    const cb=document.getElementById('cb-task'+i);
+                    if(cb){
+                        cb.classList.add('checked');
+                        cb.closest('.task').classList.add('completed');
+                    }
+                }
+            }
+        }
+        
+        // Notes functionality
+        function saveMyNotes(){
+            const notes=document.getElementById('my-notes').value;
+            localStorage.setItem('my_notes',notes);
+            document.getElementById('notes-status').innerHTML='<span style="color:var(--green)">✓ Saved to browser</span>';
+            setTimeout(()=>{document.getElementById('notes-status').textContent=''},3000);
+        }
+        
+        function exportNotes(){
+            const notes=document.getElementById('my-notes').value;
+            const blob=new Blob([notes],{type:'text/plain'});
+            const url=URL.createObjectURL(blob);
+            const a=document.createElement('a');
+            a.href=url;
+            a.download='my-notes-'+new Date().toISOString().split('T')[0]+'.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Load saved notes
+        function loadNotes(){
+            const saved=localStorage.getItem('my_notes');
+            if(saved)document.getElementById('my-notes').value=saved;
+        }
+        
+        // Initialize
+        loadTasks();
+        loadNotes();
+        
+        // Auto-save notes every 30 seconds
+        setInterval(()=>{
+            const notes=document.getElementById('my-notes').value;
+            if(notes)localStorage.setItem('my_notes',notes);
+        },30000);
+    </script>
+</body>
+</html>

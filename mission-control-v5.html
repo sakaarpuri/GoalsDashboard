@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control v5</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#fafafa;--card:#fff;--text:#1f2937;--muted:#6b7280;--purple:#9b87f5;--purple-light:#c4b5fd;--purple-dark:#7c6ad4;--orange:#ff9500;--green:#34c759;--red:#ff3b30;--blue:#60a5fa}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,sans-serif}
+        body{background:linear-gradient(135deg,#fafafa 0%,#f5f3ff 100%);color:var(--text);padding:20px;min-height:100vh}
+        .app{max-width:1200px;margin:0 auto}
+        header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+        h1{font-size:32px;font-weight:700;color:var(--purple-dark)}
+        .nav{display:flex;gap:8px;margin-bottom:24px;background:#fff;padding:6px;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,0.05);overflow-x:auto}
+        .nav button{white-space:nowrap;padding:10px 18px;border:none;background:transparent;border-radius:10px;cursor:pointer;font-weight:500;color:var(--muted);font-size:14px;transition:all .2s}
+        .nav button:hover{color:var(--purple)}
+        .nav button.active{background:var(--purple);color:#fff}
+        .card{background:#fff;border-radius:18px;padding:24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:all .2s}
+        .card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(155,135,245,0.12)}
+        .section-title{font-size:20px;font-weight:600;margin-bottom:20px;color:var(--purple-dark)}
+        .task-list{display:flex;flex-direction:column;gap:10px;min-height:50px;padding:4px}
+        .task{background:#f9fafb;border-radius:12px;padding:16px;display:flex;align-items:flex-start;gap:12px;cursor:move;transition:all .2s;border:2px solid transparent}
+        .task:hover{border-color:var(--purple-light);background:#fff}
+        .task.dragging{opacity:.5;transform:scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,0.15)}
+        .task.completed{opacity:.6;background:#f3f4f6}
+        .task.completed .task-text{text-decoration:line-through;color:var(--muted)}
+        .checkbox{width:22px;height:22px;border:2px solid #d1d5db;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s}
+        .checkbox:hover{border-color:var(--purple)}
+        .checkbox.checked{background:var(--purple);border-color:var(--purple)}
+        .checkbox.checked::after{content:'✓';color:#fff;font-size:14px;font-weight:700}
+        .task-content{flex:1}
+        .task-text{font-weight:500;margin-bottom:4px}
+        .task-meta{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center}
+        .tag{font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600}
+        .tag-urgent{background:rgba(255,59,48,.1);color:var(--red)}
+        .tag-me{background:rgba(155,135,245,.15);color:var(--purple)}
+        .tag-you{background:rgba(96,165,250,.15);color:var(--blue)}
+        .add-btn{width:100%;padding:14px;border:2px dashed #e5e7eb;border-radius:12px;background:transparent;color:var(--muted);cursor:pointer;font-weight:500;transition:all .2s;margin-top:12px}
+        .add-btn:hover{border-color:var(--purple);color:var(--purple);background:rgba(155,135,245,.05)}
+        .hidden{display:none!important}
+        .input-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}
+        .input-box{background:#fff;padding:24px;border-radius:16px;width:90%;max-width:400px}
+        .input-box h3{margin-bottom:16px;color:var(--purple-dark)}
+        .input-box input{width:100%;padding:12px;border:2px solid #e5e7eb;border-radius:10px;margin-bottom:12px;font-size:14px}
+        .input-box input:focus{outline:none;border-color:var(--purple)}
+        .btn-row{display:flex;gap:10px;justify-content:flex-end}
+        .btn{padding:10px 20px;border:none;border-radius:10px;cursor:pointer;font-weight:500}
+        .btn-primary{background:var(--purple);color:#fff}
+        .btn-secondary{background:#f3f4f6;color:var(--text)}
+        .history-item{padding:12px;border-bottom:1px solid #f3f4f6;font-size:13px}
+        .history-item:last-child{border-bottom:none}
+        .history-time{color:var(--muted);font-size:11px}
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>🚀 Mission Control</h1>
+        </header>
+        
+        <div class="nav">
+            <button class="active" onclick="showTab('film',this)">🎬 Film</button>
+            <button onclick="showTab('whitelabl',this)">🏭 Whitelabl</button>
+            <button onclick="showTab('wildon',this)">🚚 WildOn</button>
+            <button onclick="showTab('history',this)">📜 History</button>
+        </div>
+        
+        <!-- FILMMAKER -->
+        <div id="tab-film" class="tab-content">
+            <div class="card">
+                <div class="section-title">🎬 Filmmaker Tasks <span style="font-size:14px;font-weight:400;color:var(--muted)">(Drag to reorder)</span></div>
+                <div class="task-list" id="film-tasks">
+                    <div class="task" draggable="true" data-task="Research Telefilm Canada" data-who="You" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Research Telefilm Canada</div>
+                            <div class="task-meta"><span class="tag tag-you">You</span> Added Feb 13 • Due Feb 20</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="Research BFI funding" data-who="You" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Research BFI funding</div>
+                            <div class="task-meta"><span class="tag tag-you">You</span> Added Feb 13 • Due Feb 22</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="Create pitch deck template" data-who="Me" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Create pitch deck template</div>
+                            <div class="task-meta"><span class="tag tag-me">Crawley</span> Added Feb 13</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="Research Hot Docs Forum" data-who="You" data-date="Feb 20">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Research Hot Docs Forum</div>
+                            <div class="task-meta"><span class="tag tag-you">You</span> Added Feb 20</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="Apply to Sundance Fund" data-who="Me" data-date="Feb 25">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Apply to Sundance Fund</div>
+                            <div class="task-meta"><span class="tag tag-me">Crawley</span> Added Feb 25</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="add-btn" onclick="addTask('film')">+ Add Task</button>
+            </div>
+        </div>
+        
+        <!-- WHITELABL -->
+        <div id="tab-whitelabl" class="tab-content hidden">
+            <div class="card">
+                <div class="section-title">🏭 Whitelabl Tasks</div>
+                <div class="task-list" id="whitelabl-tasks">
+                    <div class="task" draggable="true" data-task="Fix lorem ipsum testimonials" data-who="You" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Fix lorem ipsum testimonials</div>
+                            <div class="task-meta"><span class="tag tag-urgent">Urgent</span> <span class="tag tag-you">You</span> Due Feb 18</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="Write origin story" data-who="Me" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Write origin story</div>
+                            <div class="task-meta"><span class="tag tag-me">Crawley</span> Due Feb 20</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="Add ISO/GMP badges" data-who="You" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Add ISO/GMP badges</div>
+                            <div class="task-meta"><span class="tag tag-you">You</span> Due Feb 22</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="CDSCO License Guide blog" data-who="Me" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">CDSCO License Guide blog</div>
+                            <div class="task-meta"><span class="tag tag-me">Crawley</span> Due Feb 25</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="Create email lead magnet" data-who="Me" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Create email lead magnet</div>
+                            <div class="task-meta"><span class="tag tag-me">Crawley</span> Due Feb 28</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="add-btn" onclick="addTask('whitelabl')">+ Add Task</button>
+            </div>
+        </div>
+        
+        <!-- WILDON -->
+        <div id="tab-wildon" class="tab-content hidden">
+            <div class="card">
+                <div class="section-title">🚚 WildOnMedia Tasks</div>
+                <div class="task-list" id="wildon-tasks">
+                    <div class="task" draggable="true" data-task="Create truck case study" data-who="You" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Create truck case study</div>
+                            <div class="task-meta"><span class="tag tag-you">You</span> Due Feb 25</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="Build media kit PDF" data-who="Me" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">Build media kit PDF</div>
+                            <div class="task-meta"><span class="tag tag-me">Crawley</span> Due Mar 1</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="LinkedIn content calendar" data-who="You" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">LinkedIn content calendar</div>
+                            <div class="task-meta"><span class="tag tag-you">You</span> Due Feb 28</div>
+                        </div>
+                    </div>
+                    <div class="task" draggable="true" data-task="List on ad directories" data-who="Me" data-date="Feb 13">
+                        <div class="checkbox" onclick="toggleTask(this)"></div>
+                        <div class="task-content">
+                            <div class="task-text">List on ad directories</div>
+                            <div class="task-meta"><span class="tag tag-me">Crawley</span> Due Mar 5</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="add-btn" onclick="addTask('wildon')">+ Add Task</button>
+            </div>
+        </div>
+        
+        <!-- HISTORY -->
+        <div id="tab-history" class="tab-content hidden">
+            <div class="card">
+                <div class="section-title">📜 Task History</div>
+                <div id="history-list">
+                    <div class="history-item"><strong>🎬 Film:</strong> Research Telefilm Canada <span class="history-time">Added by You • Feb 13</span></div>
+                    <div class="history-item"><strong>🏭 Whitelabl:</strong> Fix lorem ipsum testimonials <span class="history-time">Added by You • Feb 13 • Urgent</span></div>
+                    <div class="history-item"><strong>🎬 Film:</strong> Create pitch deck template <span class="history-time">Added by Crawley • Feb 13</span></div>
+                    <div class="history-item"><strong>🏭 Whitelabl:</strong> Write origin story <span class="history-time">Added by Crawley • Feb 13</span></div>
+                    <div class="history-item"><strong>🚚 WildOn:</strong> Create truck case study <span class="history-time">Added by You • Feb 13</span></div>
+                    <div class="history-item"><strong>🚚 WildOn:</strong> Build media kit PDF <span class="history-time">Added by Crawley • Feb 13</span></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="section-title">📊 Stats</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+                    <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:12px">
+                        <div style="font-size:28px;font-weight:700;color:var(--purple)">14</div>
+                        <div style="font-size:12px;color:var(--muted)">Total Tasks</div>
+                    </div>
+                    <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:12px">
+                        <div style="font-size:28px;font-weight:700;color:var(--blue)">7</div>
+                        <div style="font-size:12px;color:var(--muted)">By You</div>
+                    </div>
+                    <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:12px">
+                        <div style="font-size:28px;font-weight:700;color:var(--purple-light)">7</div>
+                        <div style="font-size:12px;color:var(--muted)">By Crawley</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Task Modal -->
+    <div id="modal" class="input-modal hidden">
+        <div class="input-box">
+            <h3>+ Add New Task</h3>
+            <input type="text" id="new-task-input" placeholder="What needs to be done?" onkeypress="if(event.key==='Enter')saveTask()">
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTask()">Add Task</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentTab='';
+        
+        function showTab(tab,btn){
+            document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
+            document.getElementById('tab-'+tab).classList.remove('hidden');
+            document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTab=tab;
+        }
+        
+        function toggleTask(cb){
+            event.stopPropagation();
+            cb.classList.toggle('checked');
+            cb.closest('.task').classList.toggle('completed');
+            const taskText=cb.closest('.task').dataset.task;
+            localStorage.setItem('task_'+taskText,cb.classList.contains('checked'));
+        }
+        
+        // Drag and Drop
+        let draggedItem=null;
+        document.querySelectorAll('.task-list').forEach(list=>{
+            list.addEventListener('dragstart',e=>{
+                if(e.target.classList.contains('task')){
+                    draggedItem=e.target;
+                    e.target.classList.add('dragging');
+                }
+            });
+            list.addEventListener('dragend',e=>{
+                if(e.target.classList.contains('task')){
+                    e.target.classList.remove('dragging');
+                }
+            });
+            list.addEventListener('dragover',e=>{
+                e.preventDefault();
+                const afterElement=getDragAfterElement(list,e.clientY);
+                if(afterElement==null){
+                    list.appendChild(draggedItem);
+                }else{
+                    list.insertBefore(draggedItem,afterElement);
+                }
+            });
+        });
+        
+        function getDragAfterElement(container,y){
+            const draggableElements=[...container.querySelectorAll('.task:not(.dragging)')];
+            return draggableElements.reduce((closest,child)=>{
+                const box=child.getBoundingClientRect();
+                const offset=y-box.top-box.height/2;
+                if(offset<0&&offset>closest.offset){
+                    return{offset:offset,element:child};
+                }else{
+                    return closest;
+                }
+            },{offset:Number.NEGATIVE_INFINITY}).element;
+        }
+        
+        // Add Task
+        function addTask(tab){
+            currentTab=tab;
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('new-task-input').focus();
+        }
+        
+        function closeModal(){
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('new-task-input').value='';
+        }
+        
+        function saveTask(){
+            const text=document.getElementById('new-task-input').value.trim();
+            if(!text)return;
+            
+            const list=document.getElementById(currentTab+'-tasks');
+            const task=document.createElement('div');
+            task.className='task';
+            task.draggable=true;
+            task.dataset.task=text;
+            task.dataset.who='You';
+            task.dataset.date=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
+            task.innerHTML=`<div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">${text}</div><div class="task-meta"><span class="tag tag-you">You</span> Added just now</div></div>`;
+            
+            // Add drag events to new task
+            task.addEventListener('dragstart',e=>{draggedItem=task;task.classList.add('dragging');});
+            task.addEventListener('dragend',e=>task.classList.remove('dragging'));
+            
+            list.appendChild(task);
+            closeModal();
+            
+            // Add to history
+            const historyList=document.getElementById('history-list');
+            const historyItem=document.createElement('div');
+            historyItem.className='history-item';
+            const icon=currentTab==='film'?'🎬':currentTab==='whitelabl'?'🏭':'🚚';
+            historyItem.innerHTML=`<strong>${icon} ${currentTab.charAt(0).toUpperCase()+currentTab.slice(1)}:</strong> ${text} <span class="history-time">Added by You • Just now</span>`;
+            historyList.insertBefore(historyItem,historyList.firstChild);
+        }
+        
+        // Load saved state
+        document.querySelectorAll('.task').forEach(task=>{
+            const taskText=task.dataset.task;
+            if(localStorage.getItem('task_'+taskText)==='true'){
+                const cb=task.querySelector('.checkbox');
+                cb.classList.add('checked');
+                task.classList.add('completed');
+            }
+        });
+        
+        // Close modal on outside click
+        document.getElementById('modal').addEventListener('click',e=>{
+            if(e.target.id==='modal')closeModal();
+        });
+    </script>
+</body>
+</html>

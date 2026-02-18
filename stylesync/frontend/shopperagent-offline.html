@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopperAgent | AI Shopping Assistant</title>
+    <style>
+        /* System fonts - no external dependencies */
+        *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+        :root{--bg:#fafafa;--surface:#ffffff;--surface-hover:#f3f4f6;--text:#0f0f0f;--text-secondary:#6b7280;--accent:#6366f1;--accent-light:#818cf8;--accent-glow:rgba(99,102,241,0.15);--success:#22c55e;--border:rgba(0,0,0,0.08);--shadow:0 4px 24px rgba(0,0,0,0.06);--shadow-lg:0 20px 40px rgba(99,102,241,0.12)}
+        body{background:var(--bg);color:var(--text);min-height:100vh}
+        .container{max-width:1400px;margin:0 auto;padding:0 24px}
+        .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 0}
+        .nav-content{max-width:1400px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+        .logo{font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--accent) 0%,var(--accent-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .nav-links{display:flex;gap:32px;align-items:center}
+        .nav-link{color:var(--text-secondary);font-size:14px;font-weight:500;cursor:pointer}
+        .nav-link:hover{color:var(--text)}
+        .agent-badge{display:flex;align-items:center;gap:8px;background:var(--accent-glow);padding:8px 16px;border-radius:100px;font-size:13px;font-weight:600;color:var(--accent)}
+        .agent-badge::before{content:'';width:8px;height:8px;background:var(--success);border-radius:50%;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+        .hero{padding:140px 0 60px;text-align:center;background:linear-gradient(180deg,var(--bg) 0%,rgba(99,102,241,0.05) 50%,var(--bg) 100%)}
+        .hero h1{font-size:64px;font-weight:800;letter-spacing:-3px;line-height:1.1;margin-bottom:24px}
+        .hero h1 span{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .hero-subtitle{font-size:20px;color:var(--text-secondary);max-width:650px;margin:0 auto 48px;line-height:1.6}
+        .how-it-works{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-bottom:64px}
+        .step-card{background:var(--surface);border-radius:20px;padding:32px 24px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border)}
+        .step-number{width:48px;height:48px;background:linear-gradient(135deg,var(--accent) 0%,var(--accent-light) 100%);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin:0 auto 16px}
+        .step-title{font-size:16px;font-weight:700;margin-bottom:8px}
+        .step-desc{font-size:14px;color:var(--text-secondary)}
+        .curated-section,.styles-section{margin-bottom:80px}
+        .section-header{margin-bottom:32px}
+        .section-title{font-size:32px;font-weight:800;margin-bottom:8px}
+        .section-subtitle{color:var(--text-secondary)}
+        .carts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+        .cart-card{background:var(--surface);border-radius:24px;padding:28px;box-shadow:var(--shadow);border:1px solid var(--border);cursor:pointer;transition:all 0.3s}
+        .cart-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+        .cart-badge{display:inline-block;background:var(--accent-glow);color:var(--accent);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:16px}
+        .cart-name{font-size:22px;font-weight:700;margin-bottom:8px}
+        .cart-desc{font-size:14px;color:var(--text-secondary);margin-bottom:20px}
+        .cart-preview{display:flex;gap:12px;margin-bottom:20px}
+        .cart-preview-img{width:80px;height:100px;background:linear-gradient(135deg,var(--surface-hover) 0%,#e5e7eb 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px}
+        .cart-meta{display:flex;align-items:center;justify-content:space-between;margin-top:16px}
+        .cart-price{font-size:28px;font-weight:800}
+        .btn-ghost{background:transparent;border:2px solid var(--border);color:var(--text);padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer}
+        .btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+        .styles-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+        .style-card{aspect-ratio:1;background:var(--surface);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;cursor:pointer;transition:all 0.3s;border:2px solid transparent;box-shadow:var(--shadow)}
+        .style-card:hover{border-color:var(--accent);transform:scale(1.05)}
+        .style-card.active{background:var(--accent);color:#fff}
+        .style-icon{font-size:40px}
+        .style-label{font-size:14px;font-weight:600}
+        .glass-card{background:var(--surface);border-radius:24px;padding:40px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:60px}
+        .input-tabs{display:flex;gap:8px;margin-bottom:24px;background:var(--surface-hover);padding:6px;border-radius:12px;width:fit-content}
+        .input-tab{padding:12px 24px;border-radius:10px;border:none;background:transparent;color:var(--text-secondary);font-size:15px;font-weight:500;cursor:pointer;transition:all 0.2s}
+        .input-tab.active{background:var(--surface);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+        .upload-zone{border:2px dashed var(--border);border-radius:20px;padding:48px;text-align:center;cursor:pointer;transition:all 0.3s;margin-bottom:24px;background:var(--surface-hover)}
+        .upload-zone:hover{border-color:var(--accent);background:var(--accent-glow)}
+        .upload-placeholder{display:flex;flex-direction:column;align-items:center;gap:16px}
+        .upload-icon{font-size:56px}
+        .upload-placeholder p{color:var(--text);font-size:18px;font-weight:600}
+        .upload-hint{color:var(--text-secondary);font-size:14px}
+        .input-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+        .input-field{width:100%;padding:20px 24px;border:2px solid var(--border);border-radius:16px;font-size:16px;background:var(--surface);color:var(--text)}
+        .input-field:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-glow)}
+        .btn-primary{width:100%;background:linear-gradient(135deg,var(--accent) 0%,var(--accent-light) 100%);color:#fff;border:none;padding:22px;border-radius:16px;font-size:18px;font-weight:700;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 16px var(--accent-glow)}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px var(--accent-glow)}
+        .detected-styles{margin-top:20px}
+        .style-tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+        .style-tag{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px}
+        .style-tag:hover{border-color:var(--accent)}
+        .style-tag .confidence{background:var(--accent);color:#fff;padding:2px 10px;border-radius:100px;font-size:12px}
+        .products-section{margin-bottom:80px}
+        .products-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+        .product-card{background:var(--surface);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:all 0.3s;position:relative}
+        .product-card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+        .ai-badge{position:absolute;top:12px;left:12px;background:var(--accent);color:#fff;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;z-index:10}
+        .product-img{width:100%;height:280px;background:linear-gradient(135deg,var(--surface-hover) 0%,#e5e7eb 100%)}
+        .product-info{padding:20px}
+        .product-brand{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--accent);margin-bottom:6px}
+        .product-name{font-size:16px;font-weight:600;margin-bottom:10px;line-height:1.4}
+        .product-reason{font-size:13px;color:var(--text-secondary);margin-bottom:14px;padding:10px 14px;background:var(--surface-hover);border-radius:10px;line-height:1.5}
+        .product-footer{display:flex;align-items:center;justify-content:space-between}
+        .product-price{font-size:24px;font-weight:800}
+        .btn-add{background:var(--text);color:#fff;border:none;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
+        .btn-add:hover{background:var(--accent)}
+        .cart-indicator{position:fixed;top:100px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:14px 28px;display:flex;align-items:center;gap:16px;font-weight:600;z-index:99;backdrop-filter:blur(10px);box-shadow:var(--shadow);cursor:pointer}
+        .cart-indicator:hover{transform:scale(1.05)}
+        .cart-total{color:var(--accent);font-size:20px}
+        .cart-panel{position:fixed;right:0;top:0;bottom:0;width:420px;background:var(--surface);box-shadow:-8px 0 32px rgba(0,0,0,0.15);z-index:200;padding:28px;overflow-y:auto;transform:translateX(100%);transition:transform 0.3s}
+        .cart-panel.open{transform:translateX(0)}
+        .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:199;opacity:0;visibility:hidden;transition:all 0.3s}
+        .cart-overlay.open{opacity:1;visibility:visible}
+        .cart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+        .cart-item{display:flex;gap:16px;padding:16px;background:var(--surface-hover);border-radius:16px;margin-bottom:12px}
+        .cart-item-img{width:70px;height:90px;background:linear-gradient(135deg,var(--surface-hover) 0%,#e5e7eb 100%);border-radius:12px}
+        .cart-item-info{flex:1}
+        .cart-item-name{font-weight:600;margin-bottom:4px}
+        .cart-item-brand{font-size:13px;color:var(--text-secondary);margin-bottom:8px}
+        .cart-item-price{font-weight:800;color:var(--accent);font-size:18px}
+        .btn-remove{width:32px;height:32px;background:transparent;border:none;color:var(--text-secondary);font-size:24px;cursor:pointer;border-radius:8px}
+        .btn-remove:hover{background:#fee2e2;color:#ef4444}
+        .cart-summary{margin-top:24px;padding-top:24px;border-top:2px solid var(--border)}
+        .cart-row{display:flex;justify-content:space-between;margin-bottom:12px;font-size:15px}
+        .cart-row.total{font-size:24px;font-weight:800;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+        .btn-checkout{width:100%;padding:20px;font-size:16px;margin-top:24px}
+        .cart-empty{text-align:center;padding:60px 20px;color:var(--text-secondary)}
+        .cart-empty-icon{font-size:64px;margin-bottom:16px}
+        .btn-close{width:40px;height:40px;background:var(--surface-hover);border:none;border-radius:12px;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+        .btn-close:hover{background:var(--border)}
+        @media(max-width:1024px){.carts-grid{grid-template-columns:repeat(2,1fr)}.styles-grid{grid-template-columns:repeat(3,1fr)}.products-grid{grid-template-columns:repeat(3,1fr)}}
+        @media(max-width:768px){.hero h1{font-size:40px}.how-it-works{grid-template-columns:repeat(2,1fr)}.carts-grid,.products-grid{grid-template-columns:1fr}.styles-grid{grid-template-columns:repeat(2,1fr)}.input-grid{grid-template-columns:1fr}.cart-panel{width:100%}}
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <div class="logo">ShopperAgent</div>
+            <div class="nav-links">
+                <span class="nav-link" onclick="scrollToSection('curated')">Curated</span>
+                <span class="nav-link" onclick="scrollToSection('styles')">Styles</span>
+                <span class="nav-link" onclick="toggleCart()">Cart <span id="nav-cart-count"></span></span>
+                <div class="agent-badge"><span>AI Active</span></div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="cart-indicator" class="cart-indicator" style="display:none" onclick="toggleCart()">
+        <span>🛒 <span id="indicator-count">0</span></span>
+        <span class="cart-total">$<span id="indicator-total">0</span></span>
+    </div>
+
+    <div id="cart-overlay" class="cart-overlay" onclick="toggleCart()"></div>
+    <div id="cart-panel" class="cart-panel">
+        <div class="cart-header">
+            <h2 style="font-size:24px;font-weight:800">Your Cart</h2>
+            <button class="btn-close" onclick="toggleCart()">×</button>
+        </div>
+        <div id="cart-items"></div>
+        <div id="cart-summary" style="display:none">
+            <div class="cart-summary">
+                <div class="cart-row"><span>Subtotal</span><span id="summary-subtotal">\$0</span></div>
+                <div class="cart-row"><span>Agent Fee</span><span>\$5.99</span></div>
+                <div class="cart-row"><span>Shipping</span><span>Free</span></div>
+                <div class="cart-row total"><span>Total</span><span id="summary-total">\$0</span></div>
+            </div>
+            <button class="btn-primary btn-checkout">Let Agent Place Order →</button>
+        </div>
+        <div id="cart-empty" class="cart-empty">
+            <div class="cart-empty-icon">🛒</div>
+            <p>Your cart is empty</p>
+        </div>
+    </div>
+
+    <div class="hero">
+        <div class="agent-badge" style="display:inline-flex;margin-bottom:24px"><span>AI Agent Active</span></div>
+        <h1>Your Personal<br><span>Shopping Agent</span></h1>
+        <p class="hero-subtitle">Upload a photo, describe your style, or pick a curated cart. Our AI shops across 50+ brands.</p>
+    </div>
+
+    <div class="container">
+        <div class="how-it-works">
+            <div class="step-card"><div class="step-number">1</div><div class="step-title">Share Style</div><div class="step-desc">Photo, URL, or text</div></div>
+            <div class="step-card"><div class="step-number">2</div><div class="step-title">AI Curates</div><div class="step-desc">Searches retailers</div></div>
+            <div class="step-card"><div class="step-number">3</div><div class="step-title">You Approve</div><div class="step-desc">Pick favorites</div></div>
+            <div class="step-card"><div class="step-number">4</div><div class="step-title">Agent Orders</div><div class="step-desc">One payment</div></div>
+        </div>
+
+        <div id="curated" class="curated-section">
+            <div class="section-header">
+                <h2 class="section-title">🛍️ Curated Carts</h2>
+                <p class="section-subtitle">Complete looks ready to order</p>
+            </div>
+            <div class="carts-grid" id="carts-grid"></div>
+        </div>
+
+        <div id="styles" class="styles-section">
+            <div class="section-header">
+                <h2 class="section-title">🎨 Choose Your Style</h2>
+                <p class="section-subtitle">Click to filter items</p>
+            </div>
+            <div class="styles-grid" id="styles-grid"></div>
+        </div>
+
+        <div class="glass-card">
+            <div class="section-header">
+                <h2 class="section-title">What are you looking for?</h2>
+            </div>
+            <div class="input-tabs">
+                <button class="input-tab active" onclick="setTab('style')" data-tab="style">🎯 My Style</button>
+                <button class="input-tab" onclick="setTab('url')" data-tab="url">🔗 URL</button>
+                <button class="input-tab" onclick="setTab('photo')" data-tab="photo">📸 Photo</button>
+            </div>
+            <div id="tab-style">
+                <div class="input-grid">
+                    <input type="text" id="style-input" class="input-field" placeholder="Describe what you need">
+                    <input type="number" id="budget-input" class="input-field" placeholder="Budget (\$)">
+                </div>
+                <button class="btn-primary" onclick="searchProducts()">🎯 Find My Style</button>
+            </div>
+            <div id="tab-url" style="display:none">
+                <input type="url" id="url-input" class="input-field" placeholder="https://..." style="margin-bottom:16px">
+                <button class="btn-primary" onclick="searchFromUrl()">🔍 Find Similar</button>
+            </div>
+            <div id="tab-photo" style="display:none">
+                <div id="upload-zone" class="upload-zone" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" accept="image/*" style="display:none" onchange="handleFile(this)">
+                    <div class="upload-placeholder">
+                        <span class="upload-icon">📸</span>
+                        <p>Drop photo or click to upload</p>
+                        <span class="upload-hint">CLIP AI detects style</span>
+                    </div>
+                </div>
+                <div id="detected-styles" class="detected-styles" style="display:none">
+                    <p style="font-weight:600;margin-bottom:8px">Detected Styles:</p>
+                    <div id="style-tags" class="style-tags"></div>
+                </div>
+                <button class="btn-primary" onclick="searchFromPhoto()" id="photo-search-btn" style="display:none">🔍 Find Matching</button>
+            </div>
+        </div>
+
+        <div id="search-results" class="products-section" style="display:none">
+            <div class="section-header">
+                <h2 class="section-title">✨ Curated For You</h2>
+                <p class="section-subtitle">Handpicked by AI</p>
+            </div>
+            <div class="products-grid" id="products-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        let cart=JSON.parse(localStorage.getItem('shopperCart')||'[]'),currentTab='style';
+        const curatedCarts=[
+            {id:'minimalist',name:'The Minimalist',desc:'Clean lines, neutral palette, timeless pieces.',price:485,items:4,icon1:'🧥',icon2:'👔',icon3:'👖'},
+            {id:'streetwear',name:'Street Style',desc:'Urban edge with designer drops.',price:620,items:5,icon1:'👕',icon2:'👖',icon3:'👟'},
+            {id:'executive',name:'Executive Power',desc:'Boardroom-ready looks.',price:890,items:6,icon1:'🧥',icon2:'👔',icon3:'💼'}
+        ];
+        const styles=[{icon:'◻️',label:'Minimalist'},{icon:'🏙️',label:'Streetwear'},{icon:'💼',label:'Business'},{icon:'🏖️',label:'Casual'},{icon:'✨',label:'Luxury'},{icon:'🌿',label:'Sustainable'}];
+        const productsData=[
+            {name:'Cashmere Coat',brand:'COS',price:320,reason:'Perfect foundation'},
+            {name:'Silk Blouse',brand:'Everlane',price:98,reason:'Minimal elegance'},
+            {name:'Tailored Trousers',brand:'COS',price:145,reason:'Clean silhouette'},
+            {name:'Leather Loafers',brand:'Everlane',price:168,reason:'Timeless'},
+            {name:'Wool Sweater',brand:'ASOS',price:89,reason:'Cozy essential'},
+            {name:'Denim Jacket',brand:'Uniqlo',price:79,reason:'Versatile layer'},
+            {name:'Crossbody Bag',brand:'COS',price:145,reason:'Functional style'},
+            {name:'Sneakers',brand:'Nike',price:120,reason:'Everyday comfort'}
+        ];
+        function init(){renderCarts();renderStyles();updateCartUI();}
+        function renderCarts(){const grid=document.getElementById('carts-grid');grid.innerHTML=curatedCarts.map(c=>\`<div class="cart-card" onclick="addCartToCart('\${c.id}')"><div class="cart-badge">\${c.items} items</div><div class="cart-name">\${c.name}</div><div class="cart-desc">\${c.desc}</div><div class="cart-preview"><div class="cart-preview-img">\${c.icon1}</div><div class="cart-preview-img">\${c.icon2}</div><div class="cart-preview-img">\${c.icon3}</div><div class="more">+\${c.items-3}</div></div><div class="cart-meta"><span class="cart-price">\$\${c.price}</span><button class="btn-ghost">Add All</button></div></div>\`).join('');}
+        function renderStyles(){const grid=document.getElementById('styles-grid');grid.innerHTML=styles.map(s=>\`<div class="style-card" onclick="selectStyle('\${s.label}')" data-style="\${s.label}"><span class="style-icon">\${s.icon}</span><span class="style-label">\${s.label}</span></div>\`).join('');}
+        function selectStyle(label){document.querySelectorAll('.style-card').forEach(c=>c.classList.remove('active'));document.querySelector(\`[data-style="\${label}"]\`).classList.add('active');document.getElementById('style-input').value=label;searchProducts();}
+        function setTab(tab){currentTab=tab;document.querySelectorAll('.input-tab').forEach(t=>t.classList.remove('active'));document.querySelector(\`[data-tab="\${tab}"]\`).classList.add('active');['style','url','photo'].forEach(t=>document.getElementById(\`tab-\${t}\`).style.display=t===tab?'block':'none');}
+        function handleFile(input){const file=input.files?input.files[0]:input;if(!file)return;setTimeout(()=>{const styles=[{style:'minimalist fashion',conf:0.89},{style:'parisian chic',conf:0.76},{style:'business formal',conf:0.64}];document.getElementById('detected-styles').style.display='block';document.getElementById('style-tags').innerHTML=styles.map(s=>\`<span class="style-tag" onclick="document.getElementById('style-input').value='\${s.style}'">\${s.style}<span class="confidence">\${Math.round(s.conf*100)}%</span></span>\`).join('');document.getElementById('photo-search-btn').style.display='block';},800);}
+        function searchProducts(){const query=document.getElementById('style-input').value;if(!query)return;renderProducts();document.getElementById('search-results').style.display='block';document.getElementById('search-results').scrollIntoView({behavior:'smooth'});}
+        function searchFromUrl(){renderProducts();document.getElementById('search-results').style.display='block';}
+        function searchFromPhoto(){renderProducts();document.getElementById('search-results').style.display='block';}
+        function renderProducts(){const grid=document.getElementById('products-grid');grid.innerHTML=productsData.map((p,i)=>\`<div class="product-card">\${i<4?'<div class="ai-badge">AI Pick</div>':''}<div class="product-img"></div><div class="product-info"><div class="product-brand">\${p.brand}</div><div class="product-name">\${p.name}</div><div class="product-reason">\${p.reason}</div><div class="product-footer"><span class="product-price">\$\${p.price}</span><button class="btn-add" onclick="addToCart('\${i}','\${p.name}','\${p.brand}',\${p.price})">Add</button></div></div></div>\`).join('');}
+        function addCartToCart(cartId){const c=curatedCarts.find(x=>x.id===cartId);if(c)for(let i=0;i<c.items;i++)addToCart(i,productsData[i%productsData.length].name+' (Cart)',productsData[i%productsData.length].brand,Math.floor(Math.random()*150)+50);}
+        function addToCart(id,name,brand,price){cart.push({id,name,brand,price,cartId:Date.now()+Math.random()});saveCart();updateCartUI();}
+        function removeFromCart(cartId){cart=cart.filter(item=>item.cartId!==cartId);saveCart();updateCartUI();}
+        function saveCart(){localStorage.setItem('shopperCart',JSON.stringify(cart));}
+        function updateCartUI(){const total=cart.reduce((sum,item)=>sum+item.price,0),count=cart.length;const indicator=document.getElementById('cart-indicator');if(count>0){indicator.style.display='flex';document.getElementById('indicator-count').textContent=count;document.getElementById('indicator-total').textContent=total;document.getElementById('nav-cart-count').textContent='('+count+')';}else{indicator.style.display='none';document.getElementById('nav-cart-count').textContent='';}if(count>0){document.getElementById('cart-summary').style.display='block';document.getElementById('cart-empty').style.display='none';document.getElementById('cart-items').innerHTML=cart.map(item=>\`<div class="cart-item"><div class="cart-item-img"></div><div class="cart-item-info"><div class="cart-item-name">\${item.name}</div><div class="cart-item-brand">\${item.brand}</div><div class="cart-item-price">\$\${item.price}</div></div><button class="btn-remove" onclick="removeFromCart(\${item.cartId})">×</button></div>\`).join('');document.getElementById('summary-subtotal').textContent='\$'+total;document.getElementById('summary-total').textContent='\$'+(total+5.99).toFixed(2);}else{document.getElementById('cart-summary').style.display='none';document.getElementById('cart-empty').style.display='block';document.getElementById('cart-items').innerHTML='';}}
+        function toggleCart(){document.getElementById('cart-panel').classList.toggle('open');document.getElementById('cart-overlay').classList.toggle('open');}
+        function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
+        window.onload=init;
+    </script>
+</body>
+</html>

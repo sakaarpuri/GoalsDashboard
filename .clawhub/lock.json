@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "recursive-self-improvement": {
+      "version": "1.0.0",
+      "installedAt": 1771121705488
+    },
+    "humanizer": {
+      "version": "1.0.0",
+      "installedAt": 1771154406949
+    },
+    "auto-updater": {
+      "version": "1.0.0",
+      "installedAt": 1771154830110
+    },
+    "capability-evolver": {
+      "version": "1.0.0",
+      "installedAt": 1771154862819
+    },
+    "agent-browser": {
+      "version": "0.2.0",
+      "installedAt": 1771155803614
+    }
+  }
+}
