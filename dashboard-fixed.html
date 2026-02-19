@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mission Control</title>
+<style id="themeStyles">
+:root{--g1:#0a1f0a;--g2:#1a3d1a;--g3:#2d5a2d;--sd:rgba(10,25,10,.95);--sc:rgba(20,40,20,.85);--bs:rgba(74,222,128,.2);--gn:#4ade80;--or:#fb923c;--bl:#60a5fa;--pu:#a855f7;--tp:#f0fdf4;--tm:rgba(240,253,244,.55);--rd:#ef4444;--card:rgba(20,40,20,.85)}
+</style>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:linear-gradient(135deg,var(--g1) 0%,var(--g2) 50%,var(--g3) 100%);color:var(--tp);min-height:100vh}
+.app{display:grid;grid-template-columns:280px 1fr 300px;max-width:1400px;margin:0 auto;min-height:100vh}
+.sidebar{background:var(--sd);padding:16px;border-right:1px solid var(--bs);overflow-y:auto}
+.sidebar-r{background:var(--sd);padding:16px;border-left:1px solid var(--bs);overflow-y:auto}
+.content{padding:16px;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;margin-bottom:16px}
+.pulse{width:10px;height:10px;background:var(--gn);border-radius:50%;box-shadow:0 0 15px var(--gn);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.card{background:var(--card);border:1px solid var(--bs);border-radius:12px;padding:12px;margin-bottom:12px}
+.card.compact{padding:10px;margin-bottom:10px}
+.title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.btn{background:linear-gradient(135deg,var(--gn) 0%,var(--bl) 100%);border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;color:#052e16;cursor:pointer;width:100%}
+.btn-small{background:rgba(96,165,250,.15);border:1px solid var(--bl);color:var(--bl);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer}
+.btn-icon{background:transparent;border:none;color:var(--tm);font-size:18px;cursor:pointer;padding:2px 6px}
+.goal-item{background:rgba(0,0,0,.2);border:1px solid var(--bs);border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer;position:relative}
+.goal-item:hover{border-color:var(--gn)}
+.goal-item.dragging{opacity:.6;transform:scale(1.02);box-shadow:0 4px 20px rgba(0,0,0,.3);z-index:100}
+.goal-item.active{border-color:var(--gn);background:rgba(74,222,128,.15)}
+.goal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;margin-left:16px}
+.goal-name{font-size:13px;font-weight:700}
+.goal-pct{font-size:13px;font-weight:800;color:var(--gn)}
+.goal-bar{height:5px;background:rgba(0,0,0,.3);border-radius:3px;margin-left:16px}
+.goal-fill{height:100%;border-radius:3px}
+.drag-handle{position:absolute;left:4px;top:50%;transform:translateY(-50%);cursor:grab;padding:8px 2px;color:var(--tm);font-size:10px}
+.drag-handle:active{cursor:grabbing}
+.task{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.2);border:1px solid var(--bs);border-radius:10px;padding:10px;margin-bottom:8px}
+.task.todo{border-left:3px solid var(--bl)}
+.task.inprog{border-left:3px solid var(--or)}
+.task.done{border-left:3px solid var(--gn);opacity:.7}
+.dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;cursor:pointer}
+.task.todo .dot{background:var(--bl)}
+.task.inprog .dot{background:var(--or)}
+.task.done .dot{background:var(--gn)}
+.task-content{flex:1}
+.task-title{font-size:14px;font-weight:700;background:transparent;border:none;color:var(--tp);width:100%}
+.task-title.done{text-decoration:line-through;color:var(--tm)}
+.task-meta{font-size:11px;color:var(--tm);margin-top:2px}
+.task-btn{background:rgba(255,255,255,.1);border:none;color:var(--tm);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer}
+input,select,textarea{background:rgba(0,0,0,.25);border:1px solid var(--bs);border-radius:8px;padding:10px;font-size:13px;color:var(--tp);width:100%;margin-bottom:8px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gn)}
+.cal-tabs{display:flex;gap:8px;margin-bottom:10px}
+.cal-tab{background:rgba(0,0,0,.2);border:1px solid var(--bs);color:var(--tm);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer}
+.cal-tab.active{background:var(--gn);color:#000;font-weight:700;border-color:var(--gn)}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cal-nav{background:rgba(0,0,0,.2);border:1px solid var(--bs);color:var(--tp);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:14px}
+.cal-month{font-size:14px;font-weight:800}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-day-h{text-align:center;font-size:9px;color:var(--tm);padding:4px;font-weight:700}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.2);border-radius:5px;font-size:11px;cursor:pointer;position:relative;min-height:32px}
+.cal-day:hover{background:rgba(74,222,128,.2)}
+.cal-day.today{background:var(--gn);color:#000;font-weight:800}
+.cal-day.other{color:var(--tm);opacity:.5}
+.cal-day.has-note::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;background:var(--gn);border-radius:50%}
+.week-view{display:none}
+.week-view.active{display:block}
+.week-row{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.week-day{background:rgba(0,0,0,.2);border-radius:8px;padding:8px;min-height:80px;cursor:pointer}
+.week-day-header{text-align:center;font-size:11px;font-weight:700;color:var(--tm);margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--bs)}
+.week-day-number{font-size:14px;color:var(--gn);margin-bottom:4px}
+.week-note{font-size:10px;color:var(--tm);background:rgba(0,0,0,.2);padding:4px;border-radius:4px;margin-top:4px}
+.goal-detail{display:none;background:var(--card);border:1px solid var(--gn);border-radius:12px;padding:14px;margin-bottom:12px}
+.goal-detail.active{display:block}
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal.active{display:flex}
+.modal-content{background:var(--card);border:1px solid var(--bs);border-radius:16px;padding:20px;max-width:400px;width:100%}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:18px;font-weight:700}
+.modal-close{background:transparent;border:none;color:var(--tm);font-size:24px;cursor:pointer}
+.color-picker{display:flex;gap:8px;margin:12px 0}
+.color-option{width:32px;height:32px;border-radius:8px;cursor:pointer;border:2px solid transparent}
+.color-option.selected{border-color:white;box-shadow:0 0 0 2px var(--gn)}
+.theme-toggle{position:fixed;bottom:20px;left:20px;background:var(--card);border:1px solid var(--bs);border-radius:30px;padding:6px;z-index:100}
+.theme-btn{background:transparent;border:none;color:var(--tm);font-size:11px;cursor:pointer;padding:8px 14px;border-radius:20px;margin:0 2px}
+.theme-btn.active{background:var(--gn);color:#000;font-weight:700}
+.add-btn{width:100%;padding:10px;background:rgba(0,0,0,.2);border:2px dashed var(--bs);border-radius:10px;color:var(--tm);font-size:13px;cursor:pointer;margin-top:8px}
+.add-btn:hover{border-color:var(--gn);color:var(--gn)}
+</style>
+</head>
+<body>
+
+<div class="app">
+<aside class="sidebar">
+<div class="brand"><span class="pulse"></span>Mission Control</div>
+<div class="card compact">
+<div class="title"><span>🎯 Goals</span><button class="btn-icon" onclick="openGoalModal()">+</button></div>
+<div id="goalsList"></div>
+<button class="add-btn" onclick="openGoalModal()">+ Add Goal</button>
+</div>
+<div class="card compact">
+<div class="title">⚡ Quick Add</div>
+<input type="text" id="quickTitle" placeholder="Task name">
+<select id="quickGoal"></select>
+<button class="btn" onclick="addQuickTask()">Add Task</button>
+</div>
+</aside>
+
+<main class="content">
+<div class="goal-detail" id="goalDetail">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<div class="modal-title" id="detailTitle">Goal</div>
+<button class="btn-small" onclick="closeGoalDetail()">Close</button>
+</div>
+<div id="detailTasks"></div>
+</div>
+
+<div class="card" style="max-width:420px">
+<div class="title">📅 Calendar</div>
+<div class="cal-tabs">
+<button class="cal-tab active" onclick="setCalView('month')" id="tabMonth">Month</button>
+<button class="cal-tab" onclick="setCalView('week')" id="tabWeek">Week</button>
+</div>
+<div id="monthView">
+<div class="cal-header">
+<button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+<span class="cal-month" id="calMonth">Feb 2026</span>
+<button class="cal-nav" onclick="changeMonth(1)">›</button>
+</div>
+<div class="cal-grid" id="calGrid"></div>
+</div>
+<div class="week-view" id="weekView">
+<div class="cal-header">
+<button class="cal-nav" onclick="changeWeek(-1)">‹</button>
+<span class="cal-month" id="weekRange">Feb 16-22</span>
+<button class="cal-nav" onclick="changeWeek(1)">›</button>
+</div>
+<div class="week-row" id="weekGrid"></div>
+</div>
+</div>
+
+<div class="card">
+<div class="title">📋 All Tasks</div>
+<div id="allTasksList"></div>
+</div>
+</main>
+
+<aside class="sidebar-r">
+<div class="card compact">
+<div class="title">🤖 AI Control</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+<div style="text-align:center;padding:8px;background:rgba(0,0,0,.2);border-radius:8px"><div style="font-size:18px;font-weight:800;color:var(--gn)" id="aiActive">0</div><div style="font-size:9px;color:var(--tm)">Active</div></div>
+<div style="text-align:center;padding:8px;background:rgba(0,0,0,.2);border-radius:8px"><div style="font-size:18px;font-weight:800;color:var(--gn)" id="aiDone">0</div><div style="font-size:9px;color:var(--tm)">Done</div></div>
+<div style="text-align:center;padding:8px;background:rgba(0,0,0,.2);border-radius:8px"><div style="font-size:18px;font-weight:800;color:var(--gn)">87%</div><div style="font-size:9px;color:var(--tm)">Success</div></div>
+</div>
+</div>
+<div class="card compact">
+<div class="title">📊 Summary</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
+<div style="text-align:center;padding:8px;background:rgba(0,0,0,.2);border-radius:8px"><div style="font-size:20px;font-weight:800;color:var(--gn)" id="statDone">0</div><div style="font-size:9px;color:var(--tm)">Done</div></div>
+<div style="text-align:center;padding:8px;background:rgba(0,0,0,.2);border-radius:8px"><div style="font-size:20px;font-weight:800;color:var(--or)" id="statProgress">0</div><div style="font-size:9px;color:var(--tm)">Progress</div></div>
+<div style="text-align:center;padding:8px;background:rgba(0,0,0,.2);border-radius:8px"><div style="font-size:20px;font-weight:800;color:var(--bl)" id="statTodo">0</div><div style="font-size:9px;color:var(--tm)">Todo</div></div>
+</div>
+</div>
+<div class="card compact">
+<div class="title">🎯 Goal Tasks</div>
+<div id="sidebarTasks"><div style="color:var(--tm);font-size:13px;padding:10px">Click a goal</div></div>
+</div>
+<div class="card compact">
+<div class="title">🏆 Milestones</div>
+<div id="milestonesList"></div>
+</div>
+</aside>
+</div>
+
+<div class="theme-toggle">
+<button class="theme-btn active" onclick="setTheme('forest')" id="btnForest">Forest</button>
+<button class="theme-btn" onclick="setTheme('ocean')" id="btnOcean">Ocean</button>
+</div>
+
+<div class="modal" id="goalModal">
+<div class="modal-content">
+<div class="modal-header"><div class="modal-title" id="goalModalTitle">Add Goal</div><button class="modal-close" onclick="closeGoalModal()">×</button></div>
+<input type="hidden" id="editGoalId">
+<input type="text" id="goalNameInput" placeholder="Goal name">
+<input type="text" id="goalEmojiInput" placeholder="Emoji" maxlength="2">
+<div class="color-picker">
+<div class="color-option selected" style="background:#a855f7" onclick="selectColor('purple',this)" data-color="purple"></div>
+<div class="color-option" style="background:#3b82f6" onclick="selectColor('blue',this)" data-color="blue"></div>
+<div class="color-option" style="background:#f97316" onclick="selectColor('orange',this)" data-color="orange"></div>
+<div class="color-option" style="background:#22c55e" onclick="selectColor('green',this)" data-color="green"></div>
+</div>
+<button class="btn" onclick="saveGoal()">Save Goal</button>
+<button class="btn-small" onclick="deleteGoal()" id="deleteGoalBtn" style="width:100%;margin-top:8px;display:none;background:var(--rd);border-color:var(--rd);color:white">Delete</button>
+</div>
+</div>
+
+<div class="modal" id="dayModal">
+<div class="modal-content">
+<div class="modal-header"><div class="modal-title" id="dayModalTitle">Notes</div><button class="modal-close" onclick="closeDayModal()">×</button></div>
+<div id="dayNotesList" style="max-height:180px;overflow-y:auto;margin-bottom:12px"></div>
+<textarea id="dayNoteInput" placeholder="Add note..." rows="2"></textarea>
+<button class="btn" onclick="addDayNote()">+ Add Note</button>
+</div>
+</div>
+
+<script>
+const themeForest=':root{--g1:#0a1f0a;--g2:#1a3d1a;--g3:#2d5a2d;--sd:rgba(10,25,10,.95);--sc:rgba(20,40,20,.85);--bs:rgba(74,222,128,.2);--gn:#4ade80;--or:#fb923c;--bl:#60a5fa;--pu:#a855f7;--tp:#f0fdf4;--tm:rgba(240,253,244,.55);--rd:#ef4444;--card:rgba(20,40,20,.85)}';
+const themeOcean=':root{--g1:#0a1929;--g2:#0d2847;--g3:#1e3a5f;--sd:rgba(10,25,50,.95);--sc:rgba(15,35,60,.85);--bs:rgba(56,189,248,.2);--gn:#38bdf8;--or:#fbbf24;--bl:#818cf8;--pu:#c084fc;--tp:#f0f9ff;--tm:rgba(200,230,255,.55);--rd:#f87171;--card:rgba(15,35,60,.85)}';
+
+let goals=JSON.parse(localStorage.getItem('mc_goals'))||[{id:1,name:'Filmmaker',emoji:'🎬',color:'purple',progress:35},{id:2,name:'Whitelabl',emoji:'🏭',color:'blue',progress:15},{id:3,name:'WildOnMedia',emoji:'🚚',color:'orange',progress:25},{id:4,name:'App Ideas',emoji:'💡',color:'green',progress:5}];
+let tasks=JSON.parse(localStorage.getItem('mc_tasks'))||[{id:1,title:'Generate animation',goalId:1,status:'inprog'},{id:2,title:'Research grants',goalId:1,status:'inprog'},{id:3,title:'SEO content',goalId:2,status:'todo'}];
+let notes=JSON.parse(localStorage.getItem('mc_notes'))||{};
+let selectedColor='purple',selectedDate=null,currentMonth=new Date().getMonth(),currentYear=new Date().getFullYear(),currentWeekStart=new Date(),selectedGoalId=null,calView='month',draggedEl=null;
+const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fullMonths=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const colors={purple:'#a855f7',blue:'#3b82f6',orange:'#f97316',green:'#22c55e'};
+
+function init(){
+  const saved=localStorage.getItem('mc_theme')||'forest';
+  document.getElementById('themeStyles').textContent=saved==='forest'?themeForest:themeOcean;
+  document.getElementById('btnForest').classList.toggle('active',saved==='forest');
+  document.getElementById('btnOcean').classList.toggle('active',saved==='ocean');
+  renderGoals();renderTasks();renderCalendar();updateStats();updateGoalSelect();renderMilestones();
+}
+
+function setTheme(name){
+  document.getElementById('themeStyles').textContent=name==='forest'?themeForest:themeOcean;
+  localStorage.setItem('mc_theme',name);
+  document.getElementById('btnForest').classList.toggle('active',name==='forest');
+  document.getElementById('btnOcean').classList.toggle('active',name==='ocean');
+}
+
+function setCalView(view){
+  calView=view;
+  document.getElementById('tabMonth').classList.toggle('active',view==='month');
+  document.getElementById('tabWeek').classList.toggle('active',view==='week');
+  document.getElementById('monthView').style.display=view==='month'?'block':'none';
+  document.getElementById('weekView').classList.toggle('active',view==='week');
+  if(view==='week')renderWeekView();
+}
+
+function renderCalendar(){
+  const grid=document.getElementById('calGrid');
+  const firstDay=new Date(currentYear,currentMonth,1).getDay();
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+  const daysInPrevMonth=new Date(currentYear,currentMonth,0).getDate();
+  document.getElementById('calMonth').textContent=`${fullMonths[currentMonth]} ${currentYear}`;
+  let html='';
+  ['S','M','T','W','T','F','S'].forEach(h=>html+=`<div class="cal-day-h">${h}</div>`);
+  for(let i=firstDay-1;i>=0;i--)html+=`<div class="cal-day other">${daysInPrevMonth-i}</div>`;
+  const today=new Date();
+  for(let i=1;i<=daysInMonth;i++){
+    const dk=`${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+    const isToday=i===today.getDate()&&currentMonth===today.getMonth()&&currentYear===today.getFullYear();
+    const hasNote=notes[dk]&&notes[dk].length>0;
+    let cls='cal-day';if(isToday)cls+=' today';if(hasNote)cls+=' has-note';
+    html+=`<div class="${cls}" onclick="openDayModal('${dk}',${i})">${i}</div>`;
+  }
+  grid.innerHTML=html;
+}
+
+function renderWeekView(){
+  const start=new Date(currentWeekStart);
+  start.setDate(start.getDate()-start.getDay());
+  const end=new Date(start);end.setDate(end.getDate()+6);
+  document.getElementById('weekRange').textContent=`${monthNames[start.getMonth()]} ${start.getDate()}-${monthNames[end.getMonth()]} ${end.getDate()}`;
+  let html='';
+  for(let i=0;i<7;i++){
+    const d=new Date(start);d.setDate(d.getDate()+i);
+    const dk=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const dn=notes[dk]||[];
+    const isToday=d.toDateString()===new Date().toDateString();
+    html+=`<div class="week-day" style="${isToday?'border:1px solid var(--gn)':''}" onclick="openDayModal('${dk}',${d.getDate()})"><div class="week-day-header">${dayNames[i]}</div><div class="week-day-number" style="${isToday?'color:var(--gn)':''}">${d.getDate()}</div>${dn.map(n=>`<div class="week-note">${n.text.substring(0,25)}${n.text.length>25?'...':''}</div>`).join('')}</div>`;
+  }
+  document.getElementById('weekGrid').innerHTML=html;
+}
+
+function changeMonth(dir){currentMonth+=dir;if(currentMonth>11){currentMonth=0;currentYear++;}if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();}
+function changeWeek(dir){currentWeekStart.setDate(currentWeekStart.getDate()+(dir*7));renderWeekView();}
+
+function renderGoals(){
+  const c=document.getElementById('goalsList');c.innerHTML='';
+  goals.forEach((g,i)=>{
+    const el=document.createElement('div');
+    el.className='goal-item '+(g.id===selectedGoalId?'active':'');
+    el.dataset.index=i;el.dataset.id=g.id;
+    el.innerHTML=`<div class="drag-handle">⋮⋮</div><div class="goal-header"><div class="goal-name">${g.emoji} ${g.name}</div><div class="goal-pct">${g.progress}%</div></div><div class="goal-bar"><div class="goal-fill" style="width:${g.progress}%;background:${colors[g.color]}"></div></div><div class="goal-actions" style="position:absolute;right:8px;top:8px;opacity:0;transition:opacity .2s"><button class="btn-icon" onclick="event.stopPropagation();editGoal(${g.id})">✏️</button></div>`;
+    el.querySelector('.drag-handle').addEventListener('mousedown',()=>{el.draggable=true;});
+    el.addEventListener('dragstart',e=>{draggedEl=el;el.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',i);});
+    el.addEventListener('dragend',()=>{el.classList.remove('dragging');draggedEl=null;});
+    el.addEventListener('dragover',e=>{if(draggedEl&&draggedEl!==el)e.preventDefault();});
+    el.addEventListener('drop',e=>{e.preventDefault();if(draggedEl&&draggedEl!==el){const from=parseInt(draggedEl.dataset.index);const to=parseInt(el.dataset.index);const item=goals.splice(from,1)[0];goals.splice(to,0,item);localStorage.setItem('mc_goals',JSON.stringify(goals));renderGoals();}});
+    el.addEventListener('click',e=>{if(!e.target.closest('.btn-icon')&&!e.target.closest('.drag-handle'))showGoalDetail(g.id);});
+    el.addEventListener('mouseenter',()=>{el.querySelector('.goal-actions').style.opacity='1';});
+    el.addEventListener('mouseleave',()=>{el.querySelector('.goal-actions').style.opacity='0';});
+    c.appendChild(el);
+  });
+  updateGoalSelect();
+}
+
+function showGoalDetail(id){selectedGoalId=id;const g=goals.find(x=>x.id===id);if(!g)return;document.getElementById('detailTitle').innerHTML=`${g.emoji} ${g.name}`;const gt=tasks.filter(t=>t.goalId===id);document.getElementById('detailTasks').innerHTML=gt.map(t=>renderTask(t)).join('')||'<div style="color:var(--tm);padding:10px">No tasks</div>';document.getElementById('goalDetail').classList.add('active');document.getElementById('sidebarTasks').innerHTML=gt.slice(0,5).map(t=>`<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px"><div style="font-weight:600;font-size:13px">${t.title}</div><div style="color:var(--tm);font-size:11px;text-transform:capitalize">${t.status}</div></div>`).join('')||'<div style="color:var(--tm);padding:10px">No tasks</div>';renderGoals();}
+function closeGoalDetail(){document.getElementById('goalDetail').classList.remove('active');selectedGoalId=null;renderGoals();}
+function renderTask(t){const g=goals.find(x=>x.id===t.goalId);return `<div class="task ${t.status}"><div class="dot" onclick="cycleTask(${t.id})"></div><div class="task-content"><div class="task-title ${t.status}">${t.title}</div><div class="task-meta">${g?g.emoji:''} ${g?g.name:'Unknown'}</div></div><button class="task-btn" onclick="deleteTask(${t.id})">🗑️</button></div>`;}
+function renderTasks(){document.getElementById('allTasksList').innerHTML=tasks.map(t=>renderTask(t)).join('');}
+function cycleTask(id){const t=tasks.find(x=>x.id===id);if(t){const s=['todo','inprog','done'];t.status=s[(s.indexOf(t.status)+1)%3];localStorage.setItem('mc_tasks',JSON.stringify(tasks));renderTasks();updateStats();if(selectedGoalId)showGoalDetail(selectedGoalId);}}
+function deleteTask(id){if(!confirm('Delete?'))return;tasks=tasks.filter(t=>t.id!==id);localStorage.setItem('mc_tasks',JSON.stringify(tasks));renderTasks();updateStats();if(selectedGoalId)showGoalDetail(selectedGoalId);}
+function addQuickTask(){const t=document.getElementById('quickTitle').value.trim();const g=parseInt(document.getElementById('quickGoal').value);if(!t)return;tasks.unshift({id:Date.now(),title:t,goalId:g,status:'todo'});localStorage.setItem('mc_tasks',JSON.stringify(tasks));document.getElementById('quickTitle').value='';renderTasks();updateStats();if(selectedGoalId===g)showGoalDetail(g);}
+function updateGoalSelect(){document.getElementById('quickGoal').innerHTML=goals.map(g=>`<option value="${g.id}">${g.emoji} ${g.name}</option>`).join('');}
+function updateStats(){const d=tasks.filter(t=>t.status==='done').length,ip=tasks.filter(t=>t.status==='inprog').length,td=tasks.filter(t=>t.status==='todo').length;document.getElementById('statDone').textContent=d;document.getElementById('statProgress').textContent=ip;document.getElementById('statTodo').textContent=td;document.getElementById('aiActive').textContent=ip;document.getElementById('aiDone').textContent=d;goals.forEach(g=>{const gt=tasks.filter(t=>t.goalId===g.id);const gd=gt.filter(t=>t.status==='done').length;g.progress=gt.length?Math.round((gd/gt.length)*100):0;});localStorage.setItem('mc_goals',JSON.stringify(goals));renderGoals();renderMilestones();}
+function renderMilestones(){document.getElementById('milestonesList').innerHTML=goals.map(g=>`<div style="padding:10px;background:rgba(0,0,0,.2);border-radius:8px;margin-bottom:8px;border-left:3px solid ${colors[g.color]}"><div style="font-weight:700;font-size:13px">${g.emoji} ${g.name}</div><div style="font-size:11px;color:var(--tm)">${g.progress}% complete</div></div>`).join('');}
+function openGoalModal(){document.getElementById('goalModalTitle').textContent='Add Goal';document.getElementById('goalNameInput').value='';document.getElementById('goalEmojiInput').value='';document.getElementById('editGoalId').value='';document.getElementById('deleteGoalBtn').style.display='none';selectColor('purple',document.querySelector('[data-color="purple"]'));document.getElementById('goalModal').classList.add('active');}
+function editGoal(id){const g=goals.find(x=>x.id===id);if(!g)return;document.getElementById('goalModalTitle').textContent='Edit Goal';document.getElementById('goalNameInput').value=g.name;document.getElementById('goalEmojiInput').value=g.emoji;document.getElementById('editGoalId').value=g.id;document.getElementById('deleteGoalBtn').style.display='block';selectColor(g.color,document.querySelector(`[data-color="${g.color}"]`));document.getElementById('goalModal').classList.add('active');}
+function closeGoalModal(){document.getElementById('goalModal').classList.remove('active');}
+function selectColor(c,el){selectedColor=c;document.querySelectorAll('.color-option').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');}
+function saveGoal(){const n=document.getElementById('goalNameInput').value.trim();const e=document.getElementById('goalEmojiInput').value.trim()||'📋';const editId=document.getElementById('editGoalId').value;if(!n)return alert('Enter goal name');if(editId){const g=goals.find(x=>x.id==editId);g.name=n;g.emoji=e;g.color=selectedColor;}else{goals.push({id:Date.now(),name:n,emoji:e,color:selectedColor,progress:0});}localStorage.setItem('mc_goals',JSON.stringify(goals));renderGoals();closeGoalModal();}
+function deleteGoal(){const editId=document.getElementById('editGoalId').value;if(!editId)return;if(!confirm('Delete?'))return;goals=goals.filter(g=>g.id!=editId);tasks=tasks.filter(t=>t.goalId!=editId);localStorage.setItem('mc_goals',JSON.stringify(goals));localStorage.setItem('mc_tasks',JSON.stringify(tasks));renderGoals();renderTasks();closeGoalModal();}
+function openDayModal(dk,d){selectedDate=dk;document.getElementById('dayModalTitle').textContent=`${fullMonths[currentMonth]} ${d}, ${currentYear}`;renderDayNotes();document.getElementById('dayModal').classList.add('active');}
+function closeDayModal(){document.getElementById('dayModal').classList.remove('active');document.getElementById('dayNoteInput').value='';selectedDate=null;}
+function renderDayNotes(){const dn=notes[selectedDate]||[],c=document.getElementById('dayNotesList');if(dn.length===0)c.innerHTML='<div style="color

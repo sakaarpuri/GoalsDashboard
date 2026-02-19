@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control v6 — Hybrid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #fafafa;
+            --card: #ffffff;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --purple: #9b87f5;
+            --purple-light: #c4b5fd;
+            --purple-dark: #7c6ad4;
+            --purple-soft: rgba(155, 135, 245, 0.08);
+            --orange: #ff9500;
+            --green: #34c759;
+            --red: #ff3b30;
+            --blue: #60a5fa;
+            --teal: #5ac8fa;
+            --border: rgba(0, 0, 0, 0.06);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 16px rgba(155, 135, 245, 0.08);
+            --shadow-lg: 0 8px 32px rgba(155, 135, 245, 0.12);
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 18px;
+            --radius-xl: 22px;
+        }
+        [data-theme="dark"] {
+            --bg: #0f0f12;
+            --card: #1a1a1f;
+            --text: #f5f5f7;
+            --muted: #8e8e93;
+            --purple: #a78bfa;
+            --purple-light: #c4b5fd;
+            --purple-dark: #8b5cf6;
+            --purple-soft: rgba(167, 139, 250, 0.12);
+            --border: rgba(255, 255, 255, 0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+        body { background: linear-gradient(135deg, var(--bg) 0%, #f5f3ff 100%); color: var(--text); min-height: 100vh; padding: 20px; }
+        [data-theme="dark"] body { background: linear-gradient(135deg, #0a0a0c 0%, #121016 100%); }
+        .app { max-width: 1400px; margin: 0 auto; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 0 4px; }
+        h1 { font-size: 28px; font-weight: 700; color: var(--purple-dark); letter-spacing: -0.02em; }
+        .header-meta { display: flex; align-items: center; gap: 16px; }
+        .theme-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: var(--card); cursor: pointer; font-size: 18px; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+        .theme-btn:hover { transform: scale(1.1); box-shadow: var(--shadow-md); }
+        .dashboard { display: grid; grid-template-columns: 280px 1fr 260px; gap: 20px; align-items: start; }
+        @media (max-width: 1200px) { .dashboard { grid-template-columns: 260px 1fr; } .sidebar-right { display: none; } }
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } .sidebar-left { display: none; } }
+        .card { background: var(--card); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); transition: all 0.2s; }
+        .card:hover { box-shadow: var(--shadow-md); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .card-title { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+        .sidebar-left { position: sticky; top: 20px; }
+        .goal-list { display: flex; flex-direction: column; gap: 10px; min-height: 200px; }
+        .goal { 
+            background: var(--purple-soft); 
+            border-radius: var(--radius-md); 
+            padding: 14px 16px; 
+            cursor: grab; 
+            position: relative; 
+            transition: all 0.2s; 
+            border-left: 3px solid transparent;
+        }
+        .goal:hover { transform: translateX(4px); box-shadow: var(--shadow-md); border-left-color: var(--purple-light); }
+        .goal:active { cursor: grabbing; }
+        .goal.dragging { opacity: 0.6; transform: scale(1.02); box-shadow: var(--shadow-lg); z-index: 100; }
+        .goal.drag-over { border-top: 3px solid var(--purple); margin-top: 8px; }
+        .goal.active { background: linear-gradient(135deg, var(--purple-soft), rgba(155, 135, 245, 0.15)); border-left-color: var(--purple); }
+        .drag-handle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); opacity: 0.3; cursor: grab; font-size: 14px; letter-spacing: -2px; }
+        .goal:hover .drag-handle { opacity: 0.6; }
+        .goal-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+        .goal-meta { font-size: 12px; color: var(--muted); }
+        .progress-bar { height: 4px; background: rgba(0, 0, 0, 0.06); border-radius: 2px; margin-top: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+        .goal-film .progress-fill { background: var(--purple); }
+        .goal-whitelabl .progress-fill { background: var(--blue); }
+        .goal-wildon .progress-fill { background: var(--orange); }
+        .main-content { min-height: 600px; }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .section-header { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+        .section-title { font-size: 20px; font-weight: 700; color: var(--purple-dark); margin-bottom: 4px; }
+        .section-subtitle { font-size: 14px; color: var(--muted); }
+        .task-list { display: flex; flex-direction: column; gap: 10px; }
+        .task { 
+            background: #f9fafb; 
+            border-radius: var(--radius-md); 
+            padding: 16px; 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            border: 2px solid transparent;
+        }
+        .task:hover { border-color: var(--purple-light); background: var(--card); box-shadow: var(--shadow-sm); }
+        .task.completed { opacity: 0.6; background: #f3f4f6; }
+        .task.completed .task-text { text-decoration: line-through; color: var(--muted); }
+        .checkbox { 
+            width: 22px; 
+            height: 22px; 
+            border: 2px solid #d1d5db; 
+            border-radius: 6px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            flex-shrink: 0; 
+            transition: all 0.2s; 
+            margin-top: 2px;
+        }
+        .checkbox:hover { border-color: var(--purple); }
+        .checkbox.checked { background: var(--purple); border-color: var(--purple); }
+        .checkbox.checked::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; }
+        .task-content { flex: 1; }
+        .task-text { font-weight: 500; font-size: 14px; margin-bottom: 6px; }
+        .task-meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+        .tag-urgent { background: rgba(255, 59, 48, 0.1); color: var(--red); }
+        .tag-me { background: rgba(155, 135, 245, 0.15); color: var(--purple-dark); }
+        .tag-you { background: rgba(96, 165, 250, 0.15); color: var(--blue); }
+        .add-btn { 
+            width: 100%; 
+            padding: 14px; 
+            border: 2px dashed #e5e7eb; 
+            border-radius: var(--radius-md); 
+            background: transparent; 
+            color: var(--muted); 
+            cursor: pointer; 
+            font-weight: 500; 
+            transition: all 0.2s; 
+            margin-top: 12px; 
+            font-size: 14px;
+        }
+        .add-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-soft); }
+        .sidebar-right { position: sticky; top: 20px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+        .stat-item { text-align: center; padding: 14px; background: #f9fafb; border-radius: var(--radius-md); }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--purple); }
+        .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 500; }
+        .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; font-size: 12px; }
+        .weekday { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; padding: 6px 0; }
+        .day { padding: 6px; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .day:hover { background: var(--purple-soft); }
+        .day.today { background: var(--purple); color: #fff; font-weight: 600; }
+        .day.has-task { position: relative; }
+        .day.has-task::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: var(--red); border-radius: 50%; }
+        .timeline { position: relative; padding-left: 16px; }
+        .timeline::before { content: ''; position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+        .timeline-item { position: relative; margin-bottom: 12px; padding-left: 12px; font-size: 13px; }
+        .timeline-item::before { content: ''; position: absolute; left: -14px; top: 5px; width: 8px; height: 8px; background: var(--green); border-radius: 50%; border: 2px solid var(--card); }
+        .timeline-time { font-size: 11px; color: var(--muted); }
+        .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal.show { display: flex; }
+        .modal-box { background: var(--card); padding: 24px; border-radius: var(--radius-lg); width: 90%; max-width: 400px; box-shadow: var(--shadow-lg); }
+        .modal-box h3 { margin-bottom: 16px; color: var(--purple-dark); font-size: 18px; }
+        .modal-box input { width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: var(--radius-md); margin-bottom: 16px; font-size: 14px; }
+        .modal-box input:focus { outline: none; border-color: var(--purple); }
+        .btn-row { display: flex; gap: 10px; justify-content: flex-end; }
+        .btn { padding: 10px 20px; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.2s; }
+        .btn-primary { background: var(--purple); color: #fff; }
+        .btn-primary:hover { background: var(--purple-dark); transform: translateY(-1px); }
+        .btn-secondary { background: #f3f4f6; color: var(--text); }
+        .btn-secondary:hover { background: #e5e7eb; }
+        .save-indicator { position: fixed; bottom: 20px; right: 20px; background: var(--green); color: #fff; padding: 10px 18px; border-radius: var(--radius-md); font-size: 13px; opacity: 0; transition: opacity 0.3s; font-weight: 500; box-shadow: var(--shadow-md); }
+        .save-indicator.show { opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>🚀 Mission Control</h1>
+            <div class="header-meta">
+                <span id="sync-status" style="font-size:13px;color:var(--muted)">● Connected</span>
+                <button class="theme-btn" onclick="toggleTheme()">🌓</button>
+            </div>
+        </header>
+        <div class="dashboard">
+            <div class="sidebar-left">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">🎯 Goals <span style="font-size:12px;font-weight:400;color:var(--muted)">(drag to reorder)</span></div>
+                    </div>
+                    <div class="goal-list" id="goal-list">
+                        <div class="goal goal-film active" draggable="true" data-goal="film" onclick="showView('film')">
+                            <span class="drag-handle">⋮⋮</span>
+                            <div class="goal-title">🎬 Filmmaker</div>
+                            <div class="goal-meta">35% • 3 pathways</div>
+                            <div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div>
+                        </div>
+                        <div class="goal goal-whitelabl" draggable="true" data-goal="whitelabl" onclick="showView('whitelabl')">
+                            <span class="drag-handle">⋮⋮</span>
+                            <div class="goal-title">🏭 Whitelabl</div>
+                            <div class="goal-meta">15% • 3 pathways</div>
+                            <div class="progress-bar"><div class="progress-fill" style="width:15%"></div></div>
+                        </div>
+                        <div class="goal goal-wildon" draggable="true" data-goal="wildon" onclick="showView('wildon')">
+                            <span class="drag-handle">⋮⋮</span>
+                            <div class="goal-title">🚚 WildOnMedia</div>
+                            <div class="goal-meta">25% • 3 pathways</div>
+                            <div class="progress-bar"><div class="progress-fill" style="width:25%"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">📊 Quick Stats</div>
+                    </div>
+                    <div class="stat-grid">
+                        <div class="stat-item"><div class="stat-value" style="color:var(--green)">8</div><div class="stat-label">Done</div></div>
+                        <div class="stat-item"><div class="stat-value" style="color:var(--blue)">14</div><div class="stat-label">Active</div></div>
+                        <div class="stat-item"><div class="stat-value" style="color:var(--purple)">3</div><div class="stat-label">Goals</div></div>
+                        <div class="stat-item"><div class="stat-value" style="color:var(--red)">2</div><div class="stat-label">Urgent</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="main-content">
+                <div id="view-film" class="view active">
+                    <div class="section-header">
+                        <div class="section-title">🎬 Filmmaker Tasks</div>
+                        <div class="section-subtitle">Secure funding • Canadian filmmaker in UK/Europe</div>
+                    </div>
+                    <div class="task-list" id="film-tasks">
+                        <div class="task" data-task="Research Telefilm Canada"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Research Telefilm Canada</div><div class="task-meta"><span class="tag tag-you">You</span> Added Feb 13 • Due Feb 20</div></div></div>
+                        <div class="task" data-task="Research BFI funding"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Research BFI funding</div><div class="task-meta"><span class="tag tag-you">You</span> Added Feb 13 • Due Feb 22</div></div></div>
+                        <div class="task" data-task="Create pitch deck template"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Create pitch deck template</div><div class="task-meta"><span class="tag tag-me">Crawley</span> Added Feb 13</div></div></div>
+                        <div class="task" data-task="Research Hot Docs Forum"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Research Hot Docs Forum</div><div class="task-meta"><span class="tag tag-you">You</span> Added Feb 20</div></div></div>
+                        <div class="task" data-task="Apply to Sundance Fund"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Apply to Sundance Fund</div><div class="task-meta"><span class="tag tag-me">Crawley</span> Added Feb 25</div></div></div>
+                    </div>
+                    <button class="add-btn" onclick="openAddTask('film')">+ Add Task</button>
+                </div>
+                <div id="view-whitelabl" class="view">
+                    <div class="section-header">
+                        <div class="section-title">🏭 Whitelabl Tasks</div>
+                        <div class="section-subtitle">White-label cosmetics manufacturing in India</div>
+                    </div>
+                    <div class="task-list" id="whitelabl-tasks">
+                        <div class="task" data-task="Fix lorem ipsum testimonials"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Fix lorem ipsum testimonials</div><div class="task-meta"><span class="tag tag-urgent">Urgent</span> <span class="tag tag-you">You</span> Due Feb 18</div></div></div>
+                        <div class="task" data-task="Write origin story"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Write origin story</div><div class="task-meta"><span class="tag tag-me">Crawley</span> Due Feb 20</div></div></div>
+                        <div class="task" data-task="Add ISO/GMP badges"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Add ISO/GMP badges</div><div class="task-meta"><span class="tag tag-you">You</span> Due Feb 22</div></div></div>
+                        <div class="task" data-task="CDSCO License Guide blog"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">CDSCO License Guide blog</div><div class="task-meta"><span class="tag tag-me">Crawley</span> Due Feb 25</div></div></div>
+                        <div class="task" data-task="Create email lead magnet"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Create email lead magnet</div><div class="task-meta"><span class="tag tag-me">Crawley</span> Due Feb 28</div></div></div>
+                        <div class="task" data-task="Watch strap match website"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Watch: strap match website</div><div class="task-meta"><span class="tag tag-you">You</span> Added Feb 16</div></div></div>
+                        <div class="task" data-task="Keep Sell website"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Keep/Sell website</div><div class="task-meta"><span class="tag tag-you">You</span> Added Feb 16</div></div></div>
+                    </div>
+                    <button class="add-btn" onclick="openAddTask('whitelabl')">+ Add Task</button>
+                </div>
+                <div id="view-wildon" class="view">
+                    <div class="section-header">
+                        <div class="section-title">🚚 WildOnMedia Tasks</div>
+                        <div class="section-subtitle">Digital billboard trucks • Canada expansion</div>
+                    </div>
+                    <div class="task-list" id="wildon-tasks">
+                        <div class="task" data-task="Create truck case study"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Create truck case study</div><div class="task-meta"><span class="tag tag-you">You</span> Due Feb 25</div></div></div>
+                        <div class="task" data-task="Build media kit PDF"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">Build media kit PDF</div><div class="task-meta"><span class="tag tag-me">Crawley</span> Due Mar 1</div></div></div>
+                        <div class="task" data-task="LinkedIn content calendar"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">LinkedIn content calendar</div><div class="task-meta"><span class="tag tag-you">You</span> Due Feb 28</div></div></div>
+                        <div class="task" data-task="List on ad directories"><div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">List on ad directories</div><div class="task-meta"><span class="tag tag-me">Crawley</span> Due Mar 5</div></div></div>
+                    </div>
+                    <button class="add-btn" onclick="openAddTask('wildon')">+ Add Task</button>
+                </div>
+            </div>
+            <div class="sidebar-right">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">📅 February 2026</div></div>
+                    <div style="margin-bottom:12px">
+                        <div class="calendar">
+                            <div class="weekday">S</div><div class="weekday">M</div><div class="weekday">T</div><div class="weekday">W</div><div class="weekday">T</div><div class="weekday">F</div><div class="weekday">S</div>
+                            <div class="day" style="color:var(--muted)">26</div><div class="day" style="color:var(--muted)">27</div><div class="day" style="color:var(--muted)">28</div>
+                            <div class="day">1</div><div class="day">2</div><div class="day">3</div><div class="day">4</div>
+                            <div class="day">5</div><div class="day">6</div><div class="day">7</div><div class="day">8</div>
+                            <div class="day">9</div><div class="day">10</div><div class="day">11</div><div class="day">12</div>
+                            <div class="day today">13</div><div class="day">14</div><div class="day">15</div><div class="day">16</div>
+                            <div class="day has-task">17</div><div class="day has-task" style="font-weight:600">18</div>
+                            <div class="day">19</div><div class="day has-task" style="font-weight:600">20</div>
+                            <div class="day">21</div><div class="day">22</div><div class="day">23</div><div class="day">24</div>
+                            <div class="day">25</div><div class="day">26</div><div class="day">27</div><div class="day">28</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">📜 Recent Activity</div></div>
+                    <div class="timeline">
+                        <div class="timeline-item"><div class="timeline-time">Today</div><div>Blog post created</div></div>
+                        <div class="timeline-item"><div class="timeline-time">Today</div><div>LinkedIn draft ready</div></div>
+                        <div class="timeline-item"><div class="timeline-time">Feb 15</div><div>Dashboard updated</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="modal" class="modal">
+        <div class="modal-box">
+            <h3>+ Add New Task</h3>
+            <input type="text" id="new-task-input" placeholder="What needs to be done?" onkeypress="if(event.key==='Enter')saveTask()">
+            <div class="btn-row">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTask()">Add Task</button>
+            </div>
+        </div>
+    </div>
+    <div class="save-indicator" id="save-indicator">✓ Saved</div>
+    <script>
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        }
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        function showView(goal) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-' + goal).classList.add('active');
+            document.querySelectorAll('.goal').forEach(g => g.classList.remove('active'));
+            document.querySelector('[data-goal="' + goal + '"]').classList.add('active');
+        }
+        
+        function toggleTask(cb) {
+            event.stopPropagation();
+            cb.classList.toggle('checked');
+            cb.closest('.task').classList.toggle('completed');
+            const taskText = cb.closest('.task').dataset.task;
+            localStorage.setItem('task_' + taskText, cb.classList.contains('checked'));
+            showSave();
+        }
+        
+        let draggedItem = null;
+        const goalList = document.getElementById('goal-list');
+        
+        document.querySelectorAll('.goal').forEach(goal => {
+            goal.addEventListener('dragstart', function(e) {
+                draggedItem = this;
+                this.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            goal.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                document.querySelectorAll('.goal').forEach(g => g.classList.remove('drag-over'));
+                saveGoalOrder();
+            });
+            goal.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                if (this !== draggedItem) this.classList.add('drag-over');
+            });
+            goal.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+            goal.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+                if (this !== draggedItem) {
+                    const allGoals = [...goalList.querySelectorAll('.goal')];
+                    const draggedIndex = allGoals.indexOf(draggedItem);
+                    const droppedIndex = allGoals.indexOf(this);
+                    if (draggedIndex < droppedIndex) this.after(draggedItem);
+                    else this.before(draggedItem);
+                    saveGoalOrder();
+                }
+            });
+        });
+        
+        function saveGoalOrder() {
+            const order = [...document.querySelectorAll('.goal')].map(g => g.dataset.goal);
+            localStorage.setItem('goalOrder', JSON.stringify(order));
+            showSave();
+        }
+        
+        let currentGoal = '';
+        function openAddTask(goal) {
+            currentGoal = goal;
+            document.getElementById('modal').classList.add('show');
+            document.getElementById('new-task-input').focus();
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            document.getElementById('new-task-input').value = '';
+        }
+        function saveTask() {
+            const text = document.getElementById('new-task-input').value.trim();
+            if (!text) return;
+            const list = document.getElementById(currentGoal + '-tasks');
+            const task = document.createElement('div');
+            task.className = 'task';
+            task.dataset.task = text;
+            task.innerHTML = '<div class="checkbox" onclick="toggleTask(this)"></div><div class="task-content"><div class="task-text">' + text + '</div><div class="task-meta"><span class="tag tag-you">You</span> Added just now</div></div></div>';
+            list.appendChild(task);
+            closeModal();
+            showSave();
+        }
+        document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+        
+        function showSave() {
+            const ind = document.getElementById('save-indicator');
+            ind.classList.add('show');
+            setTimeout(() => ind.classList.remove('show'), 1500);
+        }
+        
+        document.querySelectorAll('.task').forEach(task => {
+            const taskText = task.dataset.task;
+            if (localStorage.getItem('task_' + taskText) === 'true') {
+                const cb = task.querySelector('.checkbox');
+                cb.classList.add('checked');
+                task.classList.add('completed');
+            }
+        });
+        
+        const savedOrder = localStorage.getItem('goalOrder');
+        if (savedOrder) {
+            const order = JSON.parse(savedOrder);
+            const goals = [...document.querySelectorAll('.goal')];
+            order.forEach(goalId => {
+                const goal = goals.find(g => g.dataset.goal === goalId);
+                if (goal) goalList.appendChild(goal);
+            });
+        }
+    </script>
+</body>
+</html>

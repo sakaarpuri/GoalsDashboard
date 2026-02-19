@@ -51,6 +51,14 @@
         .history-item{padding:12px;border-bottom:1px solid #f3f4f6;font-size:13px}
         .history-item:last-child{border-bottom:none}
         .history-time{color:var(--muted);font-size:11px}
+        .pulse-dot{width:10px;height:10px;background:var(--green);border-radius:50%;margin:6px 6px 0 6px;flex-shrink:0;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.1)}}
+        .history-list-ai{display:flex;flex-direction:column;gap:8px}
+        .ai-history{display:flex;gap:12px;align-items:flex-start;padding:12px;background:#f9fafb;border-radius:10px}
+        .history-icon{font-size:20px}
+        .history-content{flex:1}
+        .history-title{font-weight:500;font-size:14px}
+        .ai-history .history-time{font-size:12px;margin-top:2px}
     </style>
 </head>
 <body>
@@ -63,6 +71,7 @@
             <button class="active" onclick="showTab('film',this)">🎬 Film</button>
             <button onclick="showTab('whitelabl',this)">🏭 Whitelabl</button>
             <button onclick="showTab('wildon',this)">🚚 WildOn</button>
+            <button onclick="showTab('ai',this)">🤖 AI Activity</button>
             <button onclick="showTab('history',this)">📜 History</button>
         </div>
         
@@ -191,6 +200,91 @@
                     </div>
                 </div>
                 <button class="add-btn" onclick="addTask('wildon')">+ Add Task</button>
+            </div>
+        </div>
+        
+        <!-- AI ACTIVITY -->
+        <div id="tab-ai" class="tab-content hidden">
+            <div class="card">
+                <div class="section-title">🤖 Currently Working On</div>
+                <div class="task-list" id="ai-current">
+                    <div class="task" data-task="Mission Control Dashboard">
+                        <div class="pulse-dot"></div>
+                        <div class="task-content">
+                            <div class="task-text">Mission Control Dashboard — AI Activity Page</div>
+                            <div class="task-meta"><span class="tag tag-me">Crawley</span> In progress • Started Feb 17</div>
+                        </div>
+                    </div>
+                    <div class="task" data-task="Quiet Porch Animation">
+                        <div class="pulse-dot"></div>
+                        <div class="task-content">
+                            <div class="task-text">The Quiet Porch — Western comic animation</div>
+                            <div class="task-meta"><span class="tag tag-me">Crawley</span> In progress • Started Feb 17</div>
+                        </div>
+                    </div>
+                    <div class="task" data-task="GoalsDashboard UI Fix">
+                        <div class="task-content">
+                            <div class="task-text">GoalsDashboard UI Fix — Forms, Work sections</div>
+                            <div class="task-meta"><span class="tag tag-you">Completed</span> Finished Feb 17 • Pushed to GitHub</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="section-title">📋 Recent Task History</div>
+                <div class="history-list-ai">
+                    <div class="history-item ai-history">
+                        <div class="history-icon">✅</div>
+                        <div class="history-content">
+                            <div class="history-title">Dashboard UI fixes pushed & deployed</div>
+                            <div class="history-time">Feb 17, 1:00 PM UTC • 7 fixes implemented</div>
+                        </div>
+                    </div>
+                    <div class="history-item ai-history">
+                        <div class="history-icon">🎨</div>
+                        <div class="history-content">
+                            <div class="history-title">Western comic strip generated</div>
+                            <div class="history-time">Feb 17, 12:30 PM • Cowboy & donkey scene</div>
+                        </div>
+                    </div>
+                    <div class="history-item ai-history">
+                        <div class="history-icon">🔧</div>
+                        <div class="history-content">
+                            <div class="history-title">ShopperAgent bug fixes completed</div>
+                            <div class="history-time">Feb 16, 4:00 PM • Gender toggle + password gate</div>
+                        </div>
+                    </div>
+                    <div class="history-item ai-history">
+                        <div class="history-icon">🎯</div>
+                        <div class="history-content">
+                            <div class="history-title">Mission Control v5 created</div>
+                            <div class="history-time">Feb 16, 11:00 AM • Draggable goals, schedule, AI tracking</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="section-title">📊 AI Activity Stats</div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+                    <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:12px">
+                        <div style="font-size:24px;font-weight:700;color:var(--purple)">12</div>
+                        <div style="font-size:11px;color:var(--muted)">Tasks Done Today</div>
+                    </div>
+                    <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:12px">
+                        <div style="font-size:24px;font-weight:700;color:var(--green)">3</div>
+                        <div style="font-size:11px;color:var(--muted)">In Progress</div>
+                    </div>
+                    <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:12px">
+                        <div style="font-size:24px;font-weight:700;color:var(--blue)">8</div>
+                        <div style="font-size:11px;color:var(--muted)">Files Created</div>
+                    </div>
+                    <div style="text-align:center;padding:16px;background:#f9fafb;border-radius:12px">
+                        <div style="font-size:24px;font-weight:700;color:var(--orange)">2</div>
+                        <div style="font-size:11px;color:var(--muted)">Pushed to Git</div>
+                    </div>
+                </div>
             </div>
         </div>
         

@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control — Sharp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #09090b;
+            --surface: #121214;
+            --elevated: #1a1a1d;
+            --border: #27272a;
+            --border-strong: #3f3f46;
+            --text: #fafafa;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #71717a;
+            --accent: #fff;
+            --red: #dc2626;
+            --orange: #ea580c;
+            --yellow: #ca8a04;
+            --green: #16a34a;
+            --blue: #2563eb;
+            --purple: #7c3aed;
+            --pink: #db2777;
+        }
+        
+        [data-theme="light"] {
+            --bg: #fafafa;
+            --surface: #fff;
+            --elevated: #f4f4f5;
+            --border: #e4e4e7;
+            --border-strong: #d4d4d8;
+            --text: #18181b;
+            --text-secondary: #71717a;
+            --text-tertiary: #a1a1aa;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        
+        .app {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        @media (max-width: 900px) { 
+            .app { grid-template-columns: 1fr; } 
+            .sidebar { display: none; } 
+        }
+        
+        .sidebar {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 1px;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            font-weight: 400;
+        }
+        
+        .goal-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 12px;
+        }
+        
+        .section-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 8px;
+            margin-bottom: 12px;
+        }
+        
+        .goal {
+            padding: 14px 10px;
+            border-radius: 6px;
+            cursor: grab;
+            position: relative;
+            margin-bottom: 6px;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+        
+        .goal:hover {
+            background: var(--elevated);
+            border-color: var(--border);
+        }
+        
+        .goal.active {
+            background: var(--elevated);
+            border-color: var(--border-strong);
+        }
+        
+        .goal.dragging {
+            opacity: 0.5;
+        }
+        
+        .drag-handle {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.15;
+            font-size: 11px;
+            letter-spacing: -1px;
+            cursor: grab;
+        }
+        
+        .goal:hover .drag-handle { opacity: 0.4; }
+        
+        .goal-title {
+            font-weight: 500;
+            font-size: 13px;
+            margin-bottom: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .goal-meta {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+        
+        .progress-track {
+            height: 2px;
+            background: var(--border);
+            border-radius: 1px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .main {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+        
+        .view-tabs {
+            display: flex;
+            gap: 2px;
+        }
+        
+        .view-tab {
+            padding: 6px 14px;
+            border-radius: 4px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .view-tab:hover { color: var(--text); }
+        .view-tab.active {
+            background: var(--elevated);
+            color: var(--text);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.15s;
+        }
+        
+        .icon-btn:hover {
+            border-color: var(--border-strong);
+            color: var(--text);
+        }
+        
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px;
+        }
+        
+        .page-title {
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 4px;
+        }
+        
+        .page-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        
+        @media (max-width: 1100px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+        
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1;
+        }
+        
+        .stat-change {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 6px;
+        }
+        
+        .timetable-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 3px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+        
+        .priority-filter {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .priority-btn {
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.15s;
+        }
+        
+        .priority-btn.high { background: rgba(220,38,38,0.1); color: var(--red); }
+        .priority-btn.medium { background: rgba(202,138,4,0.1); color: var(--yellow); }
+        .priority-btn.low { background: rgba(22,163,74,0.1); color: var(--green); }
+        
+        .timetable {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .time-slot {
+            display: grid;
+            grid-template-columns: 64px 1fr;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            transition: all 0.15s;
+        }
+        
+        .time-slot:hover {
+            border-color: var(--border-strong);
+        }
+        
+        .time-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+            padding-top: 10px;
+        }
+        
+        .task-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--surface);
+            border-radius: 6px;
+            border-left: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        
+        .task-card:hover {
+            transform: translateX(2px);
+        }
+        
+        .task-card.high { border-left-color: var(--red); }
+        .task-card.medium { border-left-color: var(--yellow); }
+        .task-card.low { border-left-color: var(--green); }
+        
+        .task-info { flex: 1; }
+        .task-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+        .task-goal { font-size: 11px; color: var(--text-tertiary); }
+        
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .duration {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: var(--bg);
+            padding: 3px 8px;
+            border-radius: 100px;
+        }
+        
+        .priority-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        
+        .priority-indicator.high { background: var(--red); }
+        .priority-indicator.medium { background: var(--yellow); }
+        .priority-indicator.low { background: var(--green); }
+        
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        
+        .day-col {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .day-header {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+        
+        .day-header.today {
+            background: var(--text);
+            color: var(--bg);
+        }
+        
+        .day-header.today .day-name { color: var(--text-secondary); }
+        
+        .day-name {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+        
+        .day-num {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .day-tasks {
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-height: 180px;
+        }
+        
+        .mini-task {
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            border-left: 2px solid;
+            line-height: 1.4;
+            background: var(--surface);
+        }
+        
+        .mini-task.high { border-left-color: var(--red); }
+        .mini-task.medium { border-left-color: var(--yellow); }
+        .mini-task.low { border-left-color: var(--green); }
+        
+        .quick-add {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .quick-add-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        
+        .quick-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .quick-input:focus {
+            outline: none;
+            border-color: var(--border-strong);
+        }
+        
+        .quick-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--text);
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--bg);
+            cursor: pointer;
+        }
+        
+        .quick-btn:hover { opacity: 0.9; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">MISSION CONTROL</div>
+                <div class="subtitle">Task Dashboard</div>
+            </div>
+            
+            <div class="goal-section">
+                <div class="section-label">Goals (drag to reorder)</div>
+                <div id="goal-list">
+                    <div class="goal active" draggable="true" data-goal="film" onclick="selectGoal('film')">
+                        <span class="drag-handle">⋮⋮</span>
+                        <div class="goal-title">🎬 Filmmaker</div>
+                        <div class="goal-meta">35% • Secure funding</div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 35%; background: var(--purple);"></div>
+                        </div>
+                    </div>
+                    <div class="goal" draggable="true" data-goal="whitelabl" onclick="selectGoal('whitelabl')">
+                        <span class="drag-handle">⋮⋮</span>
+                        <div class="goal-title">🏭 Whitelabl</div>
+                        <div class="goal-meta">15% • Scale Mfg</div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 15%; background: var(--blue);"></div>
+                        </div>
+                    </div>
+                    <div class="goal" draggable="true" data-goal="wildon" onclick="selectGoal('wildon')">
+                        <span class="drag-handle">⋮⋮</span>
+                        <div class="goal-title">🚚 WildOnMedia</div>
+                        <div class="goal-meta">25% • Expand</div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 25%; background: var(--orange);"></div>
+                        </div>
+                    </div>
+                    <div class="goal" draggable="true" data-goal="youtube" onclick="selectGoal('youtube')">
+                        <span class="drag-handle">⋮⋮</span>
+                        <div class="goal-title">📺 YouTube</div>
+                        <div class="goal-meta">5% • Create videos</div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width: 5%; background: var(--red);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-add">
+                <div class="quick-add-title">Quick Add</div>
+                <input type="text" class="quick-input" id="quickInput" placeholder="New task...">
+                <button class="quick-btn" onclick="quickAdd()">Add Task</button>
+            </div>
+        </aside>
+        
+        <main class="main">
+            <div class="top-bar">
+                <div class="view-tabs">
+                    <button class="view-tab active" onclick="setView('daily')">Day</button>
+                    <button class="view-tab" onclick="setView('weekly')">Week</button>
+                    <button class="view-tab" onclick="setView('monthly')">Month</button>
+                </div>
+                <div class="actions">
+                    <button class="icon-btn" onclick="toggleTheme()">◐</button>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div id="view-daily" class="view">
+                    <div class="page-title">Monday, February 16</div>
+                    <div class="page-subtitle">Today's schedule with priority levels</div>
+                    
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-label">High Priority</div>
+                            <div class="stat-value" style="color: var(--red);">3</div>
+                            <div class="stat-change">Critical tasks</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Medium Priority</div>
+                            <div class="stat-value" style="color: var(--yellow);">4</div>
+                            <div class="stat-change">Important</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Low Priority</div>
+                            <div class="stat-value" style="color: var(--green);">2</div>
+                            <div class="stat-change">Backlog</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Focus Time</div>
+                            <div class="stat-value">5.5h</div>
+                            <div class="stat-change">Scheduled today</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timetable-section">
+                        <div class="section-header">
+                            <div class="section-title">Today's Schedule</div>
+                            <div class="priority-filter">
+                                <button class="priority-btn high">High</button>
+                                <button class="priority-btn medium">Medium</button>
+                                <button class="priority-btn low">Low</button>
+                            </div>
+                        </div>
+                        
+                        <div class="timetable">
+                            <div class="time-slot">
+                                <div class="time-label">08:00</div>
+                                <div class="task-card high" onclick="toggleTask(this)">
+                                    <div class="task-info">
+                                        <div class="task-name">Fix testimonials</div>
+                                        <div class="task-goal">Whitelabl</div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <span class="duration">60 min</span>
+                                        <div class="priority-indicator high"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="time-slot">
+                                <div class="time-label">09:00</div>
+                                <div class="task-card high" onclick="toggleTask(this)">
+                                    <div class="task-info">
+                                        <div class="task-name">Research Telefilm Canada</div>
+                                        <div class="task-goal">Filmmaker</div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <span class="duration">90 min</span>
+                                        <div class="priority-indicator high"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="time-slot">
+                                <div class="time-label">11:00</div>
+                                <div class="task-card medium" onclick="toggleTask(this)">
+                                    <div class="task-info">
+                                        <div class="task-name">Draft YouTube script</div>
+                                        <div class="task-goal">YouTube</div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <span class="duration">60 min</span>
+                                        <div class="priority-indicator medium"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="time-slot">
+                                <div class="time-label">13:00</div>
+                                <div class="task-card low" onclick="toggleTask(this)">
+                                    <div class="task-info">
+                                        <div class="task-name">Lunch break</div>
+                                        <div class="task-goal">Personal</div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <span class="duration">45 min</span>
+                                        <div class="priority-indicator low"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="time-slot">
+                                <div class="time-label">14:00</div>
+                                <div class="task-card medium" onclick="toggleTask(this)">
+                                    <div class="task-info">
+                                        <div class="task-name">WildOn case study</div>
+                                        <div class="task-goal">WildOnMedia</div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <span class="duration">90 min</span>
+                                        <div class="priority-indicator medium"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="time-slot">
+                                <div class="time-label">16:00</div>
+                                <div class="task-card medium" onclick="toggleTask(this)">
+                                    <div class="task-info">
+                                        <div class="task-name">Research BFI funding</div>
+                                        <div class="task-goal">Filmmaker</div>
+                                    </div>
+                                    <div class="task-meta">
+                                        <span class="duration">60 min</span>
+                                        <div class="priority-indicator medium"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="view-weekly" class="view hidden">
+                    <div class="page-title">Week of Feb 16 — 22</div>
+                    <div class="page-subtitle">Weekly overview by priority</div>
+                    
+                    <div class="timetable-section" style="margin-top: 24px;">
+                        <div class="week-grid">
+                            <div class="day-col">
+                                <div class="day-header today">
+                                    <div class="day-name">Mon</div>
+                                    <div class="day-num">16</div>
+                                </div>
+                                <div class="day-tasks">
+                                    <div class="mini-task high">Fix testimonials</div>
+                                    <div class="mini-task high">Research Telefilm</div>
+                                    <div class="mini-task medium">YouTube script</div>
+                                </div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">
+                                    <div class="day-name">Tue</div>
+                                    <div class="day-num">17</div>
+                                </div>
+                                <div class="day-tasks">
+                                    <div class="mini-task medium">LinkedIn content</div>
+                                </div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">
+                                    <div class="day-name">Wed</div>
+                                    <div class="day-num">18</div>
+                                </div>
+                                <div class="day-tasks">
+                                    <div class="mini-task high">Urgent deadline</div>
+                                    <div class="mini-task low">ISO badges</div>
+                                </div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">
+                                    <div class="day-name">Thu</div>
+                                    <div class="day-num">19</div>
+                                </div>
+                                <div class="day-tasks">
+                                    <div class="mini-task medium">Hot Docs research</div>
+                                </div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">
+                                    <div class="day-name">Fri</div>
+                                    <div class="day-num">20</div>
+                                </div>
+                                <div class="day-tasks">
+                                    <div class="mini-task high">Telefilm due</div>
+                                    <div class="mini-task medium">Origin story</div>
+                                </div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">
+                                    <div class="day-name">Sat</div>
+                                    <div class="day-num">21</div>
+                                </div>
+                                <div class="day-tasks">
+                                    <div class="mini-task low">Video editing</div>
+                                </div>
+                            </div>
+                            <div class="day-col">
+                                <div class="day-header">
+                                    <div class="day-name">Sun</div>
+                                    <div class="day-num">22</div>
+                                </div>
+                                <div class="day-tasks">
+                                    <div class="mini-task low">Rest day</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="view-monthly" class="view hidden">
+                    <div class="page-title">February 2026</div>
+                    <div class="page-subtitle">Monthly calendar view</div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        let draggedItem = null;
+        const goalList = document.getElementById('goal-list');
+        
+        document.querySelectorAll('.goal').forEach(goal => {
+            goal.addEventListener('dragstart', function(e) {
+                draggedItem = this;
+                this.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            
+            goal.addEventListener('dragend', function() {
+                this.classList.remove('dragging');
+                saveGoalOrder();
+            });
+            
+            goal.addEventListener('dragover', function(e) {
+                e.preventDefault();
+            });
+            
+            goal.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (this !== draggedItem) {
+                    const allGoals = [...goalList.querySelectorAll('.goal')];
+                    const draggedIndex = allGoals.indexOf(draggedItem);
+                    const droppedIndex = allGoals.indexOf(this);
+                    
+                    if (draggedIndex < droppedIndex) {
+                        this.after(draggedItem);
+                    } else {
+                        this.before(draggedItem);
+                    }
+                    saveGoalOrder();
+                }
+            });
+        });
+        
+        function saveGoalOrder() {
+            const order = [...document.querySelectorAll('.goal')].map(g => g.dataset.goal);
+            localStorage.setItem('goalOrder', JSON.stringify(order));
+        }
+        
+        function selectGoal(goal) {
+            document.querySelectorAll('.goal').forEach(g => g.classList.remove('active'));
+            document.querySelector('[data-goal="' + goal + '"]').classList.add('active');
+        }
+        
+        function setView(view) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.getElementById('view-' + view).classList.remove('hidden');
+            document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        }
+        
+        function toggleTask(el) {
+            el.style.opacity = el.style.opacity === '0.5' ? '1' : '0.5';
+        }
+        
+        function quickAdd() {
+            const input = document.getElementById('quickInput');
+            if (input.value.trim()) {
+                input.value = '';
+                alert('Task added!');
+            }
+        }
+        
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        
+        const savedOrder = localStorage.getItem('goalOrder');
+        if (savedOrder) {
+            const order = JSON.parse(savedOrder);
+            order.forEach(goalId => {
+                const goal = document.querySelector('[data-goal="' + goalId + '"]');
+                if (goal) goalList.appendChild(goal);
+            });
+        }
+    </script>
+</body>
+</html>
