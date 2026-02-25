@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goals Dashboard - Happyisbot Tasks & Milestones</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <span class="font-bold text-white">H</span>
+                    </div>
+                    <h1 class="font-bold text-xl">Goals Dashboard</h1>
+                </div>
+                <div class="flex gap-4">
+                    <a href="#overview" class="text-gray-300 hover:text-white transition-colors">Overview</a>
+                    <a href="#cron" class="text-gray-300 hover:text-white transition-colors">Cron Jobs</a>
+                    <a href="#tasks" class="text-gray-300 hover:text-white transition-colors">Tasks</a>
+                    <a href="#milestones" class="text-gray-300 hover:text-white transition-colors">Milestones</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- OVERVIEW SECTION (At-a-glance) -->
+        <section id="overview" class="mb-12 fade-in">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-blue-500 rounded-full"></span>
+                Today's Overview
+            </h2>
+            
+            <!-- Stats Cards -->
+            <div class="grid md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <div class="text-3xl font-bold text-blue-400" id="completed-count">0</div>
+                    <div class="text-gray-400 text-sm">Completed Yesterday</div>
+                </div>
+                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <div class="text-3xl font-bold text-yellow-400" id="planned-count">0</div>
+                    <div class="text-gray-400 text-sm">Planned Today</div>
+                </div>
+                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <div class="text-3xl font-bold text-green-400" id="cron-count">4</div>
+                    <div class="text-gray-400 text-sm">Active Cron Jobs</div>
+                </div>
+                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <div class="text-3xl font-bold text-purple-400" id="milestone-count">0</div>
+                    <div class="text-gray-400 text-sm">Today's Milestones</div>
+                </div>
+            </div>
+
+            <!-- Quick Status -->
+            <div class="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-xl p-6 border border-blue-800">
+                <h3 class="font-bold text-lg mb-3">Current Status</h3>
+                <p class="text-gray-300" id="status-text">Loading status...</p>
+            </div>
+        </section>
+
+        <!-- CRON JOBS SECTION -->
+        <section id="cron" class="mb-12 fade-in">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-green-500 rounded-full"></span>
+                Scheduled Cron Jobs (Overnight Tasks)
+            </h2>
+            
+            <div class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-700/50">
+                            <tr>
+                                <th class="text-left p-4 font-semibold">Job Name</th>
+                                <th class="text-left p-4 font-semibold">Schedule</th>
+                                <th class="text-left p-4 font-semibold">Status</th>
+                                <th class="text-left p-4 font-semibold">Last Run</th>
+                                <th class="text-left p-4 font-semibold">Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700" id="cron-table">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TASKS SECTION -->
+        <section id="tasks" class="mb-12 fade-in">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-yellow-500 rounded-full"></span>
+                Task Tracking
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Yesterday's Completed -->
+                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <h3 class="font-bold text-lg mb-4 text-green-400 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Completed Yesterday (Feb 24)
+                    </h3>
+                    <ul class="space-y-3" id="completed-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+                
+                <!-- Today's Planned -->
+                <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                    <h3 class="font-bold text-lg mb-4 text-yellow-400 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Planned Today (Feb 25)
+                    </h3>
+                    <ul class="space-y-3" id="planned-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- MILESTONES SECTION -->
+        <section id="milestones" class="mb-12 fade-in">
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <span class="w-2 h-8 bg-purple-500 rounded-full"></span>
+                Daily Milestones (2 AM Check-in)
+            </h2>
+            
+            <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg">Today's 2 AM Milestones</h3>
+                    <span class="text-sm text-gray-400">Updated: Feb 25, 2:00 AM ET</span>
+                </div>
+                <div class="space-y-4" id="milestones-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="text-center text-gray-500 text-sm py-8 border-t border-gray-800">
+            <p>Last updated: <span id="last-updated"></span></p>
+            <p class="mt-2">Auto-refreshes every 5 minutes</p>
+        </footer>
+    </main>
+
+    <script>
+        // Data Store
+        const dashboardData = {
+            // Cron Jobs (Scheduled overnight tasks)
+            cronJobs: [
+                {
+                    name: "Daily London Creative Jobs",
+                    schedule: "2:00 PM UK (Daily)",
+                    status: "Active ✅",
+                    lastRun: "Today 2:34 PM",
+                    purpose: "Send 5 creative roles + 3 travel jobs"
+                },
+                {
+                    name: "Daily AI Video Jobs",
+                    schedule: "10:00 AM ET (Daily)",
+                    status: "Active ✅",
+                    lastRun: "Today 3:04 PM",
+                    purpose: "Send AI video/editor job listings"
+                },
+                {
+                    name: "AgentMail Email Monitor",
+                    schedule: "Every 30 minutes",
+                    status: "Active ✅",
+                    lastRun: "5 mins ago",
+                    purpose: "Check for job responses & alerts"
+                },
+                {
+                    name: "Nightly Knowledge Review",
+                    schedule: "11:00 PM ET (Daily)",
+                    status: "Active ✅",
+                    lastRun: "Last night 11:00 PM",
+                    purpose: "Organize daily notes into PARA system"
+                }
+            ],
+            
+            // Yesterday's Completed Tasks (Feb 24)
+            completedYesterday: [
+                { task: "Built CineWorkflow MVP", project: "CineWorkflo", time: "6 hours" },
+                { task: "Created 90 AI video prompts", project: "CineWorkflo", time: "2 hours" },
+                { task: "Deployed to Netlify + custom domain", project: "CineWorkflo", time: "1 hour" },
+                { task: "Set up GitHub repo", project: "CineWorkflo", time: "30 min" },
+                { task: "Added Shot-to-Prompt feature", project: "CineWorkflo", time: "1 hour" },
+                { task: "Created prompt modal viewer", project: "CineWorkflo", time: "45 min" },
+                { task: "Fixed branding (CineWorkflow → CineWorkflo)", project: "CineWorkflo", time: "30 min" },
+                { task: "Researched Higgsfield/CinemaStudio", project: "Research", time: "1 hour" },
+                { task: "Updated MEMORY.md with history", project: "Documentation", time: "45 min" },
+                { task: "Daily job emails sent", project: "Automation", time: "Auto" }
+            ],
+            
+            // Today's Planned Tasks (Feb 25)
+            plannedToday: [
+                { task: "Sign up for CinemaStudio 2.0", project: "CineWorkflo", priority: "High" },
+                { task: "Create 10 CinemaStudio shot sequences", project: "CineWorkflo", priority: "High" },
+                { task: "Add CinemaStudio section to website", project: "CineWorkflo", priority: "High" },
+                { task: "Set up Twitter account @CineWorkflo", project: "Marketing", priority: "Medium" },
+                { task: "Post first Twitter thread", project: "Marketing", priority: "Medium" },
+                { task: "Generate preview images for prompts", project: "CineWorkflo", priority: "Medium" },
+                { task: "Review Whitelabl product SEO", project: "Whitelabl", priority: "Low" },
+                { task: "Daily job emails (2 PM UK, 10 AM ET)", project: "Automation", priority: "Auto" }
+            ],
+            
+            // Daily Milestones (2 AM check-in)
+            milestones: [
+                { 
+                    milestone: "Launch CinemaStudio support", 
+                    target: "Feb 25, 6 PM",
+                    progress: 0,
+                    status: "In Progress"
+                },
+                { 
+                    milestone: "First CineWorkflo customer", 
+                    target: "Feb 28",
+                    progress: 10,
+                    status: "In Progress"
+                },
+                { 
+                    milestone: "100 Twitter followers", 
+                    target: "Mar 5",
+                    progress: 0,
+                    status: "Not Started"
+                },
+                { 
+                    milestone: "$1K MRR", 
+                    target: "Mar 31",
+                    progress: 0,
+                    status: "Not Started"
+                }
+            ]
+        };
+
+        // Render Functions
+        function renderCronJobs() {
+            const tbody = document.getElementById('cron-table');
+            tbody.innerHTML = dashboardData.cronJobs.map(job => `
+                <tr class="hover:bg-gray-700/50 transition-colors">
+                    <td class="p-4 font-medium text-white">${job.name}</td>
+                    <td class="p-4 text-gray-300">${job.schedule}</td>
+                    <td class="p-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-900 text-green-300">
+                            ${job.status}
+                        </span>
+                    </td>
+                    <td class="p-4 text-gray-400 text-sm">${job.lastRun}</td>
+                    <td class="p-4 text-gray-300">${job.purpose}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderCompleted() {
+            const list = document.getElementById('completed-list');
+            list.innerHTML = dashboardData.completedYesterday.map(item => `
+                <li class="flex items-start gap-3 p-3 bg-gray-700/30 rounded-lg">
+                    <svg class="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <div class="flex-1">
+                        <div class="font-medium text-white">${item.task}</div>
+                        <div class="text-sm text-gray-400">${item.project} • ${item.time}</div>
+                    </div>
+                </li>
+            `).join('');
+            document.getElementById('completed-count').textContent = dashboardData.completedYesterday.length;
+        }
+
+        function renderPlanned() {
+            const list = document.getElementById('planned-list');
+            list.innerHTML = dashboardData.plannedToday.map(item => `
+                <li class="flex items-start gap-3 p-3 bg-gray-700/30 rounded-lg border-l-4 ${item.priority === 'High' ? 'border-red-500' : item.priority === 'Medium' ? 'border-yellow-500' : 'border-gray-500'}">
+                    <svg class="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="flex-1">
+                        <div class="font-medium text-white">${item.task}</div>
+                        <div class="text-sm text-gray-400">${item.project} • ${item.priority} Priority</div>
+                    </div>
+                </li>
+            `).join('');
+            document.getElementById('planned-count').textContent = dashboardData.plannedToday.length;
+        }
+
+        function renderMilestones() {
+            const list = document.getElementById('milestones-list');
+            list.innerHTML = dashboardData.milestones.map(item => `
+                <div class="bg-gray-700/30 rounded-lg p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-medium text-white">${item.milestone}</span>
+                        <span class="text-xs px-2 py-1 rounded ${item.status === 'In Progress' ? 'bg-yellow-900 text-yellow-300' : 'bg-gray-700 text-gray-400'}">${item.status}</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2 mb-2">
+                        <div class="bg-blue-500 h-2 rounded-full transition-all" style="width: ${item.progress}%"></div>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-400">
+                        <span>Target: ${item.target}</span>
+                        <span>${item.progress}%</span>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('milestone-count').textContent = dashboardData.milestones.filter(m => m.status === 'In Progress').length;
+        }
+
+        function updateStatus() {
+            const completed = dashboardData.completedYesterday.length;
+            const planned = dashboardData.plannedToday.length;
+            document.getElementById('status-text').textContent = 
+                `Yesterday was productive: ${completed} tasks completed including CineWorkflow MVP launch. Today: ${planned} tasks planned including CinemaStudio integration.`;
+        }
+
+        function updateTimestamp() {
+            document.getElementById('last-updated').textContent = new Date().toLocaleString();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCronJobs();
+            renderCompleted();
+            renderPlanned();
+            renderMilestones();
+            updateStatus();
+            updateTimestamp();
+        });
+    </script>
+</body>
+</html>
