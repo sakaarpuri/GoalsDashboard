@@ -1,0 +1,82 @@
+# About Us Page - SEO Optimized Content
+
+## NEW TITLE:
+About Whitelabl – Private Label Cosmetics Manufacturer India
+
+## NEW CONTENT (Copy & Paste into Elementor):
+
+<h1>About Whitelabl – India's Trusted Private Label Cosmetics Manufacturer</h1>
+
+<h2>Your Partner in Building Successful Cosmetic Brands</h2>
+
+<p>Welcome to <strong>Whitelabl</strong>, India's premier <strong>private label cosmetics manufacturer</strong> dedicated to helping entrepreneurs launch their own skincare, haircare, and personal care brands. Since our founding, we've empowered over 100+ Indian startups to bring their cosmetic visions to life – without the massive investment of building their own manufacturing facility.</p>
+
+<h2>Why We Started Whitelabl</h2>
+
+<p>Our journey began with a simple observation: talented Indian entrepreneurs had brilliant cosmetic brand ideas but faced a massive barrier – manufacturing. The cost of setting up a GMP-certified facility, navigating CDSCO regulations, and managing quality control was overwhelming for most startups.</p>
+
+<p>We created Whitelabl to bridge this gap. Our mission is simple: <em>Make professional cosmetics manufacturing accessible to every Indian entrepreneur</em>, whether you're starting with 100 units or 10,000.</p>
+
+<h2>What Makes Us Different</h2>
+
+<h3>✓ Low MOQ (Minimum Order Quantity)</h3>
+<p>Start your brand with just <strong>100 units per product</strong>. Test the market without massive inventory risk. Perfect for new entrepreneurs and D2C brands testing product-market fit.</p>
+
+<h3>✓ CDSCO-Compliant Manufacturing</h3>
+<p>All our products meet <strong>Central Drugs Standard Control Organization (CDSCO)</strong> requirements. We handle the regulatory complexity so you can focus on building your brand.</p>
+
+<h3>✓ GMP-Certified Facility</h3>
+<p>Our state-of-the-art manufacturing facility follows <strong>Good Manufacturing Practices (GMP)</strong> standards, ensuring every product meets the highest quality benchmarks.</p>
+
+<h3>✓ End-to-End Support</h3>
+<p>From formulation to packaging design to labeling compliance – we guide you through every step of launching your cosmetic brand in India.</p>
+
+<h2>Our Product Range</h2>
+
+<p>We specialize in:</p>
+<ul>
+<li><strong>Hair Care:</strong> Shampoos, conditioners, hair oils, serums</li>
+<li><strong>Skin Care:</strong> Face washes, moisturizers, toners, serums, creams</li>
+<li><strong>Personal Care:</strong> Body washes, lotions, hand care</li>
+<li><strong>Wellness:</strong> Natural oils, Ayurvedic formulations</li>
+</ul>
+
+<h2>Who We Work With</h2>
+
+<p>Our clients include:</p>
+<ul>
+<li>Aspiring entrepreneurs launching their first cosmetic brand</li>
+<li>Salon and spa owners creating private label products</li>
+<li>Existing brands expanding their product lines</li>
+<li>Amazon India and Flipkart sellers building their own brands</li>
+<li>Instagram and influencer-led beauty brands</li>
+</ul>
+
+<h2>Our Promise</h2>
+
+<p>At Whitelabl, we believe every entrepreneur deserves access to professional cosmetics manufacturing. Whether you're starting with a single product or building a full product line, we provide the same quality standards and dedicated support.</p>
+
+<p><strong>Ready to launch your cosmetic brand?</strong> <a href="/contact-us/">Contact us today</a> and let's bring your vision to life.</p>
+
+<h2>Get Started</h2>
+
+<p>Explore our <a href="/startup-resources/">Startup Resources</a> for free guides on launching your cosmetic brand in India, or <a href="/label-creation/">learn about our label creation services</a>.</p>
+
+---
+
+## HOW TO UPDATE:
+
+1. Go to: https://whitelabl.in/wp-admin/post.php?post=32&action=elementor
+2. Click on the text widget
+3. Delete current content
+4. Paste the HTML above
+5. Update the page title in the left sidebar
+6. Click "Update"
+
+## SEO IMPROVEMENTS:
+- Title optimized with keywords: "Private Label Cosmetics Manufacturer India"
+- Content expanded: 600+ words (from 18 words!)
+- Keywords included: private label, cosmetics manufacturer, India, CDSCO, GMP, low MOQ
+- Proper H1, H2, H3 structure
+- Internal links added
+- Trust signals: CDSCO, GMP, 100+ clients

@@ -1,0 +1,422 @@
+- generic [ref=e2]:
+  - navigation "Main menu":
+    - link "Skip to main content" [ref=e3] [cursor=pointer]:
+      - /url: "#wpbody-content"
+    - link "Skip to toolbar" [ref=e4] [cursor=pointer]:
+      - /url: "#wp-toolbar"
+    - list [ref=e7]:
+      - listitem [ref=e8]:
+        - link "Hostinger" [ref=e9] [cursor=pointer]:
+          - /url: admin.php?page=hostinger
+          - generic [ref=e11]: Hostinger
+      - listitem [ref=e12]:
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: index.php
+          - generic [ref=e14]: 
+          - generic [ref=e15]: Dashboard
+      - listitem [ref=e16]:
+        - link "Elementor" [ref=e17] [cursor=pointer]:
+          - /url: admin.php?page=elementor
+          - generic [ref=e19]: Elementor
+        - list [ref=e20]:
+          - listitem [ref=e21]:
+            - link "Editor" [ref=e22] [cursor=pointer]:
+              - /url: admin.php?page=elementor
+          - listitem [ref=e23]:
+            - link "Theme Builder" [ref=e24] [cursor=pointer]:
+              - /url: https://whitelabl.in/wp-admin/admin.php?page=elementor-app&ver=3.35.5&return_to=/wp-admin/#/site-editor
+          - listitem [ref=e25]:
+            - link "Submissions" [ref=e26] [cursor=pointer]:
+              - /url: e-form-submissions
+      - listitem [ref=e27]:
+        - link "Posts" [ref=e28] [cursor=pointer]:
+          - /url: edit.php
+          - generic [ref=e29]: 
+          - generic [ref=e30]: Posts
+        - list [ref=e31]:
+          - listitem [ref=e32]:
+            - link "All Posts" [ref=e33] [cursor=pointer]:
+              - /url: edit.php
+          - listitem [ref=e34]:
+            - link "Add Post" [ref=e35] [cursor=pointer]:
+              - /url: post-new.php
+          - listitem [ref=e36]:
+            - link "Categories" [ref=e37] [cursor=pointer]:
+              - /url: edit-tags.php?taxonomy=category
+          - listitem [ref=e38]:
+            - link "Tags" [ref=e39] [cursor=pointer]:
+              - /url: edit-tags.php?taxonomy=post_tag
+      - listitem [ref=e40]:
+        - link "FAQs" [ref=e41] [cursor=pointer]:
+          - /url: edit.php?post_type=faq
+          - generic [ref=e42]: 
+          - generic [ref=e43]: FAQs
+        - list [ref=e44]:
+          - listitem [ref=e45]:
+            - link "All FAQ" [ref=e46] [cursor=pointer]:
+              - /url: edit.php?post_type=faq
+          - listitem [ref=e47]:
+            - link "Add New FAQ" [ref=e48] [cursor=pointer]:
+              - /url: post-new.php?post_type=faq
+          - listitem [ref=e49]:
+            - link "FAQ Category" [ref=e50] [cursor=pointer]:
+              - /url: edit-tags.php?taxonomy=faq_category&post_type=faq
+      - listitem [ref=e51]:
+        - link "Media" [ref=e52] [cursor=pointer]:
+          - /url: upload.php
+          - generic [ref=e53]: 
+          - generic [ref=e54]: Media
+        - list [ref=e55]:
+          - listitem [ref=e56]:
+            - link "Library" [ref=e57] [cursor=pointer]:
+              - /url: upload.php
+          - listitem [ref=e58]:
+            - link "Add Media File" [ref=e59] [cursor=pointer]:
+              - /url: media-new.php
+      - listitem [ref=e60]:
+        - link "Pages" [ref=e61] [cursor=pointer]:
+          - /url: edit.php?post_type=page
+          - generic [ref=e62]: 
+          - generic [ref=e63]: Pages
+        - list [ref=e64]:
+          - listitem [ref=e65]:
+            - link "All Pages" [ref=e66] [cursor=pointer]:
+              - /url: edit.php?post_type=page
+          - listitem [ref=e67]:
+            - link "Add Page" [ref=e68] [cursor=pointer]:
+              - /url: post-new.php?post_type=page
+      - listitem [ref=e69]:
+        - link "Comments" [ref=e70] [cursor=pointer]:
+          - /url: edit-comments.php
+          - generic [ref=e71]: 
+          - generic [ref=e72]: Comments
+      - listitem [ref=e73]:
+        - link "Products" [ref=e74] [cursor=pointer]:
+          - /url: admin.php?page=product-reviews
+          - generic [ref=e75]: 
+          - generic [ref=e76]: Products
+        - list [ref=e77]:
+          - listitem [ref=e78]:
+            - link "Reviews" [ref=e79] [cursor=pointer]:
+              - /url: edit.php?post_type=product&page=product-reviews
+      - listitem [ref=e80]
+      - text:  
+      - listitem [ref=e82]
+      - listitem [ref=e84]:
+        - link "Profile" [ref=e85] [cursor=pointer]:
+          - /url: profile.php
+          - generic [ref=e86]: 
+          - generic [ref=e87]: Profile
+      - listitem [ref=e88]:
+        - link "Tools" [ref=e89] [cursor=pointer]:
+          - /url: tools.php
+          - generic [ref=e90]: 
+          - generic [ref=e91]: Tools
+      - listitem [ref=e92]:
+        - button "Collapse Main menu" [expanded] [ref=e93] [cursor=pointer]:
+          - generic [ref=e95]: Collapse Menu
+  - generic [ref=e96]:
+    - generic [ref=e97]:
+      - navigation "Toolbar":
+        - menu:
+          - group [ref=e98]:
+            - menuitem "About WordPress" [ref=e99] [cursor=pointer]:
+              - generic [ref=e101]: About WordPress
+          - group [ref=e102]:
+            - menuitem "whitelabl.in" [ref=e103] [cursor=pointer]
+          - group [ref=e104]:
+            - menuitem "0 Comments in moderation" [ref=e105] [cursor=pointer]:
+              - generic [ref=e107]: "0"
+              - generic [ref=e108]: 0 Comments in moderation
+          - group [ref=e109]:
+            - menuitem "New" [ref=e110] [cursor=pointer]:
+              - generic [ref=e112]: New
+          - group [ref=e113]:
+            - menuitem "Hostinger" [ref=e114]:
+              - img [ref=e115]
+              - text: Hostinger
+          - group [ref=e117]:
+            - menuitem "Edit Home Page" [ref=e118] [cursor=pointer]
+        - menu [ref=e119]:
+          - group [ref=e120]:
+            - menuitem [ref=e121] [cursor=pointer]:
+              - img [ref=e123]
+          - group [ref=e126]:
+            - menuitem "Howdy, Crawley" [ref=e127] [cursor=pointer]
+    - main [ref=e128]:
+      - generic [ref=e129]:
+        - generic [ref=e130]:
+          - button "Screen Options" [ref=e132] [cursor=pointer]
+          - button "Help" [ref=e134] [cursor=pointer]
+        - generic [ref=e135]:
+          - heading "Dashboard" [level=1] [ref=e136]
+          - generic [ref=e138]:
+            - generic [ref=e140]:
+              - generic [ref=e141]:
+                - generic [ref=e142]:
+                  - heading "Elementor Overview" [level=2] [ref=e143]
+                  - generic [ref=e144]:
+                    - button "Move up" [disabled] [ref=e145]:
+                      - generic [ref=e146]: Move up
+                    - button "Move down" [ref=e148] [cursor=pointer]:
+                      - generic [ref=e149]: Move down
+                    - 'button "Toggle panel: Elementor Overview" [expanded] [ref=e151] [cursor=pointer]':
+                      - generic [ref=e152]: "Toggle panel: Elementor Overview"
+                - generic [ref=e155]:
+                  - generic [ref=e156]:
+                    - generic [ref=e159]: 
+                    - generic [ref=e160]:
+                      - generic [ref=e161]: Elementor v3.35.5
+                      - generic [ref=e162]: Elementor Pro v3.29.2
+                    - link "Create New Page" [ref=e164] [cursor=pointer]:
+                      - /url: https://whitelabl.in/wp-admin/edit.php?action=elementor_new_post&post_type=page&_wpnonce=c15179914e
+                      - generic [ref=e165]: 
+                      - text: Create New Page
+                  - generic [ref=e166]:
+                    - heading "Recently Edited" [level=3] [ref=e167]
+                    - list [ref=e168]:
+                      - listitem [ref=e169]:
+                        - link "Home " [ref=e170] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/post.php?post=12&action=elementor
+                          - text: Home
+                          - generic [ref=e171]: 
+                        - text: Aug 26th, 11:08 am
+                      - listitem [ref=e172]:
+                        - link "Disclaimer " [ref=e173] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/post.php?post=978&action=elementor
+                          - text: Disclaimer
+                          - generic [ref=e174]: 
+                        - text: Aug 26th, 7:39 am
+                      - listitem [ref=e175]:
+                        - link "Contact Us " [ref=e176] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/post.php?post=35&action=elementor
+                          - text: Contact Us
+                          - generic [ref=e177]: 
+                        - text: Jul 20th, 4:16 am
+                  - generic [ref=e178]:
+                    - heading "News & Updates" [level=3] [ref=e179]
+                    - list [ref=e180]:
+                      - listitem [ref=e181]:
+                        - link "NEW The atomic foundation of version 4 is ready for real sites!" [ref=e182] [cursor=pointer]:
+                          - /url: https://elementor.com/blog/editor-4-beta/?utm_source=wp-overview-widget&utm_medium=wp-dash&utm_campaign=news-feed
+                        - paragraph [ref=e183]: The alpha phase is complete. Version 4 is now in beta, and the atomic foundation is ready to be used on real sites! This is the final step before the official release of version 4.0, activating the new features automatically on new sites, and becoming the default editing experience in Elementor.
+                      - listitem [ref=e184]:
+                        - 'link "NEW Introducing Elementor 3.33: Variables Manager, Custom CSS, Blend Modes, & more!" [ref=e185] [cursor=pointer]':
+                          - /url: https://elementor.com/blog/elementor-333-v4-variables-manager-custom-css/?utm_source=wp-overview-widget&utm_medium=wp-dash&utm_campaign=news-feed
+                        - paragraph [ref=e186]: Elementor 3.33 builds on the foundation of Editor V4, continuing our mission to create a faster, more scalable, and more intuitive design experience for Web Creators. With the addition of the Variables Manager, element-level Custom CSS, Background Clipping, and Blend Modes, designers have more creative precision and consistency than ever.
+                      - listitem [ref=e187]:
+                        - 'link "NEW Introducing Elementor 3.32: Transitions, Transform, Size Variables, and More" [ref=e188] [cursor=pointer]':
+                          - /url: https://elementor.com/blog/elementor-332-v4-transform-transitions/?utm_source=wp-overview-widget&utm_medium=wp-dash&utm_campaign=news-feed
+                        - paragraph [ref=e189]: Elementor 3.32 is here, accelerating Editor V4 Alpha with transform controls and layered transitions, system-wide Size Variables and streamlined class management. This release empowers you to build more consistent, dynamic, and professional websites.
+                  - list [ref=e191]:
+                    - listitem [ref=e192]:
+                      - link "Blog (opens in a new window)" [ref=e193] [cursor=pointer]:
+                        - /url: https://go.elementor.com/overview-widget-blog/
+                        - text: Blog
+                        - generic [ref=e194]: (opens in a new window)
+                        - generic [ref=e195]: 
+                    - listitem [ref=e196]:
+                      - link "Help (opens in a new window)" [ref=e197] [cursor=pointer]:
+                        - /url: https://go.elementor.com/overview-widget-docs/
+                        - text: Help
+                        - generic [ref=e198]: (opens in a new window)
+                        - generic [ref=e199]: 
+                    - listitem [ref=e200]:
+                      - link "Build Smart with AI (opens in a new window)" [ref=e201] [cursor=pointer]:
+                        - /url: https://go.elementor.com/overview-widget-ai/
+                        - text: Build Smart with AI
+                        - generic [ref=e202]: (opens in a new window)
+                        - generic [ref=e203]: 
+              - generic [ref=e204]:
+                - generic [ref=e205]:
+                  - heading "At a Glance" [level=2] [ref=e206]
+                  - generic [ref=e207]:
+                    - button "Move up" [ref=e208] [cursor=pointer]:
+                      - generic [ref=e209]: Move up
+                    - button "Move down" [ref=e211] [cursor=pointer]:
+                      - generic [ref=e212]: Move down
+                    - 'button "Toggle panel: At a Glance" [expanded] [ref=e214] [cursor=pointer]':
+                      - generic [ref=e215]: "Toggle panel: At a Glance"
+                - generic [ref=e218]:
+                  - list [ref=e219]:
+                    - listitem [ref=e220]:
+                      - link "1 Post" [ref=e221] [cursor=pointer]:
+                        - /url: edit.php?post_type=post
+                    - listitem [ref=e222]:
+                      - link "16 Pages" [ref=e223] [cursor=pointer]:
+                        - /url: edit.php?post_type=page
+                    - listitem [ref=e224]:
+                      - link "1 Comment" [ref=e225] [cursor=pointer]:
+                        - /url: edit-comments.php
+                  - paragraph [ref=e226]: WordPress 6.9.1 running Astra theme.
+              - generic [ref=e227]:
+                - generic [ref=e228]:
+                  - heading "Activity" [level=2] [ref=e229]
+                  - generic [ref=e230]:
+                    - button "Move up" [ref=e231] [cursor=pointer]:
+                      - generic [ref=e232]: Move up
+                    - button "Move down" [ref=e234] [cursor=pointer]:
+                      - generic [ref=e235]: Move down
+                    - 'button "Toggle panel: Activity" [expanded] [ref=e237] [cursor=pointer]':
+                      - generic [ref=e238]: "Toggle panel: Activity"
+                - generic [ref=e241]:
+                  - generic [ref=e242]:
+                    - heading "Recently Published" [level=3] [ref=e243]
+                    - list [ref=e244]:
+                      - listitem [ref=e245]:
+                        - generic [ref=e246]: Sep 8th 2024, 3:12 am
+                        - link "Edit “Hello world!”" [ref=e247] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/post.php?post=1&action=edit
+                          - text: Hello world!
+                  - generic [ref=e248]:
+                    - heading "Recent Comments" [level=3] [ref=e249]
+                    - list [ref=e250]:
+                      - listitem [ref=e251]:
+                        - generic [ref=e252]:
+                          - paragraph [ref=e253]:
+                            - text: From
+                            - link "A WordPress Commenter" [ref=e255] [cursor=pointer]:
+                              - /url: https://wordpress.org/
+                            - text: "on"
+                            - link "Hello world!" [ref=e256] [cursor=pointer]:
+                              - /url: https://whitelabl.in/hello-world/
+                          - blockquote [ref=e257]:
+                            - paragraph [ref=e258]: Hi, this is a comment. To get started with moderating, editing, and deleting comments, please visit the Comments screen in…
+                          - paragraph [ref=e259]:
+                            - button "Unapprove this comment" [ref=e261] [cursor=pointer]: Unapprove
+                            - generic [ref=e262]:
+                              - text: "|"
+                              - button "Reply to this comment" [ref=e263] [cursor=pointer]: Reply
+                            - generic [ref=e264]:
+                              - text: "|"
+                              - link "Edit this comment" [ref=e265] [cursor=pointer]:
+                                - /url: comment.php?action=editcomment&c=1
+                                - text: Edit
+                            - generic [ref=e266]:
+                              - text: "|"
+                              - button "Mark this comment as spam" [ref=e267] [cursor=pointer]: Spam
+                            - generic [ref=e268]:
+                              - text: "|"
+                              - button "Move this comment to the Trash" [ref=e269] [cursor=pointer]: Trash
+                            - generic [ref=e270]:
+                              - text: "|"
+                              - link "View this comment" [ref=e271] [cursor=pointer]:
+                                - /url: https://whitelabl.in/hello-world/#comment-1
+                                - text: View
+                    - heading "View more comments" [level=3] [ref=e272]
+                    - list [ref=e273]:
+                      - listitem [ref=e274]:
+                        - link "All (1)" [ref=e275] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/edit-comments.php?comment_status=all
+                          - text: All
+                          - generic [ref=e276]: (1)
+                        - text: "|"
+                      - listitem [ref=e277]:
+                        - link "Mine (0)" [ref=e278] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/edit-comments.php?comment_status=mine&user_id=3
+                          - text: Mine
+                          - generic [ref=e279]: (0)
+                        - text: "|"
+                      - listitem [ref=e280]:
+                        - link "Pending (0)" [ref=e281] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/edit-comments.php?comment_status=moderated
+                          - text: Pending
+                          - generic [ref=e282]: (0)
+                        - text: "|"
+                      - listitem [ref=e283]:
+                        - link "Approved (1)" [ref=e284] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/edit-comments.php?comment_status=approved
+                          - text: Approved
+                          - generic [ref=e285]: (1)
+                        - text: "|"
+                      - listitem [ref=e286]:
+                        - link "Spam (0)" [ref=e287] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/edit-comments.php?comment_status=spam
+                          - text: Spam
+                          - generic [ref=e288]: (0)
+                        - text: "|"
+                      - listitem [ref=e289]:
+                        - link "Trash (0)" [ref=e290] [cursor=pointer]:
+                          - /url: https://whitelabl.in/wp-admin/edit-comments.php?comment_status=trash
+                          - text: Trash
+                          - generic [ref=e291]: (0)
+            - generic [ref=e293]:
+              - generic [ref=e294]:
+                - generic [ref=e295]:
+                  - heading "Quick Draft" [level=2] [ref=e296]:
+                    - generic [ref=e297]: Quick Draft
+                  - generic [ref=e298]:
+                    - button "Move up" [ref=e299] [cursor=pointer]:
+                      - generic [ref=e300]: Move up
+                    - button "Move down" [ref=e302] [cursor=pointer]:
+                      - generic [ref=e303]: Move down
+                    - 'button "Toggle panel: Quick Draft" [expanded] [ref=e305] [cursor=pointer]':
+                      - generic [ref=e306]:
+                        - text: "Toggle panel:"
+                        - generic [ref=e307]: Quick Draft
+                - generic [ref=e310]:
+                  - generic [ref=e311]:
+                    - generic [ref=e312]: Title
+                    - textbox "Title" [ref=e313]
+                  - generic [ref=e314]:
+                    - generic [ref=e315]: Content
+                    - textbox "Content" [ref=e316]:
+                      - /placeholder: What’s on your mind?
+                  - paragraph [ref=e317]:
+                    - button "Save Draft" [ref=e318] [cursor=pointer]
+              - generic [ref=e319]:
+                - generic [ref=e320]:
+                  - heading "WordPress Events and News" [level=2] [ref=e321]
+                  - generic [ref=e322]:
+                    - button "Move up" [ref=e323] [cursor=pointer]:
+                      - generic [ref=e324]: Move up
+                    - button "Move down" [ref=e326] [cursor=pointer]:
+                      - generic [ref=e327]: Move down
+                    - 'button "Toggle panel: WordPress Events and News" [expanded] [ref=e329] [cursor=pointer]':
+                      - generic [ref=e330]: "Toggle panel: WordPress Events and News"
+                - generic [ref=e332]:
+                  - text: 
+                  - generic [ref=e333]:
+                    - list [ref=e335]:
+                      - listitem [ref=e336]:
+                        - link "WordPress 7.0 Beta 1" [ref=e337] [cursor=pointer]:
+                          - /url: https://wordpress.org/news/2026/02/wordpress-7-0-beta-1/
+                      - listitem [ref=e338]:
+                        - link "Piloting the AI Leaders Micro-Credential" [ref=e339] [cursor=pointer]:
+                          - /url: https://wordpress.org/news/2026/02/ai-leaders-credential/
+                    - list [ref=e341]:
+                      - listitem [ref=e342]:
+                        - 'link "Matt: Claude &amp; Sonos" [ref=e343] [cursor=pointer]':
+                          - /url: https://ma.tt/2026/02/claude-sonos/
+                      - listitem [ref=e344]:
+                        - 'link "Gutenberg Times: Interactivity API, WordPress 7.0 Beta and Telex updates — Weekend Edition 358" [ref=e345] [cursor=pointer]':
+                          - /url: https://gutenbergtimes.com/interactivity-api-wordpress-7-0-beta-and-telex-updates-weekend-edition-358/
+                      - listitem [ref=e346]:
+                        - 'link "Matt: WordPress, AI, plugins, future of software engineering" [ref=e347] [cursor=pointer]':
+                          - /url: https://ma.tt/2026/02/wp-ai/
+                  - paragraph [ref=e348]:
+                    - link "Meetups (opens in a new tab)" [ref=e349] [cursor=pointer]:
+                      - /url: https://make.wordpress.org/community/meetups-landing-page
+                      - text: Meetups
+                      - generic [ref=e350]: (opens in a new tab)
+                      - generic [ref=e351]: 
+                    - text: "|"
+                    - link "WordCamps (opens in a new tab)" [ref=e352] [cursor=pointer]:
+                      - /url: https://central.wordcamp.org/schedule/
+                      - text: WordCamps
+                      - generic [ref=e353]: (opens in a new tab)
+                      - generic [ref=e354]: 
+                    - text: "|"
+                    - link "News (opens in a new tab)" [ref=e355] [cursor=pointer]:
+                      - /url: https://wordpress.org/news/
+                      - text: News
+                      - generic [ref=e356]: (opens in a new tab)
+                      - generic [ref=e357]: 
+  - contentinfo [ref=e358]:
+    - paragraph [ref=e359]:
+      - generic [ref=e360]:
+        - text: Thank you for creating with
+        - link "WordPress" [ref=e361] [cursor=pointer]:
+          - /url: https://wordpress.org/
+        - text: .
+    - paragraph [ref=e362]: Version 6.9.1

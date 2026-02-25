@@ -1,0 +1,34 @@
+- generic [active] [ref=e1]:
+  - banner:
+    - link "Skip to main content" [ref=e2] [cursor=pointer]:
+      - /url: "#main"
+      - generic [ref=e3]: Skip to main content
+  - main [ref=e5]:
+    - group [ref=e6]:
+      - generic [ref=e7]:
+        - img [ref=e8]
+        - link "Excellent 4.6 out of 5 Trustpilot" [ref=e12] [cursor=pointer]:
+          - /url: https://www.trustpilot.com/review/godaddy.com
+          - generic [ref=e13]:
+            - generic [ref=e14]:
+              - generic [ref=e15]: Excellent
+              - generic [ref=e16]: 4.6 out of 5
+            - img "Trustpilot" [ref=e18]
+    - generic [ref=e27]:
+      - heading "whitelabl.com" [level=1] [ref=e28]
+      - paragraph [ref=e29]: This domain is registered, but may still be available.
+      - button "Get this domain" [ref=e30] [cursor=pointer]:
+        - generic: Get this domain
+    - separator [ref=e31]
+    - generic [ref=e32]:
+      - generic [ref=e34]:
+        - paragraph [ref=e35]: Powered By
+        - img "A GoDaddy-Branded Afternic Logo" [ref=e36]
+      - generic [ref=e37]:
+        - button "Do not share my personal information" [ref=e38] [cursor=pointer]:
+          - generic: Do not share my personal information
+        - text: "|"
+        - button "Privacy Settings" [ref=e39] [cursor=pointer]:
+          - generic: Privacy Settings
+  - contentinfo
+  - alert [ref=e40]
