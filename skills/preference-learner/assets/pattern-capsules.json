@@ -1,0 +1,66 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-02-28T04:05:00Z",
+  "capsules": [
+    {
+      "id": "capsule-001",
+      "name": "Exact Replication vs Recreation",
+      "trigger": "User references existing implementation ('like the HTML page', 'same as X', 'match Y')",
+      "learning": "Ask explicitly: 'Copy the existing code exactly, or adapt/recreate?' Before implementing, check if there's existing code to reference.",
+      "success_rate": 0.95,
+      "times_applied": 1,
+      "last_applied": "2026-02-27T06:15:00Z",
+      "tags": ["replication", "existing-code", "clarification"]
+    },
+    {
+      "id": "capsule-002",
+      "name": "Verification Before Execution",
+      "trigger": "User phrases: 'tell me what you understood', 'confirm first', 'check with me'",
+      "learning": "Stop. Explain understanding in your own words. Wait for explicit 'yes' or correction before any action.",
+      "success_rate": 0.92,
+      "times_applied": 1,
+      "last_applied": "2026-02-27T09:45:00Z",
+      "tags": ["workflow", "confirmation", "execution-control"]
+    },
+    {
+      "id": "capsule-003",
+      "name": "Enumerate UI Elements",
+      "trigger": "User mentions UI element type without specificity ('the buttons', 'the cards', 'the links')",
+      "learning": "List all instances you found: 'I see 3 buttons: A, B, C. Update all or specific ones?'",
+      "success_rate": 0.88,
+      "times_applied": 1,
+      "last_applied": "2026-02-27T04:20:00Z",
+      "tags": ["ui-design", "ambiguity", "specificity"]
+    },
+    {
+      "id": "capsule-004",
+      "name": "Match Response to Question Specificity",
+      "trigger": "Very short/terse question from user",
+      "learning": "Short question = short answer. Provide details only if requested or obviously needed.",
+      "success_rate": 0.85,
+      "times_applied": 1,
+      "last_applied": "2026-02-27T04:26:00Z",
+      "tags": ["communication", "brevity", "question-answering"]
+    },
+    {
+      "id": "capsule-005",
+      "name": "Visual Layout Clarification",
+      "trigger": "User requests layout change ('make it compact', 'reorganize', 'change layout')",
+      "learning": "Ask for visual description: 'Stack vertically, side-by-side, or grid?' or provide ASCII mockup for confirmation.",
+      "success_rate": 0.9,
+      "times_applied": 1,
+      "last_applied": "2026-02-27T08:30:00Z",
+      "tags": ["ui-layout", "visual-design", "clarification"]
+    },
+    {
+      "id": "capsule-006",
+      "name": "Assume Unless Critical",
+      "trigger": "Low-risk task with clear requirements",
+      "learning": "For low-risk changes, proceed without asking. For destructive/irreversible actions, always confirm.",
+      "success_rate": 0.85,
+      "times_applied": 3,
+      "last_applied": "2026-02-27T04:00:00Z",
+      "tags": ["workflow", "risk-assessment", "initiative"]
+    }
+  ]
+}

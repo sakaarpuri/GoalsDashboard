@@ -1,0 +1,54 @@
+{
+  "version": "1.0",
+  "created_at": "2026-02-28T04:05:00Z",
+  "last_updated": "2026-02-28T04:05:00Z",
+  "user_id": "skaarphase",
+  "preferences": {
+    "communication": {
+      "response_length": "short_to_medium",
+      "tone": "friendly_direct",
+      "formatting": "bullet_points_preferred",
+      "examples": "minimal_examples",
+      "confirmation_style": "assume_unless_critical"
+    },
+    "technical": {
+      "code_style": "practical_over_clever",
+      "error_handling": "graceful_with_logging",
+      "testing": "minimal_viable",
+      "documentation": "just_essentials",
+      "git_commits": "frequent_small_commits"
+    },
+    "workflow": {
+      "approach": "dive_in_with_checks",
+      "review_style": "show_significant_changes",
+      "verification": "trust_but_verify",
+      "tooling": "flexible_preference_for_familiar"
+    },
+    "decision_making": {
+      "priorities": ["speed", "quality", "maintainability"],
+      "risk_tolerance": "moderate",
+      "change_appetite": "incremental",
+      "information_needs": "context_when_complex"
+    }
+  },
+  "learned_patterns": [
+    {
+      "id": "pref-001",
+      "pattern": "User prefers actions over questions for low-risk tasks",
+      "confidence": 0.85,
+      "evidence_count": 3
+    },
+    {
+      "id": "pref-002", 
+      "pattern": "User dislikes unnecessary formality ('Great question!', 'I'd be happy to help')",
+      "confidence": 0.9,
+      "evidence_count": 2
+    },
+    {
+      "id": "pref-003",
+      "pattern": "User wants verification before destructive operations",
+      "confidence": 0.95,
+      "evidence_count": 4
+    }
+  ]
+}
